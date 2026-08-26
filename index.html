@@ -1,0 +1,2075 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Portal - Integrated System</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background-color: #f1f5f9; color: #1e293b; min-height: 100vh; padding: 16px; }
+
+        .view-screen { display: none; width: 100%; max-width: 1000px; margin: 0 auto; }
+        .view-screen.active { display: block; }
+
+        .auth-container { display: flex; justify-content: center; align-items: center; min-height: 90vh; }
+        .auth-card { background: white; padding: 28px; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.06); width: 100%; max-width: 400px; }
+        .auth-card h2 { text-align: center; color: #0f172a; font-size: 22px; margin-bottom: 6px; }
+        .auth-card p.subtitle { text-align: center; color: #64748b; font-size: 13px; margin-bottom: 20px; }
+        
+        .mode-toggle { display: flex; background: #e2e8f0; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+        .mode-btn { flex: 1; border: none; padding: 10px; font-weight: bold; border-radius: 8px; cursor: pointer; background: transparent; font-size: 13px; color: #475569; }
+        .mode-btn.active { background: white; color: #2563eb; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 11px; font-weight: 700; color: #334155; text-transform: uppercase; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; background: #fff; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #2563eb; }
+
+        .btn-primary { width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 6px; }
+        .btn-success { background: #16a34a; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .btn-secondary { background: #475569; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
+        .btn-danger { background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-warning { background: #eab308; color: #000; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .btn-info { background: #0284c7; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .msg { margin-top: 12px; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; display: none; }
+
+        .header { background: #ffffff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .header h2 { font-size: 18px; color: #0f172a; }
+        .header p { font-size: 12px; color: #64748b; }
+        
+        .dashboard-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 16px; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .admin-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+        .admin-card { background: white; border-radius: 12px; padding: 24px 16px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .admin-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
+        .admin-card .icon { font-size: 38px; margin-bottom: 12px; }
+        .admin-card .title { font-size: 13px; font-weight: 700; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        @media (min-width: 768px) { .admin-grid { grid-template-columns: repeat(3, 1fr); } }
+
+        .class-nav-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
+        .nav-btn-blue { background-color: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .nav-btn-green { background-color: #16a34a; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .nav-btn-red { background-color: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        .nav-btn-gray { background-color: #4b5563; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+
+        .info-box { background-color: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; padding: 16px; border-radius: 8px; margin-top: 16px; text-align: left; }
+
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 16px; border: 1px solid #cbd5e1; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 8px 10px; border: 1px solid #cbd5e1; text-align: center; }
+        th { background: #002060; color: #ffffff; font-weight: 700; }
+        
+        .matrix-input { width: 60px; padding: 6px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center; font-weight: 600; }
+        .upload-box { border: 2px dashed #cbd5e1; border-radius: 12px; padding: 24px; text-align: center; background: #f8fafc; margin-top: 16px; }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; padding-top: 16px; border-top: 2px solid #e2e8f0; flex-wrap: wrap; gap: 10px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .modal-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 18px; }
+
+        .summary-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 16px; }
+        .summary-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px; padding: 16px; text-align: center; }
+        .summary-card h4 { font-size: 12px; color: #64748b; text-transform: uppercase; }
+        .summary-card .value { font-size: 24px; font-weight: bold; color: #0f172a; margin-top: 6px; }
+
+        /* CONTROL CARD STYLES */
+        .control-card { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 12px; padding: 18px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+        .control-info h4 { font-size: 15px; color: #0f172a; margin-bottom: 4px; }
+        .control-info p { font-size: 12px; color: #64748b; }
+        .control-actions { display: flex; align-items: center; gap: 12px; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .badge-success { background: #dcfce7; color: #15803d; }
+        .badge-danger { background: #fee2e2; color: #b91c1c; }
+
+        .toggle-switch { display: flex; align-items: center; gap: 10px; }
+        .toggle-switch input { display: none; }
+        .slider { width: 44px; height: 22px; background: #cbd5e1; border-radius: 20px; position: relative; cursor: pointer; transition: 0.3s; display: inline-block; }
+        .slider::before { content: ""; position: absolute; width: 16px; height: 16px; background: white; border-radius: 50%; top: 3px; left: 3px; transition: 0.3s; }
+        input:checked + .slider { background: #16a34a; }
+        input:checked + .slider::before { transform: translateX(22px); }
+
+        /* PRINT STYLES */
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            .view-screen, .modal, .header, .admin-grid, #adminSectionsContainer { display: none !important; }
+            #printSection { display: block !important; position: static !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            #printSection * { visibility: visible !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. AUTHENTICATION VIEW -->
+    <div id="authView" class="view-screen active">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>School Portal</h2>
+                <p class="subtitle" id="authSubtitle">Log in to access your dashboard</p>
+
+                <div class="mode-toggle">
+                    <button type="button" class="mode-btn active" id="loginTab" onclick="setAuthMode('login')">Login</button>
+                    <button type="button" class="mode-btn" id="registerTab" onclick="setAuthMode('register')">Register School</button>
+                </div>
+
+                <form id="authForm">
+                    <div class="form-group" id="roleGroup">
+                        <label>Login As</label>
+                        <select id="userRole" onchange="handleRoleChange(this.value)">
+                            <option value="admin">Headteacher / Administrator</option>
+                            <option value="teacher">Teacher</option>
+                            <option value="student">Student / Parent Portal</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="schoolGroup" style="display: none;">
+                        <label>School Name</label>
+                        <input type="text" id="schoolName" placeholder="e.g. NTUTI JUNIOR SCHOOL">
+                    </div>
+
+                    <div class="form-group" id="nameGroup" style="display: none;">
+                        <label>Headteacher Name</label>
+                        <input type="text" id="fullName" placeholder="e.g. Dr. Jane Doe">
+                    </div>
+
+                    <div class="form-group" id="emailGroup">
+                        <label id="authIdLabel">Email Address</label>
+                        <input type="text" id="email" placeholder="name@school.com" required>
+                    </div>
+
+                    <div class="form-group" id="passwordGroup">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" id="submitAuthBtn" class="btn-primary">Login</button>
+                    <div id="authMsg" class="msg"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. ADMIN DASHBOARD VIEW -->
+    <div id="adminView" class="view-screen">
+        <div class="header">
+            <div>
+                <h2 id="adminSchoolTitle">Admin Panel</h2>
+                <p id="adminNameDisplay">Headteacher</p>
+            </div>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="adminMainMenu" class="admin-grid">
+            <div class="admin-card" onclick="openAdminSection('tabRegisteredData')">
+                <div class="icon">🗂️</div><div class="title">Registered Data</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabCentralMarks')">
+                <div class="icon">📊</div><div class="title">Central Marks</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabControls')">
+                <div class="icon">🔒</div><div class="title">Marks Control & Publish</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabAnalytics')">
+                <div class="icon">📈</div><div class="title">Analytics & Trends</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabGateway')">
+                <div class="icon">📱</div><div class="title">SMS / Email Gateway</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabAuditLogs')">
+                <div class="icon">📜</div><div class="title">Audit Trail & Logs</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabExamTypes')">
+                <div class="icon">📝</div><div class="title">Exams Setup</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabClass')">
+                <div class="icon">🏫</div><div class="title">Classes</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabStudent')">
+                <div class="icon">🎓</div><div class="title">Students</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabTeacher')">
+                <div class="icon">👨‍🏫</div><div class="title">Teachers</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabSubject')">
+                <div class="icon">📚</div><div class="title">Subjects</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabAlloc')">
+                <div class="icon">🔗</div><div class="title">Allocations</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabClassList')">
+                <div class="icon">📋</div><div class="title">Class List</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabTimetable')">
+                <div class="icon">📅</div><div class="title">Timetable</div>
+            </div>
+            <div class="admin-card" onclick="openAdminSection('tabResources')">
+                <div class="icon">📂</div><div class="title">Resources</div>
+            </div>
+        </div>
+
+        <div id="adminSectionsContainer" style="display: none;">
+            <button class="btn-secondary" style="margin-bottom: 16px;" onclick="closeAdminSection()">← Back to Home Menu</button>
+            
+            <div class="dashboard-card">
+                <div id="tabRegisteredData" class="tab-pane">
+                    <h3>Registered Collections Directory</h3>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Select a category below to view, edit, or delete system records.</p>
+                    
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('teachers')">Teachers</button>
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('students')">Students</button>
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('classes')">Classes</button>
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('subjects')">Subjects</button>
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('allocations')">Allocations</button>
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('timetables')">Timetables</button>
+                        <button class="btn-secondary" onclick="loadRegisteredCollection('resources')">Resources</button>
+                    </div>
+
+                    <h4 id="collectionHeading" style="margin-top:12px; font-size:15px; color:#0f172a;">Select a collection above</h4>
+                    <div id="registeredDataContainer" class="table-responsive"></div>
+                </div>
+
+                <!-- ENHANCED MARKS CONTROL AND PUBLISH TAB -->
+                <div id="tabControls" class="tab-pane">
+                    <h3>Marks Entry Control & Publishing Settings</h3>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Manage entry permissions for teachers and push final results to the student/parent portal.</p>
+                    
+                    <div class="control-card">
+                        <div class="control-info">
+                            <h4>Teacher Marks Entry Status</h4>
+                            <p>Enable or disable teachers' ability to submit or modify student marks.</p>
+                        </div>
+                        <div class="control-actions">
+                            <span id="lockStatusBadge" class="badge badge-success">Enabled</span>
+                            <div class="toggle-switch">
+                                <label class="slider-container">
+                                    <input type="checkbox" id="lockMarksToggle" onchange="savePortalSettings()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <button id="btnToggleLock" class="btn-warning" onclick="quickToggleSetting('lock')">Lock Entry Now</button>
+                        </div>
+                    </div>
+
+                    <div class="control-card">
+                        <div class="control-info">
+                            <h4>Publish Results to Parent/Student Portal</h4>
+                            <p>Make results public and visible for students and parents on their dashboard.</p>
+                        </div>
+                        <div class="control-actions">
+                            <span id="publishStatusBadge" class="badge badge-danger">Unpublished</span>
+                            <div class="toggle-switch">
+                                <label class="slider-container">
+                                    <input type="checkbox" id="publishResultsToggle" onchange="savePortalSettings()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <button id="btnTogglePublish" class="btn-success" onclick="quickToggleSetting('publish')">Publish Results Now</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabAnalytics" class="tab-pane">
+                    <h3>Analytics & Performance Tracking</h3>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">Stream performance overview and comparative metrics.</p>
+                    <div class="form-group">
+                        <label>Select Exam</label>
+                        <select id="analyticsExamSelect" onchange="renderAdminAnalytics()"></select>
+                    </div>
+                    <div id="analyticsContent" style="margin-top:16px;"></div>
+                </div>
+
+                <div id="tabGateway" class="tab-pane">
+                    <h3>SMS & Email Gateway Integration</h3>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">Broadcast results, fee statements, or announcements to parents.</p>
+                    <form id="gatewayForm">
+                        <div class="form-group">
+                            <label>Notification Type</label>
+                            <select id="gatewayType">
+                                <option value="results">Terminal Results Summary</option>
+                                <option value="fees">Fee Statements Alert</option>
+                                <option value="general">General Announcement</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Audience</label>
+                            <select id="gatewayTarget"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Message Content</label>
+                            <textarea id="gatewayMessage" rows="4" placeholder="Type message body..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Dispatch Broadcast</button>
+                    </form>
+                </div>
+
+                <div id="tabAuditLogs" class="tab-pane">
+                    <h3>System Audit Trail & Logs</h3>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">Trace of entry actions, modifications, and user activity.</p>
+                    <div id="auditLogsContainer" class="table-responsive"></div>
+                </div>
+
+                <div id="tabExamTypes" class="tab-pane">
+                    <h3>Configure Examination Types</h3>
+                    <p style="font-size:13px; color:#64748b; margin-bottom:12px;">Create exam terms for teachers to submit marks against.</p>
+                    <form id="examTypeForm">
+                        <div class="form-group">
+                            <label>Exam Name / Term Title</label>
+                            <input type="text" id="examTypeName" placeholder="e.g. END OF TERM ASSESSMENT Term 2 2026" required>
+                        </div>
+                        <button class="btn-primary" type="submit">Save Exam Type</button>
+                    </form>
+                    <div style="margin-top:20px;">
+                        <h4 style="font-size:14px; margin-bottom:8px;">Configured Exams</h4>
+                        <div id="examTypesList" class="table-responsive"></div>
+                    </div>
+                </div>
+
+                <div id="tabClass" class="tab-pane">
+                    <h3>Register Class / Stream</h3>
+                    <form id="classForm" style="margin-top:12px;">
+                        <div class="form-group"><label>Class Name</label><input type="text" id="cName" placeholder="e.g. Grade 7 X" required></div>
+                        <button class="btn-primary" type="submit">Save Class</button>
+                    </form>
+                </div>
+
+                <div id="tabSubject" class="tab-pane">
+                    <h3>Register Subject</h3>
+                    <form id="subjectForm" style="margin-top:12px;">
+                        <div class="form-group"><label>Subject Name</label><input type="text" id="subName" placeholder="e.g. Mathematics" required></div>
+                        <button class="btn-primary" type="submit">Save Subject</button>
+                    </form>
+                </div>
+
+                <div id="tabTeacher" class="tab-pane">
+                    <h3>Register Teacher</h3>
+                    <form id="teacherForm" style="margin-top:12px;">
+                        <div class="form-group"><label>FULL NAME</label><input type="text" id="tName" required placeholder=""></div>
+                        <div class="form-group"><label>EMAIL</label><input type="email" id="tEmail" required placeholder=""></div>
+                        <div class="form-group"><label>PASSWORD</label><input type="password" id="tPassword" required placeholder=""></div>
+                        <button class="btn-primary" type="submit">Register Teacher</button>
+                    </form>
+                </div>
+
+                <div id="tabStudent" class="tab-pane">
+                    <h3>Enroll Student</h3>
+                    <form id="studentForm" style="margin-top:12px;">
+                        <div class="form-group"><label>Admission No</label><input type="text" id="sAdm" required></div>
+                        <div class="form-group"><label>Full Name</label><input type="text" id="sName" required></div>
+                        <div class="form-group"><label>Class</label><select id="sClassSelect" required></select></div>
+                        <button class="btn-primary" type="submit">Enroll Student</button>
+                    </form>
+                </div>
+
+                <div id="tabAlloc" class="tab-pane">
+                    <h3>Allocate Class & Subject</h3>
+                    <form id="allocForm" style="margin-top:12px;">
+                        <div class="form-group"><label>Teacher</label><select id="allocTeacherSelect" required></select></div>
+                        <div class="form-group"><label>Class</label><select id="allocClassSelect" required></select></div>
+                        <div class="form-group"><label>Subject</label><select id="allocSubjectSelect" required></select></div>
+                        <button class="btn-primary" type="submit">Save Allocation</button>
+                    </form>
+                </div>
+
+                <div id="tabCentralMarks" class="tab-pane">
+                    <h3>Central Class Results Management</h3>
+                    
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>1. Select Exam Type</label>
+                        <select id="adminExamSelect" onchange="loadCentralMarksMatrix()">
+                            <option value="">-- Choose Exam Type --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>2. Select Class to View & Edit Pool Marks</label>
+                        <select id="mClassSelect" onchange="loadCentralMarksMatrix()"></select>
+                    </div>
+                    <div id="matrixContainer" class="table-responsive"></div>
+                    <div id="summaryStats" style="margin-top:12px; font-weight:bold; font-size:14px; color:#1e293b;"></div>
+                    <div class="action-bar" id="actionBar" style="display: none;">
+                        <button class="btn-secondary" onclick="openOptionModal('download')">📥 Download Results PDF</button>
+                        <button class="btn-success" onclick="compileResults()">⚙️ Compile Results</button>
+                        <button class="btn-secondary" onclick="openOptionModal('print')">🖨️ Print Results</button>
+                    </div>
+                </div>
+
+                <div id="tabClassList" class="tab-pane">
+                    <h3>Class List Manager</h3>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Select Class to View Registered Students</label>
+                        <select id="classListSelect" onchange="loadClassListRoster()"></select>
+                    </div>
+                    <div id="classListContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    <div class="action-bar" id="classListActionBar" style="display: none;">
+                        <button class="btn-secondary" onclick="downloadClassListPDF()">📥 Download Roster PDF</button>
+                        <button class="btn-secondary" onclick="printClassList()">🖨️ Print Class Roster</button>
+                    </div>
+                </div>
+
+                <div id="tabTimetable" class="tab-pane">
+                    <h3>Class Timetable Management</h3>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Select Class</label>
+                        <select id="timetableClassSelect" onchange="toggleTimetableUpload()"></select>
+                    </div>
+                    <div id="timetableUploadSection" style="display: none;">
+                        <div class="upload-box">
+                            <p style="font-weight:600; font-size:14px;">Upload Timetable File</p>
+                            <p style="font-size:12px; color:#64748b; margin-top:4px;">Supports PDF, Image, or Document formats (Max 800KB)</p>
+                            <input type="file" id="timetableFile" accept=".pdf,image/*,.doc,.docx">
+                            <button class="btn-primary" style="margin-top:16px; max-width:200px;" onclick="uploadTimetable()">Upload Timetable</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabResources" class="tab-pane">
+                    <h3>Class Resources & Syllabus</h3>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Select Class</label>
+                        <select id="resourcesClassSelect" onchange="toggleResourcesUpload()"></select>
+                    </div>
+                    <div id="resourcesUploadSection" style="display: none;">
+                        <div class="upload-box">
+                            <p style="font-weight:600; font-size:14px;">Upload Learning Resources</p>
+                            <p style="font-size:12px; color:#64748b; margin-top:4px;">Upload notes, past papers, or syllabus materials (Max 800KB)</p>
+                            <input type="file" id="resourceFile" accept=".pdf,.doc,.docx,.ppt,.pptx,image/*">
+                            <button class="btn-primary" style="margin-top:16px; max-width:200px;" onclick="uploadResource()">Upload File</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. TEACHER DASHBOARD VIEW -->
+    <div id="teacherView" class="view-screen">
+        <div class="header">
+            <div>
+                <h2>Teacher Portal</h2>
+                <p id="teacherNameDisplay">Teacher</p>
+            </div>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="teacherMainMenu" class="admin-grid">
+            <div class="admin-card" onclick="openTeacherSection('tTabClasses')">
+                <div class="icon">🏫</div><div class="title">Classes</div>
+            </div>
+            <div class="admin-card" onclick="openTeacherSection('tTabClassList')">
+                <div class="icon">📋</div><div class="title">Class List</div>
+            </div>
+            <div class="admin-card" onclick="openTeacherSection('tTabTimetable')">
+                <div class="icon">📅</div><div class="title">Timetable</div>
+            </div>
+            <div class="admin-card" onclick="openTeacherSection('tTabResources')">
+                <div class="icon">📂</div><div class="title">Resources</div>
+            </div>
+        </div>
+
+        <div id="teacherSectionsContainer" style="display: none;">
+            <button class="btn-secondary" style="margin-bottom: 16px;" onclick="closeTeacherSection()">← Back to Main Menu</button>
+
+            <div class="dashboard-card">
+                <div id="tTabClasses" class="tab-pane">
+                    <h3>My Allocated Classes & Subjects</h3>
+                    <div id="teacherAllocationsList" style="margin-top:16px; display:flex; flex-direction:column; gap:10px;"></div>
+                </div>
+
+                <div id="tTabClassActions" class="tab-pane">
+                    <button class="btn-warning" onclick="openTeacherSection('tTabClasses')">← back to classes</button>
+                    
+                    <h3 id="selectedClassNameHeading" style="margin-top:14px; text-align:center;"></h3>
+                    
+                    <div class="class-nav-group">
+                        <button class="nav-btn-blue" onclick="openTeacherSubFeature('summary')">CLASS SUMMARY</button>
+                        <button class="nav-btn-blue" onclick="openTeacherSubFeature('classlist')">CLASSLIST</button>
+                        <button class="nav-btn-green" onclick="openTeacherSubFeature('teachers')">CLASS TEACHERS</button>
+                        <button class="nav-btn-green" onclick="openTeacherSubFeature('marksEntry')">SUBJECT MARKS ENTRY</button>
+                        <button class="nav-btn-blue" onclick="openTeacherSubFeature('bulkImport')">BULK CSV IMPORT</button>
+                        <button class="nav-btn-blue" onclick="openTeacherSubFeature('comments')">FORM TUTOR COMMENTS</button>
+                        <button class="nav-btn-red" onclick="openTeacherSubFeature('performance')">STRUGGLING STUDENTS</button>
+                        <button class="nav-btn-red" onclick="openTeacherSubFeature('accounts')">CLASS ACCOUNTS</button>
+                        <button class="nav-btn-gray" onclick="openTeacherSubFeature('reports')">REPORT FORMS</button>
+                    </div>
+
+                    <div id="marksEntrySubPanel" style="display:none; margin-top:20px;">
+                        <h2 id="marksEntryTitle" style="font-size:18px; color:#1e293b;">Enter Subject Scores</h2>
+                        
+                        <div class="form-group" style="margin-top:12px;">
+                            <label style="font-size:13px; text-transform:none; font-weight:bold;">Select Admin Defined Exam</label>
+                            <select id="examSelect" onchange="handleExamSelection(this.value)">
+                                <option value="">-- Loading Exams... --</option>
+                            </select>
+                        </div>
+
+                        <div id="examPromptBox" class="info-box">
+                            Please select an exam above to load the learners list and enter scores.
+                        </div>
+
+                        <div id="teacherMarksFormSection" style="display:none; margin-top:16px;">
+                            <div id="teacherMarksContainer"></div>
+                            <button id="saveTeacherMarksBtn" class="btn-primary" style="margin-top:16px;" onclick="saveTeacherMarks()">Save Marks to Central Pool</button>
+                        </div>
+                    </div>
+
+                    <div id="otherSubFeatureContent" style="display:none; margin-top:16px;"></div>
+                </div>
+
+                <div id="tTabClassList" class="tab-pane">
+                    <h3>View Class Roster</h3>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Select Class</label>
+                        <select id="tClassListSelect" onchange="loadTeacherClassRoster()"></select>
+                    </div>
+                    <div id="tClassListContainer" class="table-responsive" style="margin-top:16px;"></div>
+                </div>
+
+                <div id="tTabTimetable" class="tab-pane">
+                    <h3>View Class Timetable</h3>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Select Class</label>
+                        <select id="tTimetableClassSelect" onchange="viewTeacherTimetable()"></select>
+                    </div>
+                    <div id="tTimetableDisplay" style="margin-top:16px;"></div>
+                </div>
+
+                <div id="tTabResources" class="tab-pane">
+                    <h3>Class Learning Resources</h3>
+                    <div class="form-group" style="margin-top:12px;">
+                        <label>Select Class</label>
+                        <select id="tResourcesClassSelect" onchange="viewTeacherResources()"></select>
+                    </div>
+                    <div id="tResourcesDisplay" style="margin-top:16px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. STUDENT / PARENT PORTAL VIEW -->
+    <div id="studentView" class="view-screen">
+        <div class="header">
+            <div>
+                <h2 id="studentPortalTitle">Student & Parent Portal</h2>
+                <p id="studentNameDisplay">Learner</p>
+            </div>
+            <button class="btn-danger" onclick="logout()">Logout</button>
+        </div>
+        <div class="dashboard-card">
+            <div id="studentPortalContent"></div>
+        </div>
+    </div>
+
+    <!-- MODAL FOR DOWNLOAD/PRINT SCOPE -->
+    <div id="optionModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Select Option</h3>
+            <p style="font-size:13px; color:#64748b;">Choose the format you wish to generate:</p>
+            <div class="modal-buttons">
+                <button class="btn-primary" onclick="handleOptionSelection('individual')">Individual Results (Report Forms)</button>
+                <button class="btn-success" onclick="handleOptionSelection('class')">Class Master Results Sheet</button>
+                <button class="btn-danger" onclick="closeOptionModal()" style="margin-top:4px;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="printSection" style="display:none; padding:20px;"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBrCEgXwZdF69dgeo79KURnrwD5g6djoy8",
+            authDomain: "my-result-820fa.firebaseapp.com",
+            projectId: "my-result-820fa",
+            storageBucket: "my-result-820fa.firebasestorage.app",
+            messagingSenderId: "850179970630",
+            appId: "1:850179970630:web:642a4c8e038eb0654d9c47"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        let secApp;
+        try {
+            secApp = firebase.app("Secondary");
+        } catch (e) {
+            secApp = firebase.initializeApp(firebaseConfig, "Secondary");
+        }
+        const secAuth = secApp.auth();
+
+        auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+        secAuth.setPersistence(firebase.auth.Auth.Persistence.NONE);
+
+        let currentSchoolId = "";
+        let currentSchoolName = "NTUTI JUNIOR SCHOOL";
+        let currentAuthMode = "login";
+        let activeActionType = ""; 
+        let cachedSubjects = [];
+        let cachedStudents = [];
+        let compiledClassMean = 0;
+
+        let selectedTeacherClass = "";
+        let selectedTeacherSubject = "";
+
+        let timetableUnsubscribe = null;
+        let resourcesUnsubscribe = null;
+        let currentStudentData = null;
+        let currentUserDisplayName = "System User";
+
+        function logout() {
+            auth.signOut().then(() => {
+                currentStudentData = null;
+                showView("authView");
+            });
+        }
+
+        function handleRoleChange(role) {
+            const registerTabBtn = document.getElementById("registerTab");
+            const emailGroup = document.getElementById("emailGroup");
+            const passwordGroup = document.getElementById("passwordGroup");
+            const authIdLabel = document.getElementById("authIdLabel");
+
+            if (role === "teacher" || role === "student") {
+                registerTabBtn.style.display = "none";
+                setAuthMode("login");
+            } else {
+                registerTabBtn.style.display = "block";
+            }
+
+            if (role === "student") {
+                authIdLabel.textContent = "Admission / Registration Number";
+                document.getElementById("email").placeholder = "e.g. ADM-001";
+                passwordGroup.style.display = "none";
+            } else {
+                authIdLabel.textContent = "Email Address";
+                document.getElementById("email").placeholder = "name@school.com";
+                passwordGroup.style.display = "block";
+            }
+        }
+
+        function setAuthMode(mode) {
+            currentAuthMode = mode;
+            document.getElementById("loginTab").classList.toggle("active", mode === "login");
+            document.getElementById("registerTab").classList.toggle("active", mode === "register");
+            document.getElementById("roleGroup").style.display = mode === "register" ? "none" : "block";
+            document.getElementById("schoolGroup").style.display = mode === "register" ? "block" : "none";
+            document.getElementById("nameGroup").style.display = mode === "register" ? "block" : "none";
+            document.getElementById("submitAuthBtn").textContent = mode === "register" ? "Register & Create Portal" : "Login";
+            document.getElementById("authSubtitle").textContent = mode === "register" ? "Create a multi-tenant school portal" : "Log in to access your dashboard";
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.view-screen').forEach(v => v.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+        }
+
+        function openAdminSection(tabId) {
+            document.getElementById('adminMainMenu').style.display = 'none';
+            document.getElementById('adminSectionsContainer').style.display = 'block';
+            document.querySelectorAll('#adminSectionsContainer .tab-pane').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if(tabId === 'tabControls') loadPortalSettings();
+            if(tabId === 'tabAuditLogs') loadAuditLogs();
+            if(tabId === 'tabAnalytics') populateAnalyticsDropdown();
+        }
+
+        function closeAdminSection() {
+            document.getElementById('adminMainMenu').style.display = 'grid';
+            document.getElementById('adminSectionsContainer').style.display = 'none';
+        }
+
+        function openTeacherSection(tabId) {
+            document.getElementById('teacherMainMenu').style.display = 'none';
+            document.getElementById('teacherSectionsContainer').style.display = 'block';
+            document.querySelectorAll('#teacherSectionsContainer .tab-pane').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function closeTeacherSection() {
+            document.getElementById('teacherMainMenu').style.display = 'grid';
+            document.getElementById('teacherSectionsContainer').style.display = 'none';
+        }
+
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                const userDoc = await db.collection("users").doc(user.uid).get();
+                if (userDoc.exists) {
+                    const uData = userDoc.data();
+                    currentUserDisplayName = uData.name || uData.email || "System User";
+                    if (uData.role === "teacher" && !uData.status) {
+                        await db.collection("users").doc(user.uid).update({ status: "active" });
+                        uData.status = "active";
+                    }
+                    if (uData.role === "teacher" && uData.status !== "active") {
+                        await auth.signOut(); alert("Your account is inactive. Contact Administrator."); return;
+                    }
+                    currentSchoolId = uData.schoolId;
+                    if(uData.schoolName) currentSchoolName = uData.schoolName;
+
+                    if (uData.role === "admin") {
+                        document.getElementById("adminSchoolTitle").textContent = uData.schoolName || "Admin Dashboard";
+                        document.getElementById("adminNameDisplay").textContent = `Headteacher: ${uData.name}`;
+                        showView("adminView");
+                        closeAdminSection();
+                        loadAdminDropdowns();
+                        loadExamTypesList();
+                    } else if (uData.role === "teacher") {
+                        document.getElementById("teacherNameDisplay").textContent = `Logged in as: ${uData.name}`;
+                        showView("teacherView");
+                        closeTeacherSection();
+                        loadTeacherPortalDropdowns(user.uid);
+                    }
+                }
+            } else if (!currentStudentData) {
+                showView("authView");
+            }
+        });
+
+        document.getElementById("authForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const emailVal = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const selectedRole = document.getElementById("userRole").value;
+            const msg = document.getElementById("authMsg");
+            msg.style.display = "none";
+
+            try {
+                if (selectedRole === "student") {
+                    const stuSnap = await db.collection("students").where("admissionNo", "==", emailVal).get();
+                    if (stuSnap.empty) {
+                        throw new Error("Invalid Admission/Registration Number.");
+                    }
+                    const sDoc = stuSnap.docs[0];
+                    currentStudentData = { id: sDoc.id, ...sDoc.data() };
+                    currentSchoolId = currentStudentData.schoolId;
+                    currentUserDisplayName = currentStudentData.name;
+                    document.getElementById("studentNameDisplay").textContent = `${currentStudentData.name} (${currentStudentData.admissionNo})`;
+                    showView("studentView");
+                    loadStudentPortal();
+                    return;
+                }
+
+                if (currentAuthMode === "register") {
+                    const schoolName = document.getElementById("schoolName").value.trim();
+                    const fullName = document.getElementById("fullName").value.trim();
+                    
+                    const cred = await secAuth.createUserWithEmailAndPassword(emailVal.toLowerCase(), password);
+                    const schoolRef = db.collection("schools").doc();
+                    await schoolRef.set({ schoolName, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                    await db.collection("users").doc(cred.user.uid).set({
+                        name: fullName, email: emailVal.toLowerCase(), role: "admin", schoolId: schoolRef.id, schoolName: schoolName, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                    await secAuth.signOut();
+
+                    alert("School registered successfully! You can now log in with your credentials.");
+                    
+                    document.getElementById("authForm").reset();
+                    setAuthMode("login");
+                    
+                    msg.style.display = "block"; 
+                    msg.style.background = "#f0fdf4"; 
+                    msg.style.color = "#16a34a"; 
+                    msg.textContent = "School registered successfully! Please log in below.";
+                } else {
+                    await auth.setPersistence(firebase.auth.Auth.Persistence.SESSION);
+                    const cred = await auth.signInWithEmailAndPassword(emailVal.toLowerCase(), password);
+                    const userDoc = await db.collection("users").doc(cred.user.uid).get();
+                    if (!userDoc.exists || userDoc.data().role !== selectedRole) {
+                        await auth.signOut(); throw new Error(`Account is not registered as a ${selectedRole}.`);
+                    }
+                }
+            } catch (err) {
+                msg.style.display = "block"; msg.style.background = "#fef2f2"; msg.style.color = "#dc2626"; msg.textContent = err.message;
+            }
+        });
+
+        // ------------------ REGISTERED COLLECTION MANAGEMENT ------------------
+        async function loadRegisteredCollection(colType) {
+            const container = document.getElementById("registeredDataContainer");
+            const heading = document.getElementById("collectionHeading");
+            container.innerHTML = "<p style='padding:10px;'>Loading collection records...</p>";
+
+            let snap, html = "";
+            if (colType === 'teachers') {
+                heading.textContent = "Registered Teachers";
+                snap = await db.collection("users").where("schoolId", "==", currentSchoolId).where("role", "==", "teacher").get();
+                html = `<table><thead><tr><th>Name</th><th>Email</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const safeName = (item.name || "").replace(/'/g, "\\'");
+                    html += `<tr>
+                        <td style="text-align:left;">${item.name}</td>
+                        <td>${item.email}</td>
+                        <td>
+                            <button class="btn-warning" onclick="editRecord('users', '${d.id}', '${safeName}')">Edit</button>
+                            <button class="btn-danger" onclick="deleteRecord('users', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            } else if (colType === 'students') {
+                heading.textContent = "Registered Students";
+                snap = await db.collection("students").where("schoolId", "==", currentSchoolId).get();
+                html = `<table><thead><tr><th>Adm No</th><th>Name</th><th>Class</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const safeName = (item.name || "").replace(/'/g, "\\'");
+                    html += `<tr>
+                        <td><strong>${item.admissionNo}</strong></td>
+                        <td style="text-align:left;">${item.name}</td>
+                        <td>${item.className}</td>
+                        <td>
+                            <button class="btn-warning" onclick="editRecord('students', '${d.id}', '${safeName}')">Edit</button>
+                            <button class="btn-danger" onclick="deleteRecord('students', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            } else if (colType === 'classes') {
+                heading.textContent = "Registered Classes";
+                snap = await db.collection("classes").where("schoolId", "==", currentSchoolId).get();
+                html = `<table><thead><tr><th>Class Name</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const safeName = (item.className || "").replace(/'/g, "\\'");
+                    html += `<tr>
+                        <td>${item.className}</td>
+                        <td>
+                            <button class="btn-warning" onclick="editRecord('classes', '${d.id}', '${safeName}')">Edit</button>
+                            <button class="btn-danger" onclick="deleteRecord('classes', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            } else if (colType === 'subjects') {
+                heading.textContent = "Registered Subjects";
+                snap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+                html = `<table><thead><tr><th>Subject Name</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const safeName = (item.subjectName || "").replace(/'/g, "\\'");
+                    html += `<tr>
+                        <td>${item.subjectName}</td>
+                        <td>
+                            <button class="btn-warning" onclick="editRecord('subjects', '${d.id}', '${safeName}')">Edit</button>
+                            <button class="btn-danger" onclick="deleteRecord('subjects', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            } else if (colType === 'allocations') {
+                heading.textContent = "Subject Allocations";
+                const teacherSnap = await db.collection("users").where("schoolId", "==", currentSchoolId).where("role", "==", "teacher").get();
+                let teacherMap = {};
+                teacherSnap.forEach(tDoc => { teacherMap[tDoc.id] = tDoc.data().name; });
+
+                snap = await db.collection("allocations").where("schoolId", "==", currentSchoolId).get();
+                html = `<table><thead><tr><th>Teacher</th><th>Class</th><th>Subject</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const teacherName = teacherMap[item.teacherUid] || "Unknown Teacher";
+                    html += `<tr>
+                        <td style="text-align:left;"><strong>${teacherName}</strong></td>
+                        <td>${item.className}</td>
+                        <td>${item.subjectName}</td>
+                        <td>
+                            <button class="btn-danger" onclick="deleteRecord('allocations', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            } else if (colType === 'timetables') {
+                heading.textContent = "Uploaded Timetables";
+                snap = await db.collection("timetables").where("schoolId", "==", currentSchoolId).get();
+                html = `<table><thead><tr><th>Class</th><th>File Name</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const safeName = (item.fileName || "").replace(/'/g, "\\'");
+                    html += `<tr>
+                        <td><strong>${item.className}</strong></td>
+                        <td style="text-align:left;">${item.fileName}</td>
+                        <td>
+                            <button class="btn-info" onclick="viewRegisteredFile('${d.id}', 'timetables')">View</button>
+                            <button class="btn-warning" onclick="editMediaFile('timetables', '${d.id}', '${safeName}')">Edit Name</button>
+                            <button class="btn-danger" onclick="deleteRecord('timetables', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            } else if (colType === 'resources') {
+                heading.textContent = "Uploaded Learning Resources";
+                snap = await db.collection("resources").where("schoolId", "==", currentSchoolId).get();
+                html = `<table><thead><tr><th>Class</th><th>File Name</th><th>Actions</th></tr></thead><tbody>`;
+                snap.forEach(d => {
+                    const item = d.data();
+                    const safeName = (item.fileName || "").replace(/'/g, "\\'");
+                    html += `<tr>
+                        <td><strong>${item.className}</strong></td>
+                        <td style="text-align:left;">${item.fileName}</td>
+                        <td>
+                            <button class="btn-info" onclick="viewRegisteredFile('${d.id}', 'resources')">View</button>
+                            <button class="btn-warning" onclick="editMediaFile('resources', '${d.id}', '${safeName}')">Edit Name</button>
+                            <button class="btn-danger" onclick="deleteRecord('resources', '${d.id}')">Delete</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+            html += `</tbody></table>`;
+            container.innerHTML = snap.empty ? "<p style='padding:12px; color:#64748b;'>No records found in this category.</p>" : html;
+        }
+
+        async function viewRegisteredFile(id, collectionName) {
+            try {
+                const doc = await db.collection(collectionName).doc(id).get();
+                if (doc.exists && doc.data().fileData) {
+                    const newWin = window.open();
+                    newWin.document.write(`<iframe src="${doc.data().fileData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                } else {
+                    alert("File data could not be retrieved.");
+                }
+            } catch (err) {
+                alert("Error viewing file: " + err.message);
+            }
+        }
+
+        async function editMediaFile(collectionName, id, currentVal) {
+            const newVal = prompt("Update File Title / Name:", currentVal);
+            if (newVal !== null && newVal.trim() !== "") {
+                await db.collection(collectionName).doc(id).update({ fileName: newVal.trim() });
+                alert("File title updated!");
+                await loadRegisteredCollection(collectionName);
+            }
+        }
+
+        async function editRecord(collectionName, id, currentVal) {
+            const newVal = prompt("Update Record Name:", currentVal);
+            if (newVal !== null && newVal.trim() !== "") {
+                let field = (collectionName === 'users' || collectionName === 'students') ? 'name' : (collectionName === 'classes' ? 'className' : 'subjectName');
+                await db.collection(collectionName).doc(id).update({ [field]: newVal.trim() });
+                alert("Record updated successfully!");
+                await loadRegisteredCollection(collectionName === 'users' ? 'teachers' : collectionName);
+            }
+        }
+
+        async function deleteRecord(collectionName, id) {
+            if (confirm("Are you sure you want to delete this item?")) {
+                await db.collection(collectionName).doc(id).delete();
+                alert("Record deleted!");
+                await loadRegisteredCollection(collectionName === 'users' ? 'teachers' : collectionName);
+            }
+        }
+
+        // ------------------ ADMIN CONTROLS, ANALYTICS, AUDIT & GATEWAY ------------------
+        async function loadPortalSettings() {
+            const sDoc = await db.collection("settings").doc(currentSchoolId).get();
+            if (sDoc.exists) {
+                const data = sDoc.data();
+                const lockMarks = !!data.lockMarks;
+                const publishResults = !!data.publishResults;
+
+                document.getElementById("lockMarksToggle").checked = lockMarks;
+                document.getElementById("publishResultsToggle").checked = publishResults;
+                
+                updateControlUI(lockMarks, publishResults);
+            } else {
+                updateControlUI(false, false);
+            }
+        }
+
+        function updateControlUI(isLocked, isPublished) {
+            const lockBadge = document.getElementById("lockStatusBadge");
+            const btnLock = document.getElementById("btnToggleLock");
+            if (isLocked) {
+                lockBadge.textContent = "Locked";
+                lockBadge.className = "badge badge-danger";
+                btnLock.textContent = "Enable Marks Entry";
+                btnLock.className = "btn-success";
+            } else {
+                lockBadge.textContent = "Enabled";
+                lockBadge.className = "badge badge-success";
+                btnLock.textContent = "Disable Marks Entry";
+                btnLock.className = "btn-warning";
+            }
+
+            const pubBadge = document.getElementById("publishStatusBadge");
+            const btnPub = document.getElementById("btnTogglePublish");
+            if (isPublished) {
+                pubBadge.textContent = "Published";
+                pubBadge.className = "badge badge-success";
+                btnPub.textContent = "Unpublish Results";
+                btnPub.className = "btn-danger";
+            } else {
+                pubBadge.textContent = "Unpublished";
+                pubBadge.className = "badge badge-danger";
+                btnPub.textContent = "Publish Results Now";
+                btnPub.className = "btn-success";
+            }
+        }
+
+        async function quickToggleSetting(type) {
+            if (type === 'lock') {
+                const toggle = document.getElementById("lockMarksToggle");
+                toggle.checked = !toggle.checked;
+            } else if (type === 'publish') {
+                const toggle = document.getElementById("publishResultsToggle");
+                toggle.checked = !toggle.checked;
+            }
+            await savePortalSettings();
+        }
+
+        async function savePortalSettings() {
+            const lockMarks = document.getElementById("lockMarksToggle").checked;
+            const publishResults = document.getElementById("publishResultsToggle").checked;
+            
+            updateControlUI(lockMarks, publishResults);
+
+            await db.collection("settings").doc(currentSchoolId).set({
+                lockMarks, publishResults, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            
+            logAuditAction("Updated Portal Controls", `Marks Entry Locked: ${lockMarks}, Results Published: ${publishResults}`);
+        }
+
+        async function logAuditAction(action, details) {
+            if(!currentSchoolId) return;
+            await db.collection("auditLogs").add({
+                schoolId: currentSchoolId,
+                user: currentUserDisplayName,
+                action: action,
+                details: details,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        async function loadAuditLogs() {
+            const container = document.getElementById("auditLogsContainer");
+            const snap = await db.collection("auditLogs")
+                .where("schoolId", "==", currentSchoolId)
+                .get();
+            
+            if (snap.empty) {
+                container.innerHTML = "<p style='padding:12px; color:#64748b;'>No activity logs recorded yet.</p>";
+                return;
+            }
+
+            let logs = [];
+            snap.forEach(d => logs.push(d.data()));
+            logs.sort((a,b) => (b.timestamp ? b.timestamp.toMillis() : 0) - (a.timestamp ? a.timestamp.toMillis() : 0));
+
+            let html = `<table><thead><tr><th>Date & Time</th><th>User</th><th>Action</th><th>Details</th></tr></thead><tbody>`;
+            logs.forEach(l => {
+                const dateStr = l.timestamp ? new Date(l.timestamp.toMillis()).toLocaleString() : "Just now";
+                html += `<tr><td>${dateStr}</td><td><strong>${l.user || 'User'}</strong></td><td>${l.action}</td><td style="text-align:left;">${l.details}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        async function populateAnalyticsDropdown() {
+            const select = document.getElementById("analyticsExamSelect");
+            const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+            let opt = '<option value="">-- Select Exam --</option>';
+            snap.forEach(d => opt += `<option value="${d.data().examName}">${d.data().examName}</option>`);
+            select.innerHTML = opt;
+            const targetSelect = document.getElementById("gatewayTarget");
+            const cSnap = await db.collection("classes").where("schoolId", "==", currentSchoolId).get();
+            let cOpt = '<option value="all">All Parents (Entire School)</option>';
+            cSnap.forEach(d => cOpt += `<option value="${d.data().className}">${d.data().className} Parents</option>`);
+            targetSelect.innerHTML = cOpt;
+        }
+
+        async function renderAdminAnalytics() {
+            const exam = document.getElementById("analyticsExamSelect").value;
+            const container = document.getElementById("analyticsContent");
+            if (!exam) { container.innerHTML = ""; return; }
+
+            const markSnap = await db.collection("marks").where("schoolId", "==", currentSchoolId).where("examType", "==", exam).get();
+            let classScores = {};
+            markSnap.forEach(d => {
+                const m = d.data();
+                if(!classScores[m.className]) classScores[m.className] = [];
+                classScores[m.className].push(Number(m.score));
+            });
+
+            let classMeans = [];
+            let maxMean = 100;
+            for (let cName in classScores) {
+                let arr = classScores[cName];
+                let mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+                classMeans.push({ className: cName, mean: mean.toFixed(2) });
+            }
+
+            if(classMeans.length === 0) {
+                container.innerHTML = "<p style='color:#64748b;'>No marks available for selected exam.</p>";
+                return;
+            }
+
+            let svgBars = `<svg width="100%" height="200" viewBox="0 0 500 200">`;
+            let barW = 40;
+            classMeans.forEach((item, idx) => {
+                let x = 30 + idx * 70;
+                let h = (item.mean / maxMean) * 140;
+                let y = 160 - h;
+                svgBars += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="#2563eb" rx="4"/>`;
+                svgBars += `<text x="${x + barW/2}" y="${y - 6}" font-size="10" text-anchor="middle" font-weight="bold">${item.mean}</text>`;
+                svgBars += `<text x="${x + barW/2}" y="180" font-size="10" text-anchor="middle">${item.className}</text>`;
+            });
+            svgBars += `<line x1="20" y1="160" x2="480" y2="160" stroke="#cbd5e1"/>`;
+            svgBars += `</svg>`;
+
+            container.innerHTML = `<h4>Class Performance Comparison (Mean Score)</h4>${svgBars}`;
+        }
+
+        document.getElementById("gatewayForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById("gatewayMessage").value;
+            const target = document.getElementById("gatewayTarget").value;
+            const type = document.getElementById("gatewayType").value;
+
+            alert(`Broadcast Dispatched Successfully!\nType: ${type}\nRecipient: ${target}\nMessage: ${msg}`);
+            logAuditAction("SMS/Email Broadcast Dispatched", `Target: ${target}, Type: ${type}`);
+            document.getElementById("gatewayForm").reset();
+        });
+
+        // ------------------ EXAM TYPES & ADMIN HANDLERS ------------------
+        document.getElementById("examTypeForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const examName = document.getElementById("examTypeName").value.trim();
+            if (!examName) return;
+            await db.collection("examTypes").add({
+                examName: examName,
+                schoolId: currentSchoolId,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            document.getElementById("examTypeForm").reset();
+            alert("Exam Type added successfully!");
+            loadExamTypesList();
+            loadAdminDropdowns();
+        });
+
+        async function loadExamTypesList() {
+            const listContainer = document.getElementById("examTypesList");
+            const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+            if (snap.empty) {
+                listContainer.innerHTML = "<p style='padding:10px; font-size:13px; color:#64748b;'>No exams created yet.</p>";
+                return;
+            }
+            let html = `<table><thead><tr><th>#</th><th>Exam Name</th><th>Action</th></tr></thead><tbody>`;
+            let count = 1;
+            snap.forEach(doc => {
+                const ex = doc.data();
+                html += `<tr>
+                    <td>${count++}</td>
+                    <td style="text-align:left;"><strong>${ex.examName}</strong></td>
+                    <td><button class="btn-danger" onclick="deleteExamType('${doc.id}')">Delete</button></td>
+                </tr>`;
+            });
+            html += `</tbody></table>`;
+            listContainer.innerHTML = html;
+        }
+
+        async function deleteExamType(id) {
+            if (confirm("Are you sure you want to delete this exam configuration?")) {
+                await db.collection("examTypes").doc(id).delete();
+                loadExamTypesList();
+                loadAdminDropdowns();
+            }
+        }
+
+        // ------------------ ENTITY CREATION FORMS ------------------
+        document.getElementById("classForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const className = document.getElementById("cName").value.trim();
+            if (!className) return;
+            await db.collection("classes").add({ className, schoolId: currentSchoolId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById("classForm").reset();
+            alert("Class saved!");
+            loadAdminDropdowns();
+        });
+
+        document.getElementById("subjectForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const subjectName = document.getElementById("subName").value.trim();
+            if (!subjectName) return;
+            await db.collection("subjects").add({ subjectName, schoolId: currentSchoolId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById("subjectForm").reset();
+            alert("Subject saved!");
+            loadAdminDropdowns();
+        });
+
+        document.getElementById("teacherForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("tName").value.trim();
+            const email = document.getElementById("tEmail").value.trim().toLowerCase();
+            const password = document.getElementById("tPassword").value;
+            
+            try {
+                const teacherCred = await secAuth.createUserWithEmailAndPassword(email, password);
+                
+                await db.collection("users").doc(teacherCred.user.uid).set({
+                    name, 
+                    email, 
+                    role: "teacher", 
+                    schoolId: currentSchoolId, 
+                    status: "active", 
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                await secAuth.signOut();
+
+                document.getElementById("teacherForm").reset();
+                alert(`Teacher registered successfully!`);
+                loadAdminDropdowns();
+            } catch (err) {
+                alert("Error registering teacher: " + err.message);
+            }
+        });
+
+        document.getElementById("studentForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const admissionNo = document.getElementById("sAdm").value.trim();
+            const name = document.getElementById("sName").value.trim();
+            const className = document.getElementById("sClassSelect").value;
+            await db.collection("students").add({ admissionNo, name, className, schoolId: currentSchoolId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById("studentForm").reset();
+            alert("Student enrolled!");
+        });
+
+        document.getElementById("allocForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const teacherUid = document.getElementById("allocTeacherSelect").value;
+            const className = document.getElementById("allocClassSelect").value;
+            const subjectName = document.getElementById("allocSubjectSelect").value;
+            await db.collection("allocations").add({ teacherUid, className, subjectName, schoolId: currentSchoolId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            document.getElementById("allocForm").reset();
+            alert("Allocation saved!");
+        });
+
+        async function loadAdminDropdowns() {
+            const cSnap = await db.collection("classes").where("schoolId", "==", currentSchoolId).get();
+            let cOpt = '<option value="">-- Select Class --</option>';
+            cSnap.forEach(d => cOpt += `<option value="${d.data().className}">${d.data().className}</option>`);
+            
+            document.getElementById("sClassSelect").innerHTML = cOpt;
+            document.getElementById("allocClassSelect").innerHTML = cOpt;
+            document.getElementById("mClassSelect").innerHTML = cOpt;
+            document.getElementById("classListSelect").innerHTML = cOpt;
+            document.getElementById("timetableClassSelect").innerHTML = cOpt;
+            document.getElementById("resourcesClassSelect").innerHTML = cOpt;
+
+            const sSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+            let sOpt = '<option value="">-- Select Subject --</option>';
+            sSnap.forEach(d => sOpt += `<option value="${d.data().subjectName}">${d.data().subjectName}</option>`);
+            document.getElementById("allocSubjectSelect").innerHTML = sOpt;
+
+            const tSnap = await db.collection("users").where("schoolId", "==", currentSchoolId).where("role", "==", "teacher").get();
+            let tOpt = '<option value="">-- Select Teacher --</option>';
+            tSnap.forEach(d => tOpt += `<option value="${d.id}">${d.data().name}</option>`);
+            document.getElementById("allocTeacherSelect").innerHTML = tOpt;
+
+            const exSnap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+            let exOpt = '<option value="">-- Choose Exam Type --</option>';
+            exSnap.forEach(d => exOpt += `<option value="${d.data().examName}">${d.data().examName}</option>`);
+            document.getElementById("adminExamSelect").innerHTML = exOpt;
+        }
+
+        async function loadTeacherPortalDropdowns(uid) {
+            const cSnap = await db.collection("classes").where("schoolId", "==", currentSchoolId).get();
+            let cOpt = '<option value="">-- Select Class --</option>';
+            cSnap.forEach(d => cOpt += `<option value="${d.data().className}">${d.data().className}</option>`);
+            
+            document.getElementById("tClassListSelect").innerHTML = cOpt;
+            document.getElementById("tTimetableClassSelect").innerHTML = cOpt;
+            document.getElementById("tResourcesClassSelect").innerHTML = cOpt;
+
+            const allocSnap = await db.collection("allocations").where("schoolId", "==", currentSchoolId).where("teacherUid", "==", uid).get();
+            const listContainer = document.getElementById("teacherAllocationsList");
+            if (allocSnap.empty) {
+                listContainer.innerHTML = "<p style='font-size:13px; color:#64748b;'>No class or subject allocations assigned yet.</p>";
+                return;
+            }
+
+            let html = "";
+            allocSnap.forEach(doc => {
+                const data = doc.data();
+                html += `
+                    <div style="background:#f8fafc; border:1px solid #e2e8f0; padding:14px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
+                        <div>
+                            <strong style="font-size:15px; color:#0f172a;">${data.className}</strong>
+                            <p style="font-size:13px; color:#64748b;">Subject: ${data.subjectName}</p>
+                        </div>
+                        <button class="btn-primary" style="width:auto; margin-top:0;" onclick="selectTeacherClass('${data.className}', '${data.subjectName}')">Manage Class →</button>
+                    </div>`;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        function selectTeacherClass(className, subjectName) {
+            selectedTeacherClass = className;
+            selectedTeacherSubject = subjectName;
+            document.getElementById("selectedClassNameHeading").textContent = `${className} — ${subjectName}`;
+            document.getElementById("marksEntrySubPanel").style.display = "none";
+            document.getElementById("otherSubFeatureContent").style.display = "none";
+            openTeacherSection("tTabClassActions");
+        }
+
+        async function populateTeacherExamsDropdown() {
+            const examSelect = document.getElementById("examSelect");
+            const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+            if (snap.empty) {
+                examSelect.innerHTML = '<option value="">-- No Exams Configured by Admin --</option>';
+                return;
+            }
+            let opt = '<option value="">-- Choose Exam --</option>';
+            snap.forEach(d => {
+                const ex = d.data();
+                opt += `<option value="${ex.examName}">${ex.examName}</option>`;
+            });
+            examSelect.innerHTML = opt;
+        }
+
+        // ------------------ TEACHER SUB-FEATURES & CLASS SUMMARY ------------------
+        function openTeacherSubFeature(feature) {
+            const marksPanel = document.getElementById("marksEntrySubPanel");
+            const otherPanel = document.getElementById("otherSubFeatureContent");
+            marksPanel.style.display = "none";
+            otherPanel.style.display = "none";
+
+            if (feature === 'summary') {
+                otherPanel.style.display = "block";
+                loadClassSummaryView();
+            } else if (feature === 'marksEntry') {
+                marksPanel.style.display = "block";
+                document.getElementById("marksEntryTitle").textContent = `Enter Subject Scores — ${selectedTeacherClass} / ${selectedTeacherSubject}`;
+                populateTeacherExamsDropdown();
+                document.getElementById("examPromptBox").style.display = "block";
+                document.getElementById("teacherMarksFormSection").style.display = "none";
+                document.getElementById("teacherMarksContainer").innerHTML = ""; 
+            } else if (feature === 'bulkImport') {
+                otherPanel.style.display = "block";
+                renderBulkCSVFeature();
+            } else if (feature === 'comments') {
+                otherPanel.style.display = "block";
+                renderFormTutorCommentsFeature();
+            } else if (feature === 'performance') {
+                otherPanel.style.display = "block";
+                renderStrugglingStudentsFeature();
+            } else if (feature === 'classlist') {
+                otherPanel.style.display = "block";
+                loadSubFeatureClassList();
+            } else if (feature === 'teachers') {
+                otherPanel.style.display = "block";
+                otherPanel.innerHTML = `<h4>Assigned Teachers for ${selectedTeacherClass}</h4><p style="font-size:13px; margin-top:8px; color:#64748b;">Subject: ${selectedTeacherSubject} (You)</p>`;
+            } else if (feature === 'accounts') {
+                otherPanel.style.display = "block";
+                otherPanel.innerHTML = `<h4>Class Accounts - ${selectedTeacherClass}</h4><p style="font-size:13px; margin-top:8px; color:#64748b;">No outstanding fees or accounting records to show.</p>`;
+            } else if (feature === 'reports') {
+                otherPanel.style.display = "block";
+                otherPanel.innerHTML = `<h4>Report Forms - ${selectedTeacherClass}</h4><p style="font-size:13px; margin-top:8px; color:#64748b;">Class reports can be compiled and downloaded by Admin.</p>`;
+            }
+        }
+
+        async function renderFormTutorCommentsFeature() {
+            const container = document.getElementById("otherSubFeatureContent");
+            container.innerHTML = "<h4>Loading Students for Comments...</h4>";
+
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+            if (stuSnap.empty) {
+                container.innerHTML = "<p style='color:#64748b;'>No students enrolled in this class.</p>";
+                return;
+            }
+
+            let html = `<h4>Form Tutor / Class Teacher Comments — ${selectedTeacherClass}</h4><p style="font-size:12px; color:#64748b;">Write qualitative remarks to appear on report cards.</p><div style="margin-top:12px; display:flex; flex-direction:column; gap:12px;">`;
+
+            for (let doc of stuSnap.docs) {
+                const s = doc.data();
+                const commSnap = await db.collection("comments").doc(`${doc.id}_tutor`).get();
+                let existingComment = commSnap.exists ? commSnap.data().comment : "";
+                html += `
+                    <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:10px; border-radius:8px;">
+                        <strong>${s.name} (${s.admissionNo})</strong>
+                        <textarea id="comment_${doc.id}" rows="2" style="margin-top:6px;" placeholder="Enter remark...">${existingComment}</textarea>
+                        <button class="btn-success" style="margin-top:6px;" onclick="saveStudentComment('${doc.id}')">Save Remark</button>
+                    </div>`;
+            }
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        async function saveStudentComment(studentId) {
+            const comment = document.getElementById(`comment_${studentId}`).value.trim();
+            await db.collection("comments").doc(`${studentId}_tutor`).set({
+                studentId, schoolId: currentSchoolId, comment, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            alert("Comment saved!");
+            logAuditAction("Saved Student Comment", `Student ID: ${studentId}`);
+        }
+
+        async function renderBulkCSVFeature() {
+            const container = document.getElementById("otherSubFeatureContent");
+            const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+            let opt = '<option value="">-- Choose Exam --</option>';
+            snap.forEach(d => opt += `<option value="${d.data().examName}">${d.data().examName}</option>`);
+
+            container.innerHTML = `
+                <h4>Bulk CSV Import / Export — ${selectedTeacherClass} (${selectedTeacherSubject})</h4>
+                <div class="form-group" style="margin-top:10px;">
+                    <label>Select Exam Context</label>
+                    <select id="bulkExamSelect">${opt}</select>
+                </div>
+                <button class="btn-secondary" onclick="exportCSVTemplate()">📥 Download Offline CSV Template</button>
+                <div class="upload-box" style="margin-top:14px;">
+                    <p style="font-weight:bold; font-size:13px;">Upload Completed CSV Sheet</p>
+                    <input type="file" id="csvFileInput" accept=".csv" style="margin-top:8px;">
+                    <button class="btn-primary" style="margin-top:12px;" onclick="importCSVData()">Upload & Import Marks</button>
+                </div>`;
+        }
+
+        async function exportCSVTemplate() {
+            const exam = document.getElementById("bulkExamSelect").value;
+            if(!exam) { alert("Please select an exam context."); return; }
+
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+            let csvContent = "data:text/csv;charset=utf-8,AdmissionNo,StudentName,Score\n";
+            stuSnap.forEach(d => {
+                const s = d.data();
+                csvContent += `"${s.admissionNo}","${s.name}",\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `${selectedTeacherClass}_${selectedTeacherSubject}_${exam}_Template.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function importCSVData() {
+            const exam = document.getElementById("bulkExamSelect").value;
+            const fileInput = document.getElementById("csvFileInput");
+            if (!exam) { alert("Select exam first."); return; }
+            if (!fileInput.files.length) { alert("Select CSV file."); return; }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const lines = e.target.result.split("\n");
+                const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+                let stuMap = {};
+                stuSnap.forEach(d => stuMap[d.data().admissionNo] = d.id);
+
+                let count = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const row = lines[i].split(",");
+                    if (row.length >= 3) {
+                        const adm = row[0].replace(/"/g, '').trim();
+                        const scoreStr = row[2].replace(/"/g, '').trim();
+                        if (stuMap[adm] && scoreStr !== "") {
+                            const studentId = stuMap[adm];
+                            const docId = `${studentId}_${selectedTeacherSubject}_${exam.replace(/\s+/g, '_')}`;
+                            await db.collection("marks").doc(docId).set({
+                                schoolId: currentSchoolId,
+                                className: selectedTeacherClass,
+                                subjectName: selectedTeacherSubject,
+                                examType: exam,
+                                studentId: studentId,
+                                score: Number(scoreStr),
+                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                            }, { merge: true });
+                            count++;
+                        }
+                    }
+                }
+                alert(`Successfully imported ${count} marks records!`);
+                logAuditAction("Bulk CSV Import", `Class: ${selectedTeacherClass}, Subject: ${selectedTeacherSubject}, Records: ${count}`);
+            };
+            reader.readAsText(file);
+        }
+
+        async function renderStrugglingStudentsFeature() {
+            const container = document.getElementById("otherSubFeatureContent");
+            container.innerHTML = "<h4>Analyzing Performance Records...</h4>";
+
+            const markSnap = await db.collection("marks")
+                .where("schoolId", "==", currentSchoolId)
+                .where("className", "==", selectedTeacherClass)
+                .get();
+
+            let studentTotals = {};
+            let studentCounts = {};
+            markSnap.forEach(d => {
+                const m = d.data();
+                if(!studentTotals[m.studentId]) { studentTotals[m.studentId] = 0; studentCounts[m.studentId] = 0; }
+                studentTotals[m.studentId] += Number(m.score);
+                studentCounts[m.studentId]++;
+            });
+
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+            let struggling = [];
+
+            stuSnap.forEach(d => {
+                const s = d.data();
+                let cnt = studentCounts[d.id] || 0;
+                let avg = cnt > 0 ? (studentTotals[d.id] / cnt) : 0;
+                if (cnt > 0 && avg < 40) {
+                    struggling.push({ name: s.name, adm: s.admissionNo, avg: avg.toFixed(1) });
+                }
+            });
+
+            if(struggling.length === 0) {
+                container.innerHTML = `<h4>Struggling Learners Overview (< 40% threshold)</h4><p style="font-size:13px; color:#16a34a; margin-top:10px;">🎉 Great news! No students currently fall below the benchmark threshold in this class.</p>`;
+                return;
+            }
+
+            let html = `<h4>Struggling Learners Alert (< 40% Mean Threshold)</h4><table style="margin-top:10px;"><thead><tr><th>Admission No</th><th>Student Name</th><th>Current Average</th><th>Flag</th></tr></thead><tbody>`;
+            struggling.forEach(s => {
+                html += `<tr><td><strong>${s.adm}</strong></td><td style="text-align:left;">${s.name}</td><td>${s.avg}%</td><td><span style="color:#ef4444; font-weight:bold;">⚠️ Needs Intervention</span></td></tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        async function loadClassSummaryView() {
+            const otherPanel = document.getElementById("otherSubFeatureContent");
+            otherPanel.innerHTML = "<h4>Loading Class Summary...</h4>";
+
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+            const totalStudents = stuSnap.size;
+
+            const markSnap = await db.collection("marks").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+            let totalMarks = 0;
+            let markCount = 0;
+            markSnap.forEach(d => {
+                totalMarks += Number(d.data().score);
+                markCount++;
+            });
+
+            const classMean = markCount > 0 ? (totalMarks / markCount).toFixed(2) : "N/A";
+
+            otherPanel.innerHTML = `
+                <h3>Class Summary Metrics — ${selectedTeacherClass}</h3>
+                <div class="summary-card-grid">
+                    <div class="summary-card">
+                        <h4>Total Enrolled Students</h4>
+                        <div class="value">${totalStudents}</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Assigned Subject</h4>
+                        <div class="value" style="font-size:18px;">${selectedTeacherSubject}</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Class Overall Average</h4>
+                        <div class="value">${classMean}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadSubFeatureClassList() {
+            const otherPanel = document.getElementById("otherSubFeatureContent");
+            const stuSnap = await db.collection("students")
+                .where("schoolId", "==", currentSchoolId)
+                .where("className", "==", selectedTeacherClass)
+                .get();
+
+            if (stuSnap.empty) {
+                otherPanel.innerHTML = `<h4>Classlist for ${selectedTeacherClass}</h4><p style="font-size:13px; color:#64748b; margin-top:8px;">No students enrolled.</p>`;
+                return;
+            }
+
+            let html = `<h4>Classlist for ${selectedTeacherClass}</h4><table style="width:100%; border-collapse:collapse; margin-top:10px;"><thead><tr style="background:#002060; color:white;"><th>#</th><th>Adm No</th><th>Student Name</th></tr></thead><tbody>`;
+            let count = 1;
+            stuSnap.forEach(d => {
+                const s = d.data();
+                html += `<tr><td>${count++}</td><td><strong>${s.admissionNo}</strong></td><td style="text-align:left;">${s.name}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+            otherPanel.innerHTML = html;
+        }
+
+        async function handleExamSelection(examType) {
+            const promptBox = document.getElementById("examPromptBox");
+            const formSection = document.getElementById("teacherMarksFormSection");
+            if (!examType) {
+                promptBox.style.display = "block";
+                formSection.style.display = "none";
+                document.getElementById("teacherMarksContainer").innerHTML = "";
+                return;
+            }
+            promptBox.style.display = "none";
+            formSection.style.display = "block";
+            loadTeacherLearnersForMarks(examType);
+        }
+
+        async function loadTeacherLearnersForMarks(examType) {
+            const container = document.getElementById("teacherMarksContainer");
+            container.innerHTML = "<p style='font-size:13px;'>Loading students list...</p>";
+
+            const setSnap = await db.collection("settings").doc(currentSchoolId).get();
+            const isLocked = setSnap.exists && setSnap.data().lockMarks;
+
+            if (isLocked) {
+                container.innerHTML = "<div class='info-box' style='color:#dc2626; background:#fef2f2;'>🔒 Marks entry for teachers has been locked by the Administrator.</div>";
+                document.getElementById("saveTeacherMarksBtn").style.display = "none";
+                return;
+            }
+            document.getElementById("saveTeacherMarksBtn").style.display = "block";
+
+            const snap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedTeacherClass).get();
+            if (snap.empty) {
+                container.innerHTML = "<p style='font-size:13px; color:#64748b;'>No students enrolled in this class.</p>";
+                return;
+            }
+
+            let html = "";
+            for (let doc of snap.docs) {
+                const s = doc.data();
+                const markSnap = await db.collection("marks")
+                    .where("schoolId", "==", currentSchoolId)
+                    .where("studentId", "==", doc.id)
+                    .where("subjectName", "==", selectedTeacherSubject)
+                    .where("examType", "==", examType)
+                    .get();
+                    
+                let score = markSnap.empty ? "" : markSnap.docs[0].data().score;
+                html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5f9;">
+                    <div><strong>${s.name}</strong><br><small style="color:#64748b;">Adm: ${s.admissionNo}</small></div>
+                    <input type="number" class="t-mark-input" data-studentid="${doc.id}" min="0" max="100" placeholder="0-100" value="${score !== null ? score : ''}" style="width:90px; padding:8px; border:1px solid #cbd5e1; border-radius:6px; text-align:center; font-weight:bold;">
+                </div>`;
+            }
+            container.innerHTML = html;
+        }
+
+        async function saveTeacherMarks() {
+            const inputs = document.querySelectorAll(".t-mark-input");
+            const currentExam = document.getElementById("examSelect").value;
+            if(!currentExam) { alert("Please select an exam first."); return; }
+            
+            try {
+                for (let input of inputs) {
+                    const docId = `${input.dataset.studentid}_${selectedTeacherSubject}_${currentExam.replace(/\s+/g, '_')}`;
+                    if (input.value !== "") {
+                        await db.collection("marks").doc(docId).set({
+                            schoolId: currentSchoolId,
+                            className: selectedTeacherClass,
+                            subjectName: selectedTeacherSubject,
+                            examType: currentExam,
+                            studentId: input.dataset.studentid,
+                            score: Number(input.value),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                }
+                alert("Marks saved successfully to Central Pool!");
+                logAuditAction("Submitted Subject Scores", `Class: ${selectedTeacherClass}, Subject: ${selectedTeacherSubject}, Exam: ${currentExam}`);
+            } catch(err) {
+                alert("Error saving marks: " + err.message);
+            }
+        }
+
+        async function loadTeacherClassRoster() {
+            const selectedClass = document.getElementById("tClassListSelect").value;
+            const container = document.getElementById("tClassListContainer");
+            if (!selectedClass) { container.innerHTML = ""; return; }
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedClass).get();
+            if (stuSnap.empty) { container.innerHTML = "<p style='padding:12px; font-size:13px; color:#64748b;'>No registered students found.</p>"; return; }
+            let html = `<table><thead><tr><th>#</th><th>Admission No</th><th>Student Full Name</th></tr></thead><tbody>`;
+            let count = 1;
+            stuSnap.forEach(doc => {
+                const student = doc.data();
+                html += `<tr><td>${count++}</td><td><strong>${student.admissionNo}</strong></td><td style="text-align:left;">${student.name}</td></tr>`;
+            });
+            html += `</tbody></table>`;
+            container.innerHTML = html;
+        }
+
+        function viewTeacherTimetable() {
+            const selectedClass = document.getElementById("tTimetableClassSelect").value;
+            const container = document.getElementById("tTimetableDisplay");
+            if (!selectedClass) { 
+                container.innerHTML = ""; 
+                if (timetableUnsubscribe) timetableUnsubscribe();
+                return; 
+            }
+
+            container.innerHTML = `<div class="info-box">Loading timetable data...</div>`;
+
+            if (timetableUnsubscribe) timetableUnsubscribe();
+
+            timetableUnsubscribe = db.collection("timetables")
+                .where("schoolId", "==", currentSchoolId)
+                .where("className", "==", selectedClass)
+                .onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `<div class="info-box">Showing timetable data for <strong>${selectedClass}</strong>. (No timetable file uploaded by admin yet).</div>`;
+                        return;
+                    }
+
+                    let html = `<h4>Timetables for ${selectedClass}</h4><div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">`;
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        html += `
+                            <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:12px; border-radius:8px;">
+                                <strong>${data.fileName || 'Timetable File'}</strong><br>
+                                <a href="${data.fileData}" download="${data.fileName}" style="color:#2563eb; text-decoration:none; font-weight:bold; font-size:13px; margin-top:4px; display:inline-block;">View / Download Timetable Document →</a>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    container.innerHTML = html;
+                }, (error) => {
+                    container.innerHTML = `<div class="info-box" style="color:red;">Error loading timetable: ${error.message}</div>`;
+                });
+        }
+
+        function viewTeacherResources() {
+            const selectedClass = document.getElementById("tResourcesClassSelect").value;
+            const container = document.getElementById("tResourcesDisplay");
+            if (!selectedClass) { 
+                container.innerHTML = ""; 
+                if (resourcesUnsubscribe) resourcesUnsubscribe();
+                return; 
+            }
+
+            container.innerHTML = `<div class="info-box">Loading learning resources...</div>`;
+
+            if (resourcesUnsubscribe) resourcesUnsubscribe();
+
+            resourcesUnsubscribe = db.collection("resources")
+                .where("schoolId", "==", currentSchoolId)
+                .where("className", "==", selectedClass)
+                .onSnapshot((snapshot) => {
+                    if (snapshot.empty) {
+                        container.innerHTML = `<div class="info-box">Showing learning materials for <strong>${selectedClass}</strong>. (No resource files uploaded by admin yet).</div>`;
+                        return;
+                    }
+
+                    let html = `<h4>Learning Resources for ${selectedClass}</h4><div style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">`;
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        html += `
+                            <div style="background:#f8fafc; border:1px solid #cbd5e1; padding:12px; border-radius:8px;">
+                                <strong>${data.fileName || 'Resource Material'}</strong><br>
+                                <a href="${data.fileData}" download="${data.fileName}" style="color:#2563eb; text-decoration:none; font-weight:bold; font-size:13px; margin-top:4px; display:inline-block;">View / Download Attachment →</a>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                    container.innerHTML = html;
+                }, (error) => {
+                    container.innerHTML = `<div class="info-box" style="color:red;">Error loading resources: ${error.message}</div>`;
+                });
+        }
+
+        function toggleTimetableUpload() {
+            const val = document.getElementById("timetableClassSelect").value;
+            document.getElementById("timetableUploadSection").style.display = val ? "block" : "none";
+        }
+
+        function toggleResourcesUpload() {
+            const val = document.getElementById("resourcesClassSelect").value;
+            document.getElementById("resourcesUploadSection").style.display = val ? "block" : "none";
+        }
+
+        async function uploadTimetable() {
+            const selectedClass = document.getElementById("timetableClassSelect").value;
+            const fileInput = document.getElementById("timetableFile");
+            if (!selectedClass) { alert("Please select a class."); return; }
+            if (fileInput.files.length === 0) { alert("Please choose a timetable file."); return; }
+
+            const file = fileInput.files[0];
+            if (file.size > 800000) { alert("File size exceeds 800KB limit for database storage."); return; }
+
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                try {
+                    await db.collection("timetables").add({
+                        schoolId: currentSchoolId,
+                        className: selectedClass,
+                        fileName: file.name,
+                        fileData: base64Data,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert("Timetable uploaded successfully!");
+                    fileInput.value = "";
+                } catch (err) {
+                    alert("Upload failed: " + err.message);
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        async function uploadResource() {
+            const selectedClass = document.getElementById("resourcesClassSelect").value;
+            const fileInput = document.getElementById("resourceFile");
+            if (!selectedClass) { alert("Please select a class."); return; }
+            if (fileInput.files.length === 0) { alert("Please select a file to upload."); return; }
+
+            const file = fileInput.files[0];
+            if (file.size > 800000) { alert("File size exceeds 800KB limit for database storage."); return; }
+
+            const reader = new FileReader();
+
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                try {
+                    await db.collection("resources").add({
+                        schoolId: currentSchoolId,
+                        className: selectedClass,
+                        fileName: file.name,
+                        fileData: base64Data,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+
+                    alert("Resource uploaded successfully!");
+                    fileInput.value = "";
+                } catch (err) {
+                    alert("Upload failed: " + err.message);
+                }
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        // ------------------ STUDENT / PARENT PORTAL IMPLEMENTATION ------------------
+        async function loadStudentPortal() {
+            const container = document.getElementById("studentPortalContent");
+            container.innerHTML = "<h4>Loading Learner Profile & Portal Data...</h4>";
+
+            const sSet = await db.collection("settings").doc(currentSchoolId).get();
+            const isPublished = sSet.exists && sSet.data().publishResults;
+
+            let html = `
+                <div class="summary-card-grid">
+                    <div class="summary-card">
+                        <h4>Registered Student</h4>
+                        <div class="value" style="font-size:18px;">${currentStudentData.name}</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Admission No</h4>
+                        <div class="value" style="font-size:18px;">${currentStudentData.admissionNo}</div>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Current Class</h4>
+                        <div class="value" style="font-size:18px;">${currentStudentData.className}</div>
+                    </div>
+                </div><hr style="margin:16px 0;">`;
+
+            if (!isPublished) {
+                html += `<div class="info-box" style="color:#d97706; background:#fffbeb;">🔒 Terminal evaluation results have not been officially published by the school administration yet. Check back soon.</div>`;
+            } else {
+                html += `<h4>Terminal Assessment Results</h4>`;
+                const markSnap = await db.collection("marks").where("schoolId", "==", currentSchoolId).where("studentId", "==", currentStudentData.id).get();
+                if (markSnap.empty) {
+                    html += `<p style="font-size:13px; color:#64748b; margin-top:8px;">No academic scores recorded for this learner profile.</p>`;
+                } else {
+                    html += `<table style="margin-top:10px;"><thead><tr><th>Exam</th><th>Subject</th><th>Score</th><th>Grade</th></tr></thead><tbody>`;
+                    markSnap.forEach(d => {
+                        const m = d.data();
+                        const gInfo = getGradeAndPoints(m.score);
+                        html += `<tr><td>${m.examType}</td><td style="text-align:left;">${m.subjectName}</td><td><strong>${m.score}</strong></td><td style="color:${gInfo.color}; font-weight:bold;">${gInfo.grade}</td></tr>`;
+                    });
+                    html += `</tbody></table>`;
+                }
+            }
+
+            container.innerHTML = html;
+        }
+
+        async function loadClassListRoster() {
+            const selectedClass = document.getElementById("classListSelect").value;
+            const container = document.getElementById("classListContainer");
+            const actionBar = document.getElementById("classListActionBar");
+
+            if (!selectedClass) { container.innerHTML = ""; actionBar.style.display = "none"; return; }
+
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedClass).get();
+
+            if (stuSnap.empty) {
+                container.innerHTML = "<p style='padding:12px; font-size:13px; color:#64748b;'>No registered students found in this class.</p>";
+                actionBar.style.display = "none";
+                return;
+            }
+
+            let html = `
+                <div id="printableRoster">
+                    <div style="text-align:center; margin-bottom:12px;">
+                        <h2>${document.getElementById("adminSchoolTitle").textContent}</h2>
+                        <h4 style="color:#475569;">OFFICIAL CLASS ROSTER - ${selectedClass}</h4>
+                    </div>
+                    <table style="width:100%; border-collapse:collapse;">
+                        <thead>
+                            <tr style="background-color:#002060; color:white;">
+                                <th style="width: 60px; padding:6px;">#</th>
+                                <th style="padding:6px;">Admission No</th>
+                                <th style="padding:6px;">Student Full Name</th>
+                                <th style="padding:6px;">Class / Stream</th>
+                            </tr>
+                        </thead>
+                        <tbody>`;
+
+            let count = 1;
+            stuSnap.forEach(doc => {
+                const student = doc.data();
+                html += `
+                    <tr>
+                        <td style="padding:5px; text-align:center; border:1px solid #000;">${count++}</td>
+                        <td style="padding:5px; text-align:center; border:1px solid #000;"><strong>${student.admissionNo}</strong></td>
+                        <td style="padding:5px; text-align:left; border:1px solid #000;">${student.name}</td>
+                        <td style="padding:5px; text-align:center; border:1px solid #000;">${student.className}</td>
+                    </tr>`;
+            });
+
+            html += `</tbody></table></div>`;
+
+            container.innerHTML = html;
+            actionBar.style.display = "flex";
+        }
+
+        function printClassList() {
+            const printSec = document.getElementById("printSection");
+            const rosterContent = document.getElementById("printableRoster").innerHTML;
+            printSec.innerHTML = rosterContent;
+            printSec.style.display = "block";
+            window.print();
+            printSec.style.display = "none";
+        }
+
+        function downloadClassListPDF() {
+            const selectedClass = document.getElementById("classListSelect").value;
+            const rosterElement = document.getElementById("printableRoster");
+            html2pdf().set({
+                margin: 0.4,
+                filename: `${selectedClass}_Student_Roster.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            }).from(rosterElement).save();
+        }
+
+        async function loadCentralMarksMatrix() {
+            const selectedExam = document.getElementById("adminExamSelect").value;
+            const selectedClass = document.getElementById("mClassSelect").value;
+            const container = document.getElementById("matrixContainer");
+            const actionBar = document.getElementById("actionBar");
+            const stats = document.getElementById("summaryStats");
+
+            if (!selectedExam || !selectedClass) { 
+                container.innerHTML = "<p style='padding:12px; color:#64748b;'>Please select both an Exam Type and a Class to load matrix.</p>"; 
+                actionBar.style.display = "none"; 
+                stats.innerHTML = ""; 
+                return; 
+            }
+
+            const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+            cachedSubjects = subSnap.docs.map(d => d.data().subjectName);
+            const stuSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("className", "==", selectedClass).get();
+            cachedStudents = stuSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+            if (cachedStudents.length === 0) {
+                container.innerHTML = "<p style='padding:12px; font-size:13px; color:#64748b;'>No students found in this class.</p>";
+                actionBar.style.display = "none"; stats.innerHTML = ""; return;
+            }
+
+            const markSnap = await db.collection("marks")
+                .where("schoolId", "==", currentSchoolId)
+                .where("className", "==", selectedClass)
+                .where("examType", "==", selectedExam)
+                .get();
+
+            let marksData = {};
+            markSnap.forEach(d => {
+                const m = d.data();
+                if (!marksData[m.studentId]) marksData[m.studentId] = {};
+                marksData[m.studentId][m.subjectName] = m.score;
+            });
+
+            let html = `<table style="width:100%; border-collapse:collapse;"><thead><tr style="background:#002060; color:white;"><th>Student Name</th><th>Adm No</th>`;
+            cachedSubjects.forEach(sub => html += `<th>${sub}</th>`);
+            html += `<th>Total</th><th>Mean</th></tr></thead><tbody>`;
+
+            let subjectTotals = {}; let subjectCounts = {};
+            cachedSubjects.forEach(s => { subjectTotals[s] = 0; subjectCounts[s] = 0; });
+            let classTotalSum = 0; let classStudentCount = 0;
+
+            cachedStudents.forEach(stu => {
+                let studentTotal = 0; let studentSubCount = 0;
+                html += `<tr><td style="text-align:left; border:1px solid #000; padding:4px;"><strong>${stu.name}</strong></td><td style="border:1px solid #000; padding:4px;">${stu.admissionNo}</td>`;
+                cachedSubjects.forEach(sub => {
+                    let score = (marksData[stu.id] && marksData[stu.id][sub] !== undefined) ? marksData[stu.id][sub] : "";
+                    if (score !== "") {
+                        studentTotal += Number(score); studentSubCount++;
+                        subjectTotals[sub] += Number(score); subjectCounts[sub]++;
+                    }
+                    html += `<td style="border:1px solid #000; padding:2px;"><input type="number" class="matrix-input" data-studentid="${stu.id}" data-subject="${sub}" value="${score}" onchange="updateMarkDirectly(this, '${stu.id}', '${sub}')"></td>`;
+                });
+                let studentMean = studentSubCount > 0 ? (studentTotal / studentSubCount).toFixed(1) : "-";
+                if (studentSubCount > 0) { classTotalSum += Number(studentMean); classStudentCount++; }
+                html += `<td style="border:1px solid #000; padding:4px;"><strong>${studentTotal}</strong></td><td style="border:1px solid #000; padding:4px;"><strong>${studentMean}</strong></td></tr>`;
+            });
+
+            html += `<tr class="mean-row" style="background:#eff6ff;"><td colspan="2" style="border:1px solid #000; padding:4px;">Subject Means</td>`;
+            cachedSubjects.forEach(sub => {
+                let sMean = subjectCounts[sub] > 0 ? (subjectTotals[sub] / subjectCounts[sub]).toFixed(1) : "-";
+                html += `<td style="border:1px solid #000; padding:4px;">${sMean}</td>`;
+            });
+            compiledClassMean = classStudentCount > 0 ? (classTotalSum / classStudentCount).toFixed(2) : 0;
+            html += `<td colspan="2" style="border:1px solid #000; padding:4px;">Class Mean: ${compiledClassMean}</td></tr></tbody></table>`;
+            container.innerHTML = html;
+            stats.innerHTML = `Class Mean Score: <strong>${compiledClassMean}</strong> / 100`;
+            actionBar.style.display = "flex";
+        }
+
+        async function updateMarkDirectly(input, studentId, subjectName) {
+            const selectedClass = document.getElementById("mClassSelect").value;
+            const selectedExam = document.getElementById("adminExamSelect").value;
+            if(!selectedExam) { alert("Please select an exam type first."); return; }
+
+            const newScore = input.value === "" ? null : Number(input.value);
+            const docId = `${studentId}_${subjectName}_${selectedExam.replace(/\s+/g, '_')}`;
+
+            if (newScore !== null) {
+                await db.collection("marks").doc(docId).set({
+                    schoolId: currentSchoolId, className: selectedClass, examType: selectedExam, studentId: studentId, subjectName: subjectName, score: newScore, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } else { await db.collection("marks").doc(docId).delete(); }
+            logAuditAction("Admin Modified Mark", `Student ID: ${studentId}, Subject: ${subjectName}, New Score: ${newScore}`);
+            loadCentralMarksMatrix();
+        }
+
+        function compileResults() { 
+            alert("Results compiled successfully!"); 
+            logAuditAction("Compiled Results", "Triggered master compile pipeline");
+        }
+
+        function openOptionModal(type) {
+            activeActionType = type; document.getElementById("modalTitle").textContent = type === "download" ? "Download Results PDF" : "Print Results"; document.getElementById("optionModal").style.display = "flex";
+        }
+        function closeOptionModal() { document.getElementById("optionModal").style.display = "none"; }
+
+        function getGradeAndPoints(score) {
+            if (score === null || score === undefined || score === "") return { grade: "-", points: 0, color: "#64748b" };
+            const num = Number(score);
+            if (num >= 85) return { grade: "EE1", points: 8, color: "#16a34a" };
+            if (num >= 75) return { grade: "EE2", points: 7, color: "#16a34a" };
+            if (num >= 65) return { grade: "ME1", points: 6, color: "#2563eb" };
+            if (num >= 51) return { grade: "ME2", points: 5, color: "#2563eb" };
+            if (num >= 41) return { grade: "AE1", points: 4, color: "#d97706" };
+            if (num >= 26) return { grade: "AE2", points: 3, color: "#d97706" };
+            return { grade: "BE1", points: 2, color: "#dc2626" };
+        }
+    </script>
+</body>
+</html>
