@@ -14,7 +14,7 @@
         .view-screen.active { display: block; }
 
         /* PAYMENT & TIMER STYLES */
-        .paystack-wrapper {
+        .mpesa-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
@@ -246,8 +246,6 @@
         .nav-btn-red { background-color: #dc2626; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
         .nav-btn-gray { background-color: #4b5563; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; }
 
-        .info-box { background-color: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; padding: 16px; border-radius: 8px; margin-top: 16px; text-align: left; }
-
         .table-responsive { width: 100%; overflow-x: auto; margin-top: 16px; border: 1px solid #cbd5e1; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
         th, td { padding: 8px 10px; border: 1px solid #cbd5e1; text-align: center; }
@@ -278,122 +276,430 @@
         input:checked + .slider { background: #16a34a; }
         input:checked + .slider::before { transform: translateX(22px); }
 
-        /* DETAILED REPORT CARD FORM STYLES */
+        /* REPORT CARD - MATCHED TO THE PROVIDED REFERENCE */
         .report-card {
+            background: #ffffff;
             width: 100%;
-            max-width: 800px;
+            max-width: 950px;
+            min-height: 1120px;
+            padding: 22px 24px 24px 24px;
             margin: 0 auto 30px auto;
-            background-color: #ffffff;
-            border: 2px solid #1a252c;
-            padding: 24px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            page-break-after: always;
             box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
             text-align: left;
-            border-radius: 8px;
+            color: #111827;
+            page-break-after: always;
         }
 
-        .report-header {
+        .report-card .rc-header {
+            display: grid;
+            grid-template-columns: 145px 1fr 145px;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 9px;
+            border-bottom: 3px solid #111827;
+        }
+
+        .report-card .rc-logo {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #1a252c;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
+            justify-content: center;
         }
 
-        .report-header img {
-            max-height: 80px;
-            max-width: 100px;
-            object-fit: contain;
-        }
-
-        .report-header-text {
+        .report-card .rc-logo img,
+        .report-card .rc-logo .rc-logo-placeholder {
+            width: 125px;
+            height: 125px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #9ca3af;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8fafc;
+            color: #374151;
+            font-size: 11px;
+            font-weight: bold;
             text-align: center;
-            flex-grow: 1;
         }
 
-        .report-header-text h2 {
-            font-size: 20px;
+        .report-card .rc-school-info {
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        .report-card .rc-school-info h2 {
+            margin: 0 0 3px 0;
+            font-size: 25px;
+            font-weight: 800;
+            color: #111827;
             text-transform: uppercase;
-            color: #002060;
+        }
+
+        .report-card .rc-school-info p {
+            margin: 2px 0;
+            font-size: 15px;
+            color: #111827;
+        }
+
+        .report-card .rc-exam-line {
+            margin-top: 7px !important;
+            font-size: 15px !important;
+            font-weight: 700;
+        }
+
+        .report-card .rc-student-photo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .report-card .rc-student-photo img,
+        .report-card .rc-student-photo .rc-photo-box {
+            width: 125px;
+            height: 145px;
+            border: 1px solid #9ca3af;
+            border-radius: 16px;
+            background: #e5e7eb;
+            object-fit: cover;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #374151;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .report-card .rc-bio-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            border: 1px solid #cbd5e1;
+            margin-top: 8px;
+            margin-bottom: 10px;
+            background: #ffffff;
+        }
+
+        .report-card .rc-bio-item {
+            min-height: 48px;
+            padding: 7px 10px;
+            border-right: 1px solid #cbd5e1;
+            border-bottom: 1px solid #cbd5e1;
+            font-size: 14px;
+            line-height: 1.25;
+        }
+
+        .report-card .rc-bio-item:nth-child(3n) {
+            border-right: none;
+        }
+
+        .report-card .rc-bio-item:nth-last-child(-n+3) {
+            border-bottom: none;
+        }
+
+        .report-card .rc-bio-item span {
+            display: block;
+            color: #374151;
+            font-weight: 400;
             margin-bottom: 2px;
         }
 
-        .report-header-text p {
-            font-size: 12px;
-            color: #333;
+        .report-card .rc-bio-item strong {
+            font-weight: 700;
+            color: #111827;
         }
 
-        .report-title {
-            text-align: center;
-            background-color: #002060;
-            color: #ffffff;
-            padding: 6px;
-            font-weight: bold;
-            font-size: 14px;
-            text-transform: uppercase;
-            margin-bottom: 16px;
-            letter-spacing: 1px;
-        }
-
-        .report-student-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 16px;
+        .report-card .rc-marks-table {
+            width: 78%;
+            border-collapse: collapse;
+            margin: 0;
             font-size: 13px;
         }
 
-        .report-student-info div {
-            border-bottom: 1px dashed #ccc;
-            padding-bottom: 4px;
+        .report-card .rc-marks-table th {
+            background: #27367a;
+            color: #ffffff;
+            border: 1px solid #27367a;
+            padding: 8px 7px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 16px;
-        }
-
-        .report-table th, .report-table td {
-            border: 1px solid #333;
+        .report-card .rc-marks-table td {
+            border: 1px solid #cbd5e1;
             padding: 6px 8px;
-            font-size: 12px;
+            height: 31px;
+            text-align: center;
+            background: #ffffff;
         }
 
-        .report-table th {
-            background-color: #f1f5f9;
-            color: #000;
+        .report-card .rc-marks-table td:first-child {
+            text-align: left;
         }
 
-        .report-comments {
-            margin-top: 16px;
-            font-size: 12px;
+        .report-card .rc-marks-table .rc-mark {
+            font-weight: 700;
         }
 
-        .report-comments div {
+        .report-card .rc-marks-table .rc-grade-ee { color: #15803d; }
+        .report-card .rc-marks-table .rc-grade-me { color: #166534; }
+        .report-card .rc-marks-table .rc-grade-ae { color: #a16207; }
+        .report-card .rc-marks-table .rc-grade-be { color: #b91c1c; }
+
+        .report-card .rc-performance {
+            margin-top: 10px;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 7px;
+        }
+
+        .report-card .rc-performance-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .report-card .rc-chart-wrap {
+            width: 100%;
+            height: 205px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .report-card .rc-chart-wrap svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .report-card .rc-summary {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 20px;
+            margin-top: 7px;
             margin-bottom: 10px;
-            padding-bottom: 4px;
-            border-bottom: 1px solid #ccc;
+            font-size: 13px;
+            font-weight: 700;
         }
 
-        .report-signatures {
+        .report-card .rc-summary-left,
+        .report-card .rc-summary-right {
+            line-height: 1.45;
+        }
+
+        .report-card .rc-summary-right {
+            text-align: right;
+        }
+
+        .report-card .rc-comment-box {
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            padding: 9px 12px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            line-height: 1.35;
+            background: #ffffff;
+        }
+
+        .report-card .rc-comment-box .rc-comment-heading {
+            font-weight: 700;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .report-card .rc-footer-dates {
             display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
+            justify-content: flex-start;
+            gap: 30px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 700;
+            margin-top: 14px;
+            padding-top: 8px;
         }
 
-        /* PRINT STYLES */
+        @media (max-width: 760px) {
+            .report-card {
+                padding: 12px;
+                min-height: auto;
+            }
+
+            .report-card .rc-header {
+                grid-template-columns: 80px 1fr 80px;
+            }
+
+            .report-card .rc-logo img,
+            .report-card .rc-logo .rc-logo-placeholder {
+                width: 72px;
+                height: 72px;
+            }
+
+            .report-card .rc-student-photo img,
+            .report-card .rc-student-photo .rc-photo-box {
+                width: 72px;
+                height: 84px;
+                border-radius: 10px;
+            }
+
+            .report-card .rc-school-info h2 {
+                font-size: 16px;
+            }
+
+            .report-card .rc-school-info p,
+            .report-card .rc-exam-line {
+                font-size: 10px !important;
+            }
+
+            .report-card .rc-bio-item {
+                font-size: 10px;
+                min-height: 42px;
+                padding: 5px;
+            }
+
+            .report-card .rc-marks-table {
+                width: 100%;
+                font-size: 10px;
+            }
+
+            .report-card .rc-marks-table th {
+                font-size: 9px;
+                padding: 5px 3px;
+            }
+
+            .report-card .rc-marks-table td {
+                padding: 4px 3px;
+                height: 25px;
+            }
+
+            .report-card .rc-chart-wrap {
+                height: 180px;
+            }
+
+            .report-card .rc-summary {
+                font-size: 10px;
+            }
+
+            .report-card .rc-comment-box {
+                font-size: 10px;
+            }
+        }
+
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
-            body { background: #ffffff !important; color: #000000 !important; padding: 0 !important; }
-            .view-screen, .modal, .header, .admin-grid, #adminSectionsContainer { display: none !important; }
-            #printSection { display: block !important; position: static !important; width: 100% !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; }
-            #printSection * { visibility: visible !important; background-color: transparent !important; color: #000 !important; }
-            .report-card { border: 1px solid #000 !important; box-shadow: none !important; margin-bottom: 0 !important; width: 100% !important; background: #ffffff !important; page-break-after: always; }
+            @page { size: A4 portrait; margin: 7mm; }
+
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+            }
+
+            .view-screen, .modal, .header, .admin-grid, #adminSectionsContainer {
+                display: none !important;
+            }
+
+            #printSection {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+
+            #printSection * {
+                visibility: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .report-card {
+                width: 100% !important;
+                max-width: none !important;
+                min-height: 0 !important;
+                border: 1px solid #000 !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 13px 15px !important;
+                page-break-after: always !important;
+            }
+
+            .report-card .rc-header {
+                grid-template-columns: 95px 1fr 95px !important;
+            }
+
+            .report-card .rc-logo img,
+            .report-card .rc-logo .rc-logo-placeholder {
+                width: 78px !important;
+                height: 78px !important;
+            }
+
+            .report-card .rc-student-photo img,
+            .report-card .rc-student-photo .rc-photo-box {
+                width: 78px !important;
+                height: 92px !important;
+            }
+
+            .report-card .rc-school-info h2 {
+                font-size: 18px !important;
+            }
+
+            .report-card .rc-school-info p,
+            .report-card .rc-exam-line {
+                font-size: 10px !important;
+            }
+
+            .report-card .rc-bio-item {
+                min-height: 38px !important;
+                padding: 5px 7px !important;
+                font-size: 9px !important;
+            }
+
+            .report-card .rc-marks-table {
+                width: 72% !important;
+                font-size: 9px !important;
+            }
+
+            .report-card .rc-marks-table th {
+                font-size: 9px !important;
+                padding: 5px !important;
+            }
+
+            .report-card .rc-marks-table td {
+                padding: 4px 5px !important;
+                height: 24px !important;
+            }
+
+            .report-card .rc-performance-title {
+                font-size: 10px !important;
+            }
+
+            .report-card .rc-chart-wrap {
+                height: 150px !important;
+            }
+
+            .report-card .rc-summary {
+                font-size: 9px !important;
+                margin-top: 3px !important;
+                margin-bottom: 5px !important;
+            }
+
+            .report-card .rc-comment-box {
+                padding: 5px 7px !important;
+                margin-top: 5px !important;
+                margin-bottom: 5px !important;
+                font-size: 9px !important;
+            }
+
+            .report-card .rc-comment-box .rc-comment-heading {
+                font-size: 10px !important;
+            }
+
+            .report-card .rc-footer-dates {
+                font-size: 9px !important;
+                margin-top: 7px !important;
+                padding-top: 4px !important;
+                gap: 20px !important;
+            }
         }
     </style>
 </head>
@@ -454,7 +760,7 @@
 
                     <div class="auth-form-group" id="countyGroup" style="display: none;">
                         <label for="county">County</label>
-                        <select id="county">
+                        <select id="county" onchange="populateSubCounties(this.value)">
                             <option value="">-- Select County --</option>
                         </select>
                     </div>
@@ -600,8 +906,11 @@
                 <div class="admin-card" onclick="openAdminSection('tabTermsYear')">
                     <div class="icon">📅</div><div class="title">Academic Year & Terms</div>
                 </div>
+                <div class="admin-card" onclick="openAdminSection('tabSchoolDates')">
+                    <div class="icon">📆</div><div class="title">Opening & Closing Dates</div>
+                </div>
                 <div class="admin-card" onclick="openAdminSection('tabGrading')">
-                    <div class="icon">📈</div><div class="title">Grading System</div>
+                    <div class="icon">📈</div><div class="title">CBC Grading System</div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabStudentPhotos')">
                     <div class="icon">🖼️</div><div class="title">Student Photos</div>
@@ -673,43 +982,23 @@
                             Subscribe for term portal access. Rates are KES 1,000 per term (4 months/120 days of full access).
                         </p>
                         
-                        <div class="paystack-wrapper">
+                        <div class="mpesa-wrapper">
                             <div class="card">
                                 <h2>Term Portal Renewal</h2>
                                 
                                 <form id="paymentForm" onsubmit="handlePayment(event)">
                                   <div class="form-group">
-                                    <label for="paymentMethod">Payment Method</label>
-                                    <select id="paymentMethod" class="form-control" name="paymentMethod" onchange="handlePaymentMethodChange(this.value)">
-                                      <option value="mpesa_express">M-Pesa Express</option>
-                                      <option value="airtel">Airtel Money</option>
-                                      <option value="card">Debit / Credit Card</option>
-                                    </select>
+                                    <label for="mpesa-phone">Safaricom M-PESA Number</label>
+                                    <input type="tel" id="mpesa-phone" class="form-control" name="phone" placeholder="e.g. 0712345678 or 254712345678" required>
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="paystack-email">Email Address</label>
-                                    <input type="email" id="paystack-email" class="form-control" name="email" value="fox@gmail.com" required>
+                                    <label for="mpesa-amount">Term Fee (KES)</label>
+                                    <input type="number" id="mpesa-amount" class="form-control" name="amount" value="1000" readonly style="background:#f1f5f9;">
                                   </div>
 
-                                  <div class="form-group">
-                                    <label for="paystack-phone">Phone Number</label>
-                                    <input type="tel" id="paystack-phone" class="form-control" name="phone" value="0798344892" placeholder="e.g. 0798344892" required>
-                                  </div>
-
-                                  <div class="form-group">
-                                    <label for="paystack-amount">Term Fee (KES)</label>
-                                    <input type="number" id="paystack-amount" class="form-control" name="amount" value="1000" readonly style="background:#f1f5f9;">
-                                  </div>
-
-                                  <!-- M-PESA DARAJA STK PUSH SECTION -->
                                   <div id="mpesa-daraja-section" style="margin-top: 15px;">
-                                    <button type="submit" id="payBtn" class="btn-pay">Pay KES 1,000 via M-Pesa Prompt</button>
-                                  </div>
-
-                                  <!-- OTHER PAYMENT METHODS SECTION -->
-                                  <div id="other-paystack-section" style="margin-top: 15px; display: none;">
-                                    <button type="button" class="btn-pay" onclick="payWithPaystack()">Pay KES 1,000 Now</button>
+                                    <button type="submit" id="payBtn" class="btn-pay">Send M-PESA Payment Prompt</button>
                                   </div>
                                 </form>
 
@@ -721,7 +1010,7 @@
 
                     <div id="tabLogo" class="tab-pane">
                         <h3>Upload School Logo</h3>
-                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Select an image file to set as the official school crest on report cards.</p>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Select an image file to set as the official school crest on report cards (Supports >800KB without alteration).</p>
                         <div class="upload-box">
                             <input type="file" id="schoolLogoInput" accept="image/*" />
                             <div id="logoPreviewContainer" style="margin-top:12px;"></div>
@@ -729,16 +1018,38 @@
                         </div>
                     </div>
 
+                    <div id="tabSchoolDates" class="tab-pane">
+                        <h3>Set Closing & Opening Dates</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Headteacher settings for official term closing date and next term opening date on report forms.</p>
+                        <form id="schoolDatesForm" onsubmit="saveSchoolDates(event)">
+                            <div class="auth-form-group">
+                                <label>Term Closing Date</label>
+                                <input type="date" id="closingDateInput" required>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Next Term Opening Date</label>
+                                <input type="date" id="openingDateInput" required>
+                            </div>
+                            <button type="submit" class="btn-primary">Save Term Dates</button>
+                        </form>
+                    </div>
+
                     <div id="tabGrading" class="tab-pane">
-                        <h3>Set Grading System</h3>
-                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Define grade sections and their mark ranges (e.g. EE1, EE2, ME1, ME2, AE1, AE2, BE1, BE2).</p>
+                        <h3>Set CBC Grading System</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Define CBC grade bands and score limits (EE1, EE2, ME1, ME2, AE1, AE2, BE1, BE2).</p>
+                        
+                        <div style="margin-bottom: 12px;">
+                            <button type="button" class="btn-warning" onclick="loadDefaultCBCGrading()">⚡ Load Standard CBC Bands</button>
+                        </div>
+
                         <div id="gradingSystemContainer">
                             <table id="gradingTable">
                                 <thead>
                                     <tr>
-                                        <th>Grade Section (e.g., EE1)</th>
+                                        <th>CBC Grade Level</th>
                                         <th>Min Score (%)</th>
                                         <th>Max Score (%)</th>
+                                        <th>Descriptor / Remark</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -777,6 +1088,7 @@
 
                     <div id="tabStudentPhotos" class="tab-pane">
                         <h3>Student Photo Management</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Upload full-resolution student photos (Supports >800KB original files).</p>
                         <div class="auth-form-group">
                             <label>Select Class</label>
                             <select id="photoClassSelect">
@@ -845,6 +1157,8 @@
                             <button class="btn-secondary" onclick="loadRegisteredCollection('classes')">Classes</button>
                             <button class="btn-secondary" onclick="loadRegisteredCollection('subjects')">Subjects</button>
                             <button class="btn-secondary" onclick="loadRegisteredCollection('allocations')">Allocations</button>
+                            <button class="btn-secondary" onclick="loadRegisteredCollection('timetable')">Timetable</button>
+                            <button class="btn-secondary" onclick="loadRegisteredCollection('resources')">Resources</button>
                         </div>
 
                         <h4 id="collectionHeading" style="margin-top:12px; font-size:15px; color:#0f172a;">Select a collection above</h4>
@@ -860,6 +1174,39 @@
                             </div>
                             <div class="control-actions">
                                 <span id="lockStatusBadge" class="badge badge-success">Enabled</span>
+                                <div class="toggle-switch">
+                                    <label class="slider-container">
+                                        <input type="checkbox" id="teacherMarksToggle" checked onchange="toggleMarksEntryControl(this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-card">
+                            <div class="control-info">
+                                <h4>Publish Results to Student / Parent Portal</h4>
+                                <p>Publish results so students can view report forms online.</p>
+                            </div>
+                            <div class="control-actions">
+                                <span id="publishStatusBadge" class="badge badge-danger">Unpublished</span>
+                                <div class="toggle-switch">
+                                    <label class="slider-container">
+                                        <input type="checkbox" id="publishResultsToggle" onchange="togglePublishResults(this.checked)">
+                                        <span class="slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="control-card">
+                            <div class="control-info">
+                                <h4>Set Marks Entry Deadline (Days)</h4>
+                                <p>Headteacher sets days allowed for teachers to submit marks. A countdown will show on teacher panel.</p>
+                            </div>
+                            <div class="control-actions">
+                                <input type="number" id="marksDeadlineDaysInput" placeholder="Days e.g. 5" style="width:100px; padding:6px; border-radius:6px; border:1px solid #cbd5e1;">
+                                <button class="btn-primary" style="margin-top:0;" onclick="saveMarksDeadline()">Set Deadline</button>
                             </div>
                         </div>
                     </div>
@@ -898,7 +1245,7 @@
 
                     <div id="tabExamTypes" class="tab-pane">
                         <h3>Configure Examination Types</h3>
-                        <form id="examTypeForm">
+                        <form id="examTypeForm" onsubmit="saveExamType(event)">
                             <div class="auth-form-group">
                                 <label>Exam Name / Term Title</label>
                                 <input type="text" id="examTypeName" placeholder="e.g. Term 1 2026" required>
@@ -913,7 +1260,7 @@
 
                     <div id="tabClass" class="tab-pane">
                         <h3>Register Class / Stream</h3>
-                        <form id="classForm" style="margin-top:12px;">
+                        <form id="classForm" style="margin-top:12px;" onsubmit="saveClass(event)">
                             <div class="auth-form-group"><label>Class Name</label><input type="text" id="cName" placeholder="e.g. Grade 7 X" required></div>
                             <button class="btn-primary" type="submit">Save Class</button>
                         </form>
@@ -921,7 +1268,7 @@
 
                     <div id="tabSubject" class="tab-pane">
                         <h3>Register Subject</h3>
-                        <form id="subjectForm" style="margin-top:12px;">
+                        <form id="subjectForm" style="margin-top:12px;" onsubmit="saveSubject(event)">
                             <div class="auth-form-group"><label>Subject Name</label><input type="text" id="subName" placeholder="e.g. Mathematics" required></div>
                             <button class="btn-primary" type="submit">Save Subject</button>
                         </form>
@@ -929,7 +1276,7 @@
 
                     <div id="tabTeacher" class="tab-pane">
                         <h3>Register Teacher</h3>
-                        <form id="teacherForm" style="margin-top:12px;">
+                        <form id="teacherForm" style="margin-top:12px;" onsubmit="registerTeacher(event)">
                             <div class="auth-form-group"><label>FULL NAME</label><input type="text" id="tName" required placeholder=""></div>
                             <div class="auth-form-group"><label>EMAIL</label><input type="email" id="tEmail" required placeholder=""></div>
                             <div class="auth-form-group"><label>PASSWORD</label><input type="password" id="tPassword" required placeholder=""></div>
@@ -939,7 +1286,7 @@
 
                     <div id="tabStudent" class="tab-pane">
                         <h3>Enroll Student</h3>
-                        <form id="studentForm" style="margin-top:12px;">
+                        <form id="studentForm" style="margin-top:12px;" onsubmit="enrollStudent(event)">
                             <div class="auth-form-group"><label>Admission No</label><input type="text" id="sAdm" required></div>
                             <div class="auth-form-group"><label>Full Name</label><input type="text" id="sName" required></div>
                             <div class="auth-form-group"><label>Class</label><select id="sClassSelect" required></select></div>
@@ -957,7 +1304,7 @@
 
                     <div id="tabAlloc" class="tab-pane">
                         <h3>Allocate Class & Subject</h3>
-                        <form id="allocForm" style="margin-top:12px;">
+                        <form id="allocForm" style="margin-top:12px;" onsubmit="saveAllocation(event)">
                             <div class="auth-form-group"><label>Teacher</label><select id="allocTeacherSelect" required></select></div>
                             <div class="auth-form-group"><label>Class</label><select id="allocClassSelect" required></select></div>
                             <div class="auth-form-group"><label>Subject</label><select id="allocSubjectSelect" required></select></div>
@@ -1000,7 +1347,7 @@
                         <h3>Class List Manager</h3>
                         <div class="auth-form-group" style="margin-top:12px;">
                             <label>Select Class to View Registered Students</label>
-                            <select id="classListSelect"></select>
+                            <select id="classListSelect" onchange="loadClassListDetails(this.value)"></select>
                         </div>
                         <div id="classListContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
@@ -1009,16 +1356,29 @@
                         <h3>Class Timetable Management</h3>
                         <div class="auth-form-group" style="margin-top:12px;">
                             <label>Select Class</label>
-                            <select id="timetableClassSelect"></select>
+                            <select id="timetableClassSelect" onchange="loadTimetable(this.value)"></select>
                         </div>
+                        <form id="timetableForm" style="margin-top:12px;" onsubmit="saveTimetableEntry(event)">
+                            <div class="auth-form-group"><label>Day of Week</label><select id="ttDay"><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option></select></div>
+                            <div class="auth-form-group"><label>Time Slot</label><input type="text" id="ttTime" placeholder="e.g. 08:00 AM - 08:40 AM" required></div>
+                            <div class="auth-form-group"><label>Subject & Teacher</label><input type="text" id="ttSubject" placeholder="e.g. Mathematics (Mr. Smith)" required></div>
+                            <button class="btn-primary" type="submit">Add Timetable Slot</button>
+                        </form>
+                        <div id="timetableDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
 
                     <div id="tabResources" class="tab-pane">
                         <h3>Class Resources & Syllabus</h3>
                         <div class="auth-form-group" style="margin-top:12px;">
                             <label>Select Class</label>
-                            <select id="resourcesClassSelect"></select>
+                            <select id="resourcesClassSelect" onchange="loadResources(this.value)"></select>
                         </div>
+                        <form id="resourceForm" style="margin-top:12px;" onsubmit="saveResourceEntry(event)">
+                            <div class="auth-form-group"><label>Resource Title</label><input type="text" id="resTitle" placeholder="e.g. Grade 7 Math Notes" required></div>
+                            <div class="auth-form-group"><label>Resource Link / URL</label><input type="url" id="resLink" placeholder="https://..." required></div>
+                            <button class="btn-primary" type="submit">Upload Resource</button>
+                        </form>
+                        <div id="resourcesDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
                 </div>
             </div>
@@ -1033,6 +1393,9 @@
                     <h2>Teacher Portal</h2>
                     <p id="teacherNameDisplay">Teacher</p>
                 </div>
+                <div id="teacherDeadlineBanner" class="timer-banner" style="display:none;">
+                    ⏱️ <span id="teacherDeadlineCountdown">Marks Entry Closes in: Loading...</span>
+                </div>
                 <button class="btn-danger" onclick="logout()">Logout</button>
             </div>
 
@@ -1042,6 +1405,12 @@
                 </div>
                 <div class="admin-card" onclick="openTeacherSection('tTabClassList')">
                     <div class="icon">📋</div><div class="title">Class List</div>
+                </div>
+                <div class="admin-card" onclick="openTeacherSection('tTabTimetable')">
+                    <div class="icon">📅</div><div class="title">Timetable</div>
+                </div>
+                <div class="admin-card" onclick="openTeacherSection('tTabResources')">
+                    <div class="icon">📂</div><div class="title">Resources</div>
                 </div>
             </div>
 
@@ -1082,9 +1451,27 @@
                         <h3>View Class Roster</h3>
                         <div class="auth-form-group" style="margin-top:12px;">
                             <label>Select Class</label>
-                            <select id="tClassListSelect"></select>
+                            <select id="tClassListSelect" onchange="loadTeacherClassList(this.value)"></select>
                         </div>
                         <div id="tClassListContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+
+                    <div id="tTabTimetable" class="tab-pane">
+                        <h3>Class Timetable View</h3>
+                        <div class="auth-form-group" style="margin-top:12px;">
+                            <label>Select Class</label>
+                            <select id="tTimetableClassSelect" onchange="loadTimetable(this.value, 'tTimetableContainer')"></select>
+                        </div>
+                        <div id="tTimetableContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+
+                    <div id="tTabResources" class="tab-pane">
+                        <h3>Class Resources & Syllabus</h3>
+                        <div class="auth-form-group" style="margin-top:12px;">
+                            <label>Select Class</label>
+                            <select id="tResourcesClassSelect" onchange="loadResources(this.value, 'tResourcesContainer')"></select>
+                        </div>
+                        <div id="tResourcesContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
                 </div>
             </div>
@@ -1112,18 +1499,26 @@
         <div class="modal-content">
             <h3 id="modalTitle">Select Option</h3>
             <p style="font-size:13px; color:#64748b; margin-top:4px;">Choose the output format you wish to generate:</p>
-            <div class="modal-buttons">
+            <div class="modal-buttons" style="text-align: left;">
                 <button class="btn-primary" onclick="handleOptionSelection('individual')">Individual Results (Report Forms)</button>
-                <button class="btn-success" onclick="handleOptionSelection('class')">Class Master Results Sheet</button>
+                
+                <!-- Added Range Selection below Print/Individual on right side as requested -->
+                <div style="margin-top: 10px; padding: 10px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;">
+                    <label style="font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; margin-bottom: 4px; display: block;">Select Admission Range</label>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                        <input type="text" id="rangeStart" placeholder="From Adm" style="width: 48%; padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                        <input type="text" id="rangeEnd" placeholder="To Adm" style="width: 48%; padding: 6px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px;">
+                    </div>
+                    <button class="btn-secondary" style="width: 100%; margin-top: 8px; font-size: 12px; padding: 6px;" onclick="handleOptionSelection('range')">Generate Range Report Forms</button>
+                </div>
+
+                <button class="btn-success" onclick="handleOptionSelection('class')" style="margin-top: 6px;">Class Master Results Sheet</button>
                 <button class="btn-danger" onclick="closeOptionModal()" style="margin-top:4px;">Cancel</button>
             </div>
         </div>
     </div>
 
     <div id="printSection" style="display:none; padding:20px;"></div>
-
-    <!-- Paystack Inline JS SDK -->
-    <script src="https://js.paystack.co/v1/inline.js"></script>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -1159,6 +1554,9 @@
         let currentSchoolName = "";
         let currentSchoolEmail = "";
         let currentSchoolPoBox = "";
+        let currentSchoolLogo = "";
+        let currentClosingDate = "N/A";
+        let currentOpeningDate = "N/A";
         let currentAuthMode = "login";
         let isGlobalPaymentEnabled = true;
         let schoolPaidUntil = null;
@@ -1170,11 +1568,69 @@
         let cachedSubjects = [];
         let cachedStudents = [];
         let cachedMarksMap = {};
+        let currentUserId = "";
+
+        const defaultCBCGrading = [
+            { grade: "EE1", min: 90, max: 100, desc: "Exceeding Expectations (Level 4 High)" },
+            { grade: "EE2", min: 80, max: 89, desc: "Exceeding Expectations (Level 4 Low)" },
+            { grade: "ME1", min: 70, max: 79, desc: "Meeting Expectations (Level 3 High)" },
+            { grade: "ME2", min: 60, max: 69, desc: "Meeting Expectations (Level 3 Low)" },
+            { grade: "AE1", min: 50, max: 59, desc: "Approaching Expectations (Level 2 High)" },
+            { grade: "AE2", min: 40, max: 49, desc: "Approaching Expectations (Level 2 Low)" },
+            { grade: "BE1", min: 25, max: 39, desc: "Below Expectations (Level 1 High)" },
+            { grade: "BE2", min: 0, max: 24, desc: "Below Expectations (Level 1 Low)" }
+        ];
+
+        let currentGradingSystem = [...defaultCBCGrading];
 
         const kenyaData = {
             "Baringo": ["Baringo Central", "Baringo North", "Baringo South", "Eldama Ravine", "Mogotio", "Tiaty"],
             "Bomet": ["Bomet Central", "Bomet East", "Chepalungu", "Konoin", "Sotik"],
-            "Nairobi": ["Dagoretti North", "Dagoretti South", "Embakasi Central", "Embakasi East", "Embakasi North", "Embakasi South", "Embakasi West", "Kamukunji", "Kasarani", "Kibra", "Lang'ata", "Makadara", "Mathare", "Roysambu", "Ruaraka", "Starehe", "Westlands"]
+            "Bungoma": ["Bumula", "Kabuchai", "Kanduyi", "Kimilili", "Mt Elgon", "Sirisia", "Tongaren", "Webuye East", "Webuye West"],
+            "Busia": ["Budalangi", "Butula", "Funyula", "Nambale", "Teso North", "Teso South", "Matayos"],
+            "Elgeyo Marakwet": ["Keiyo North", "Keiyo South", "Marakwet East", "Marakwet West"],
+            "Embu": ["Manyatta", "Mbeere North", "Mbeere South", "Runyenjes"],
+            "Garissa": ["Daadab", "Garissa Township", "Hulugho", "Ijara", "Lagdera", "Balambala"],
+            "Homa Bay": ["Homabay Town", "Kabondo", "Karachuonyo", "Kasipul", "Mbita", "Ndhiwa", "Rangwe", "Suba"],
+            "Isiolo": ["Isiolo", "Garbatulla", "Merti"],
+            "Kajiado": ["Kajiado Central", "Kajiado East", "Kajiado North", "Kajiado South", "Kajiado West"],
+            "Kakamega": ["Butere", "Kakamega Central", "Kakamega East", "Kakamega North", "Kakamega South", "Khwisero", "Lugari", "Lukuyani", "Lurambi", "Matungu", "Mumias East", "Mumias West", "Navakholo"],
+            "Kericho": ["Ainamoi", "Belgut", "Bureti", "Kipkelion East", "Kipkelion West", "Soin Sigowet"],
+            "Kiambu": ["Githunguri", "Juja", "Kabete", "Kiambaa", "Kiambu", "Kikuyu", "Lari", "Limuru", "Riru", "Thika Town", "Gatundu North", "Gatundu South"],
+            "Kilifi": ["Ganze", "Kaloleni", "Kilifi North", "Kilifi South", "Magarini", "Malindi", "Rabai"],
+            "Kirinyaga": ["Kirinyaga Central", "Kirinyaga East", "Kirinyaga West", "Mwea East", "Mwea West"],
+            "Kisii": ["Kitutu Chache North", "Kitutu Chache South", "Nyaribari Chache", "Nyaribari Masaba", "South Mugirango", "Bomachoge Borabu", "Bomachoge Chache", "Bobasi", "Bonchari"],
+            "Kisumu": ["Kisumu Central", "Kisumu East", "Kisumu West", "Muhoroni", "Nyakach", "Nyando", "Seme"],
+            "Kitui": ["Ikutha", "Katulani", "Kitis", "Kitui Central", "Kitui Rural", "Kitui South", "Kitui West", "Kyuso", "Mwingi Central", "Mwingi North", "Mwingi West", "Nzambani"],
+            "Kwale": ["Kinango", "Lunga Lunga", "Msambweni", "Matuga"],
+            "Laikipia": ["Laikipia Central", "Laikipia East", "Laikipia North", "Laikipia West", "Nyahururu"],
+            "Lamu": ["Lamu East", "Lamu West"],
+            "Machakos": ["Katimani", "Machakos Town", "Masinga", "Matungulu", "Mavoko", "Mwala", "Yatta"],
+            "Makueni": ["Kaiti", "Kibwezi West", "Kibwezi East", "Kilungu", "Makueni", "Mbooni"],
+            "Mandera": ["Banissa", "Lafey", "Mandera East", "Mandera North", "Mandera South", "Mandera West"],
+            "Marsabit": ["Laisamis", "Moyale", "North Horr", "Saku"],
+            "Meru": ["Buuri", "Igembe Central", "Igembe North", "Igembe South", "Imenti Central", "Imenti North", "Imenti South", "Tigania East", "Tigania West"],
+            "Migori": ["Awendo", "Kuria East", "Kuria West", "Mabera", "Ntimaru", "Rongo", "Suna East", "Suna West", "Uriri"],
+            "Mombasa": ["Changamwe", "Jomvu", "Kisauni", "Likoni", "Mvita", "Nyali"],
+            "Murang'a": ["Gatanga", "Kandara", "Kangema", "Kigumo", "Kiharu", "Mathioya", "Maragua"],
+            "Nairobi": ["Dagoretti North", "Dagoretti South", "Embakasi Central", "Embakasi East", "Embakasi North", "Embakasi South", "Embakasi West", "Kamukunji", "Kasarani", "Kibra", "Lang'ata", "Makadara", "Mathare", "Roysambu", "Ruaraka", "Starehe", "Westlands"],
+            "Nakuru": ["Bahati", "Gilgil", "Kuresoi North", "Kuresoi South", "Molo", "Naivasha", "Nakuru Town East", "Nakuru Town West", "Njoro", "Rongai", "Subukia"],
+            "Nandi": ["Aldai", "Chesumei", "Emgwen", "Mosop", "Nandi Hills", "Tindiret"],
+            "Narok": ["Narok East", "Narok North", "Narok South", "Narok West", "Trans Mara East", "Trans Mara West"],
+            "Nyamira": ["Borabu", "Manga", "Masaba North", "Nyamira North", "Nyamira South"],
+            "Nyandarua": ["Kinangop", "Kipipiri", "Ndaragwa", "Ol Kalou", "Ol Joro Orok"],
+            "Nyeri": ["Kieni East", "Kieni West", "Mathira East", "Mathira West", "Mukurweini", "Nyeri Town", "Tetu"],
+            "Samburu": ["Samburu East", "Samburu North", "Samburu West"],
+            "Siaya": ["Alego Usonga", "Bondo", "Gem", "Rarieda", "Ugenya", "Ugunja"],
+            "Taita Taveta": ["Mwatate", "Taveta", "Voi", "Wundanyi"],
+            "Tana River": ["Bura", "Galole", "Garsen"],
+            "Tharaka Nithi": ["Tharaka North", "Tharaka South", "Chuka", "Igambang'ombe", "Maara"],
+            "Trans Nzoia": ["Cherangany", "Endebess", "Kiminini", "Kwanza", "Saboti"],
+            "Turkana": ["Loima", "Turkana Central", "Turkana East", "Turkana North", "Turkana South", "Turkana West"],
+            "Uasin Gishu": ["Ainabkoi", "Kapseret", "Kesses", "Moiben", "Soy", "Turbo"],
+            "Vihiga": ["Emuhaya", "Hamisi", "Luanda", "Sabatia", "Vihiga"],
+            "Wajir": ["Eldas", "Tarbaj", "Wajir East", "Wajir North", "Wajir South", "Wajir West"],
+            "West Pokot": ["Central Pokot", "North Pokot", "Pokot South", "West Pokot"]
         };
 
         const countySelect = document.getElementById('county');
@@ -1183,15 +1639,158 @@
         const submitAuthBtn = document.getElementById('submitAuthBtn');
         const authMsg = document.getElementById('authMsg');
 
+        function initCounties() {
+            if (!countySelect) return;
+            countySelect.innerHTML = '<option value="">-- Select County --</option>';
+            Object.keys(kenyaData).sort().forEach(c => {
+                countySelect.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+        }
+        initCounties();
+
+        function populateSubCounties(county) {
+            if (!subCountySelect) return;
+            subCountySelect.innerHTML = '<option value="">-- Select Sub-County --</option>';
+            if (county && kenyaData[county]) {
+                kenyaData[county].forEach(sc => {
+                    subCountySelect.innerHTML += `<option value="${sc}">${sc}</option>`;
+                });
+            }
+        }
+
         function displayMsg(msg, isError = true) {
             authMsg.style.display = 'block';
             authMsg.className = isError ? 'msg msg-error' : 'msg msg-success';
             authMsg.textContent = msg;
         }
 
-        /* FIREBASE AUTH OBSERVER */
+        function showView(viewId) {
+            document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
+            const activeView = document.getElementById(viewId);
+            if (activeView) activeView.classList.add('active');
+        }
+
+        function setAuthMode(mode) {
+            currentAuthMode = mode;
+            const loginBtn = document.getElementById('loginTab');
+            const regBtn = document.getElementById('registerTab');
+            const submitBtn = document.getElementById('submitAuthBtn');
+            const authIdLabel = document.getElementById('authIdLabel');
+            const emailInput = document.getElementById('email');
+
+            const schoolFields = ['schoolGroup', 'schoolEmailGroup', 'poBoxGroup', 'headteacherGroup', 'tscGroup', 'phoneGroup', 'countyGroup', 'subcountyGroup', 'termsGroup'];
+
+            if (mode === 'login') {
+                loginBtn.classList.add('active');
+                regBtn.classList.remove('active');
+                submitBtn.textContent = 'Login';
+                authIdLabel.textContent = 'Email Address / Admission No';
+                emailInput.placeholder = 'name@school.com';
+                schoolFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'none';
+                });
+                document.getElementById('roleGroup').style.display = 'flex';
+            } else {
+                regBtn.classList.add('active');
+                loginBtn.classList.remove('active');
+                submitBtn.textContent = 'Register & Create Portal';
+                authIdLabel.textContent = 'Portal Master Email';
+                emailInput.placeholder = 'admin@school.com';
+                schoolFields.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.style.display = 'flex';
+                });
+                document.getElementById('roleGroup').style.display = 'none';
+            }
+        }
+
+        function handleRoleChange(role) {
+            const authIdLabel = document.getElementById('authIdLabel');
+            const emailInput = document.getElementById('email');
+            const passGroup = document.getElementById('passwordGroup');
+
+            if (role === 'student') {
+                authIdLabel.textContent = 'Admission Number';
+                emailInput.placeholder = 'e.g. 101';
+                passGroup.style.display = 'none';
+                document.getElementById('password').required = false;
+            } else {
+                authIdLabel.textContent = 'Email Address';
+                emailInput.placeholder = 'name@school.com';
+                passGroup.style.display = 'flex';
+                document.getElementById('password').required = true;
+            }
+        }
+
+        function validateRegistrationForm() {
+            if (currentAuthMode === 'register') {
+                submitAuthBtn.disabled = !termsCheckbox.checked;
+            }
+        }
+
+        function openAdminSection(tabId) {
+            document.getElementById('adminMainMenu').style.display = 'none';
+            document.getElementById('adminSectionsContainer').style.display = 'block';
+            document.querySelectorAll('#adminSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+        }
+
+        function closeAdminSection() {
+            document.getElementById('adminSectionsContainer').style.display = 'none';
+            document.getElementById('adminMainMenu').style.display = 'grid';
+        }
+
+        function openTeacherSection(tabId) {
+            document.getElementById('teacherMainMenu').style.display = 'none';
+            document.getElementById('teacherSectionsContainer').style.display = 'block';
+            document.querySelectorAll('#teacherSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+        }
+
+        function closeTeacherSection() {
+            document.getElementById('teacherSectionsContainer').style.display = 'none';
+            document.getElementById('teacherMainMenu').style.display = 'grid';
+        }
+
+        function openSuperAdminSection(tabId) {
+            document.getElementById('superAdminMainMenu').style.display = 'none';
+            document.getElementById('superAdminSectionsContainer').style.display = 'block';
+            document.querySelectorAll('#superAdminSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
+            const target = document.getElementById(tabId);
+            if (target) target.classList.add('active');
+
+            if (tabId === 'saTabRegisteredSchools') loadRegisteredSchoolsList();
+            if (tabId === 'saTabVerification') loadVerificationSchoolsList();
+            if (tabId === 'saTabPaymentControl') loadGlobalPaymentStatus();
+        }
+
+        function closeSuperAdminSection() {
+            document.getElementById('superAdminSectionsContainer').style.display = 'none';
+            document.getElementById('superAdminMainMenu').style.display = 'grid';
+        }
+
+        function loginAsSuperAdmin() {
+            setAuthMode('login');
+            document.getElementById('userRole').value = 'superadmin';
+            handleRoleChange('superadmin');
+            document.getElementById('email').value = 'superadmin@portal.com';
+            displayMsg('Ready for Super Admin authentication.', false);
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                submitAuthBtn.disabled = false;
+                submitAuthBtn.textContent = "Login";
+                showView('authView');
+            });
+        }
+
         auth.onAuthStateChanged(async (user) => {
             if (user) {
+                currentUserId = user.uid;
                 try {
                     const userDoc = await db.collection("users").doc(user.uid).get();
                     if (userDoc.exists) {
@@ -1210,17 +1809,42 @@
                                     currentSchoolName = schoolData.name || "School";
                                     currentSchoolEmail = schoolData.email || "";
                                     currentSchoolPoBox = schoolData.poBox || "";
+                                    currentSchoolLogo = schoolData.logoUrl || "";
+                                    currentClosingDate = schoolData.closingDate || "N/A";
+                                    currentOpeningDate = schoolData.openingDate || "N/A";
                                     document.getElementById("adminSchoolTitle").textContent = currentSchoolName;
+                                    
+                                    if(!schoolData.verified) {
+                                        document.getElementById("adminMainMenu").style.display = "none";
+                                        document.getElementById("pendingVerificationNotice").style.display = "block";
+                                    } else {
+                                        document.getElementById("pendingVerificationNotice").style.display = "none";
+                                        document.getElementById("adminMainMenu").style.display = "grid";
+                                    }
+
+                                    if(currentSchoolLogo) {
+                                        const logoImg = document.getElementById("adminLogoDisplay");
+                                        logoImg.src = currentSchoolLogo;
+                                        logoImg.style.display = "block";
+                                    }
                                 }
+                                loadGradingSystem();
                             }
                             fetchSchoolPaymentStatus();
+                            populateAllDropdowns();
+                            loadTermsYearList();
+                            loadExamTypesList();
+                            listenToMarksControl();
                             showView("adminView");
                         } else if (userData.role === "teacher") {
                             document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
+                            currentSchoolId = userData.schoolId || "";
+                            populateAllDropdowns();
+                            loadTeacherAllocations(user.uid);
+                            listenToTeacherDeadline();
                             showView("teacherView");
                         }
                     } else {
-                        // Student check by UID or direct match
                         const studentSnap = await db.collection("students").doc(user.uid).get();
                         if (studentSnap.exists) {
                             const studentData = studentSnap.data();
@@ -1237,7 +1861,41 @@
             }
         });
 
-        /* LOGIN / REGISTER HANDLER */
+        async function renderStudentPortal(studentData) {
+            const content = document.getElementById("studentPortalContent");
+            content.innerHTML = `
+                <h3>Student Report Portal</h3>
+                <p><strong>Name:</strong> ${studentData.name}</p>
+                <p><strong>Admission No:</strong> ${studentData.admissionNo}</p>
+                <p><strong>Class:</strong> ${studentData.class}</p>
+                <p><strong>Term & Year:</strong> ${studentData.term || 'Term 1'} ${studentData.year || '2026'}</p>
+                <hr style="margin: 15px 0;">
+                <h4>Terminal Results</h4>
+                <div id="studentMarksDisplay">Loading results...</div>
+            `;
+            try {
+                const marksSnap = await db.collection("marks")
+                    .where("schoolId", "==", studentData.schoolId || currentSchoolId)
+                    .where("admissionNo", "==", studentData.admissionNo)
+                    .get();
+                
+                if (marksSnap.empty) {
+                    document.getElementById("studentMarksDisplay").innerHTML = "<p>No published marks available yet.</p>";
+                    return;
+                }
+                let html = `<table style="width:100%; border-collapse:collapse; margin-top:10px;"><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Descriptor</th></tr></thead><tbody>`;
+                marksSnap.forEach(doc => {
+                    const m = doc.data();
+                    const g = getCBCGradeDetails(m.score);
+                    html += `<tr><td>${m.subject}</td><td>${m.score}</td><td>${g.grade}</td><td>${g.desc}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                document.getElementById("studentMarksDisplay").innerHTML = html;
+            } catch (err) {
+                document.getElementById("studentMarksDisplay").innerHTML = "<p style='color:red;'>Error loading student marks.</p>";
+            }
+        }
+
         document.getElementById("authForm").addEventListener("submit", async function(e) {
             e.preventDefault();
             authMsg.style.display = "none";
@@ -1247,7 +1905,6 @@
 
             if (currentAuthMode === "login") {
                 if (role === "student") {
-                    // Student direct admission logic
                     try {
                         const snap = await db.collection("students").where("admissionNo", "==", email).get();
                         if (snap.empty) {
@@ -1261,8 +1918,52 @@
                     } catch (err) {
                         displayMsg("Error signing in student: " + err.message);
                     }
+                } else if (role === "teacher") {
+                    try {
+                        submitAuthBtn.disabled = true;
+                        submitAuthBtn.textContent = "Authenticating...";
+                        const userCred = await secAuth.signInWithEmailAndPassword(email, password);
+                        const userDoc = await db.collection("users").doc(userCred.user.uid).get();
+                        if (userDoc.exists && userDoc.data().role === "teacher") {
+                            const userData = userDoc.data();
+                            currentSchoolId = userData.schoolId || "";
+                            document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
+                            populateAllDropdowns();
+                            loadTeacherAllocations(userCred.user.uid);
+                            listenToTeacherDeadline();
+                            showView("teacherView");
+                        } else {
+                            displayMsg("Invalid teacher account credentials.");
+                        }
+                    } catch (err) {
+                        displayMsg("Teacher Authentication Failed: " + err.message);
+                    } finally {
+                        submitAuthBtn.disabled = false;
+                        submitAuthBtn.textContent = "Login";
+                    }
+                } else if (role === "superadmin") {
+                    try {
+                        submitAuthBtn.disabled = true;
+                        submitAuthBtn.textContent = "Authenticating...";
+                        const cred = await auth.signInWithEmailAndPassword(email, password);
+                        const saDoc = await db.collection("users").doc(cred.user.uid).get();
+                        if (saDoc.exists && saDoc.data().role === "superadmin") {
+                            showView("superAdminView");
+                        } else {
+                            await db.collection("users").doc(cred.user.uid).set({
+                                name: "Super Admin",
+                                email: email,
+                                role: "superadmin"
+                            }, { merge: true });
+                            showView("superAdminView");
+                        }
+                    } catch (err) {
+                        displayMsg("Super Admin Authentication Failed: " + err.message);
+                    } finally {
+                        submitAuthBtn.disabled = false;
+                        submitAuthBtn.textContent = "Login";
+                    }
                 } else {
-                    // Firebase Auth for Admin/Superadmin/Teacher
                     try {
                         submitAuthBtn.disabled = true;
                         submitAuthBtn.textContent = "Authenticating...";
@@ -1274,7 +1975,6 @@
                     }
                 }
             } else {
-                // REGISTER SCHOOL
                 const schoolName = document.getElementById("schoolName").value.trim();
                 const schoolEmail = document.getElementById("schoolEmail").value.trim();
                 const poBox = document.getElementById("poBox").value.trim();
@@ -1324,44 +2024,367 @@
             }
         });
 
-        /* RENDER STUDENT PORTAL */
-        async function renderStudentPortal(studentData) {
-            const container = document.getElementById("studentPortalContent");
-            container.innerHTML = `
-                <h3>Welcome, ${studentData.name}</h3>
-                <p><strong>Admission No:</strong> ${studentData.admissionNo}</p>
-                <p><strong>Class:</strong> ${studentData.class || 'N/A'}</p>
-                <div style="margin-top:20px;" id="studentResultsBox">
-                    <p>Loading results...</p>
-                </div>
-            `;
-
+        async function populateAllDropdowns() {
+            if (!currentSchoolId) return;
             try {
-                const marksSnap = await db.collection("marks")
-                    .where("admissionNo", "==", studentData.admissionNo)
-                    .get();
+                const classSnap = await db.collection("classes").where("schoolId", "==", currentSchoolId).get();
+                const classSelects = [
+                    'sClassSelect', 'mClassSelect', 'classListSelect', 'bulkClassSelect', 
+                    'photoClassSelect', 'transferClassSelect', 'massTransferClassSelect', 
+                    'allocClassSelect', 'timetableClassSelect', 'resourcesClassSelect',
+                    'tClassListSelect', 'tTimetableClassSelect', 'tResourcesClassSelect'
+                ];
 
-                if (marksSnap.empty) {
-                    document.getElementById("studentResultsBox").innerHTML = "<p>No results published yet.</p>";
-                    return;
+                classSelects.forEach(id => {
+                    const sel = document.getElementById(id);
+                    if (sel) {
+                        sel.innerHTML = '<option value="">-- Select Class --</option>';
+                        classSnap.forEach(doc => {
+                            const c = doc.data().name;
+                            sel.innerHTML += `<option value="${c}">${c}</option>`;
+                        });
+                    }
+                });
+
+                const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+                const subSel = document.getElementById("allocSubjectSelect");
+                if (subSel) {
+                    subSel.innerHTML = '<option value="">-- Select Subject --</option>';
+                    subSnap.forEach(doc => {
+                        const s = doc.data().name;
+                        subSel.innerHTML += `<option value="${s}">${s}</option>`;
+                    });
                 }
 
-                let html = "<table><thead><tr><th>Subject</th><th>Exam</th><th>Score</th></tr></thead><tbody>";
-                marksSnap.forEach(doc => {
-                    const data = doc.data();
-                    html += `<tr><td>${data.subject}</td><td>${data.exam}</td><td><strong>${data.score}</strong></td></tr>`;
+                const teacherSnap = await db.collection("users")
+                    .where("schoolId", "==", currentSchoolId)
+                    .where("role", "==", "teacher")
+                    .get();
+                const tSel = document.getElementById("allocTeacherSelect");
+                if (tSel) {
+                    tSel.innerHTML = '<option value="">-- Select Teacher --</option>';
+                    teacherSnap.forEach(doc => {
+                        tSel.innerHTML += `<option value="${doc.id}">${doc.data().name} (${doc.data().email})</option>`;
+                    });
+                }
+
+                const examSnap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+                const examSelects = ['adminExamSelect', 'analyticsExamSelect', 'examSelect'];
+                examSelects.forEach(id => {
+                    const sel = document.getElementById(id);
+                    if (sel) {
+                        sel.innerHTML = '<option value="">-- Choose Exam Type --</option>';
+                        examSnap.forEach(doc => {
+                            const e = doc.data().name;
+                            sel.innerHTML += `<option value="${e}">${e}</option>`;
+                        });
+                    }
                 });
-                html += "</tbody></table>";
-                document.getElementById("studentResultsBox").innerHTML = html;
-            } catch(e) {
-                document.getElementById("studentResultsBox").innerHTML = "<p style='color:red;'>Failed to load results.</p>";
+            } catch (err) {
+                console.error("Dropdown error: ", err);
             }
         }
 
-        /* MODAL AND SELECTION FUNCTIONS */
-        function openOptionModal(action) {
-            pendingOptionAction = action;
-            document.getElementById("modalTitle").textContent = action === 'download' ? "Download Options" : "Print Options";
+        function getCBCGradeDetails(score) {
+            const num = Number(score);
+            if (isNaN(num)) return { grade: "-", desc: "-" };
+            for (let item of currentGradingSystem) {
+                if (num >= item.min && num <= item.max) {
+                    return { grade: item.grade, desc: item.desc };
+                }
+            }
+            return { grade: "BE2", desc: "Below Expectations" };
+        }
+
+        async function saveExamType(e) {
+            e.preventDefault();
+            const name = document.getElementById("examTypeName").value.trim();
+            if (!name) return;
+            try {
+                await db.collection("examTypes").add({
+                    schoolId: currentSchoolId,
+                    name: name,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Exam type created!");
+                document.getElementById("examTypeName").value = "";
+                loadExamTypesList();
+                populateAllDropdowns();
+            } catch (err) {
+                alert("Error saving exam type: " + err.message);
+            }
+        }
+
+        async function saveClass(e) {
+            e.preventDefault();
+            const name = document.getElementById("cName").value.trim();
+            if (!name) return;
+            try {
+                await db.collection("classes").add({
+                    schoolId: currentSchoolId,
+                    name: name,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Class created successfully!");
+                document.getElementById("cName").value = "";
+                populateAllDropdowns();
+            } catch (err) {
+                alert("Error creating class: " + err.message);
+            }
+        }
+
+        async function saveSubject(e) {
+            e.preventDefault();
+            const name = document.getElementById("subName").value.trim();
+            if (!name) return;
+            try {
+                await db.collection("subjects").add({
+                    schoolId: currentSchoolId,
+                    name: name,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Subject created successfully!");
+                document.getElementById("subName").value = "";
+                populateAllDropdowns();
+            } catch (err) {
+                alert("Error creating subject: " + err.message);
+            }
+        }
+
+        async function registerTeacher(e) {
+            e.preventDefault();
+            const name = document.getElementById("tName").value.trim();
+            const email = document.getElementById("tEmail").value.trim().toLowerCase();
+            const password = document.getElementById("tPassword").value;
+
+            if (!name || !email || !password) return;
+
+            try {
+                const userCred = await secAuth.createUserWithEmailAndPassword(email, password);
+                await db.collection("users").doc(userCred.user.uid).set({
+                    name: name,
+                    email: email,
+                    role: "teacher",
+                    schoolId: currentSchoolId,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Teacher registered successfully!");
+                document.getElementById("teacherForm").reset();
+                populateAllDropdowns();
+            } catch (err) {
+                alert("Error registering teacher: " + err.message);
+            }
+        }
+
+        async function enrollStudent(e) {
+            e.preventDefault();
+            const adm = document.getElementById("sAdm").value.trim();
+            const name = document.getElementById("sName").value.trim();
+            const className = document.getElementById("sClassSelect").value;
+            const term = document.getElementById("sTermSelect").value;
+            const year = document.getElementById("sYearSelect").value;
+
+            if (!adm || !name || !className) return;
+
+            try {
+                await db.collection("students").add({
+                    schoolId: currentSchoolId,
+                    admissionNo: adm,
+                    name: name,
+                    class: className,
+                    term: term,
+                    year: year,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Student enrolled successfully!");
+                document.getElementById("studentForm").reset();
+            } catch (err) {
+                alert("Error enrolling student: " + err.message);
+            }
+        }
+
+        async function saveAllocation(e) {
+            e.preventDefault();
+            const teacherId = document.getElementById("allocTeacherSelect").value;
+            const className = document.getElementById("allocClassSelect").value;
+            const subjectName = document.getElementById("allocSubjectSelect").value;
+
+            if (!teacherId || !className || !subjectName) return;
+
+            try {
+                await db.collection("allocations").add({
+                    schoolId: currentSchoolId,
+                    teacherId: teacherId,
+                    className: className,
+                    subjectName: subjectName,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Allocation saved!");
+                document.getElementById("allocForm").reset();
+            } catch (err) {
+                alert("Error saving allocation: " + err.message);
+            }
+        }
+
+        async function loadCentralMarksMatrix() {
+            const examName = document.getElementById("adminExamSelect").value;
+            const className = document.getElementById("mClassSelect").value;
+            const matrixContainer = document.getElementById("matrixContainer");
+            const actionBar = document.getElementById("actionBar");
+            const toggleBox = document.getElementById("adminEditToggleBox");
+
+            if (!examName || !className) {
+                matrixContainer.innerHTML = "<p style='padding:12px;'>Select both an exam and a class to display the marks grid.</p>";
+                actionBar.style.display = "none";
+                toggleBox.style.display = "none";
+                return;
+            }
+
+            matrixContainer.innerHTML = "<p style='padding:12px;'>Loading class marks grid...</p>";
+
+            try {
+                const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+                cachedSubjects = [];
+                subSnap.forEach(d => cachedSubjects.push(d.data().name));
+
+                const studSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
+                cachedStudents = [];
+                studSnap.forEach(d => cachedStudents.push(d.data()));
+
+                const marksSnap = await db.collection("marks")
+                    .where("schoolId", "==", currentSchoolId)
+                    .where("class", "==", className)
+                    .where("exam", "==", examName)
+                    .get();
+
+                cachedMarksMap = {};
+                marksSnap.forEach(d => {
+                    const data = d.data();
+                    if (!cachedMarksMap[data.admissionNo]) cachedMarksMap[data.admissionNo] = {};
+                    cachedMarksMap[data.admissionNo][data.subject] = data.score;
+                });
+
+                if (cachedStudents.length === 0) {
+                    matrixContainer.innerHTML = "<p style='padding:12px; color:red;'>No students registered in this class.</p>";
+                    actionBar.style.display = "none";
+                    toggleBox.style.display = "none";
+                    return;
+                }
+
+                renderCentralMatrixTable();
+                actionBar.style.display = "flex";
+                toggleBox.style.display = "block";
+            } catch (err) {
+                matrixContainer.innerHTML = "<p style='padding:12px; color:red;'>Error fetching matrix: " + err.message + "</p>";
+            }
+        }
+
+        function renderCentralMatrixTable() {
+            const matrixContainer = document.getElementById("matrixContainer");
+            let html = `<table><thead><tr><th>Adm</th><th>Student Name</th>`;
+            cachedSubjects.forEach(s => { html += `<th>${s}</th>`; });
+            html += `<th>Total Marks</th><th>Mean Marks</th><th>Overall Grade</th></tr></thead><tbody>`;
+
+            let subjectTotals = {};
+            let subjectCounts = {};
+            cachedSubjects.forEach(s => {
+                subjectTotals[s] = 0;
+                subjectCounts[s] = 0;
+            });
+
+            cachedStudents.forEach(st => {
+                cachedSubjects.forEach(sub => {
+                    const val = (cachedMarksMap[st.admissionNo] && cachedMarksMap[st.admissionNo][sub] !== undefined) ? cachedMarksMap[st.admissionNo][sub] : "";
+                    if (val !== "" && !isNaN(Number(val))) {
+                        subjectTotals[sub] += Number(val);
+                        subjectCounts[sub]++;
+                    }
+                });
+            });
+
+            cachedStudents.forEach(st => {
+                html += `<tr><td>${st.admissionNo}</td><td style="text-align:left;">${st.name}</td>`;
+                let total = 0;
+                let count = 0;
+
+                cachedSubjects.forEach(sub => {
+                    const val = (cachedMarksMap[st.admissionNo] && cachedMarksMap[st.admissionNo][sub] !== undefined) ? cachedMarksMap[st.admissionNo][sub] : "";
+                    if (val !== "") {
+                        total += Number(val);
+                        count++;
+                    }
+                    if (isAdminEditMode) {
+                        html += `<td><input type="number" class="admin-mark-input" data-adm="${st.admissionNo}" data-sub="${sub}" value="${val}" style="width:50px; text-align:center;"></td>`;
+                    } else {
+                        html += `<td>${val !== "" ? val : "-"}</td>`;
+                    }
+                });
+
+                const mean = count > 0 ? (total / count).toFixed(2) : "-";
+                const gradeInfo = count > 0 ? getCBCGradeDetails(mean) : { grade: "-" };
+
+                html += `<td><strong>${total}</strong></td><td><strong>${mean}</strong></td><td><strong>${gradeInfo.grade}</strong></td></tr>`;
+            });
+
+            html += `<tr class="subject-means-row"><td>-</td><td style="text-align:left;">SUBJECT MEAN</td>`;
+            cachedSubjects.forEach(sub => {
+                const sMean = subjectCounts[sub] > 0 ? (subjectTotals[sub] / subjectCounts[sub]).toFixed(1) : "-";
+                html += `<td>${sMean}</td>`;
+            });
+            html += `<td colspan="3">Class Total/Overall Mean</td></tr>`;
+
+            html += `</tbody></table>`;
+            matrixContainer.innerHTML = html;
+        }
+
+        function toggleAdminEditMarks() {
+            isAdminEditMode = !isAdminEditMode;
+            document.getElementById("btnToggleAdminEdit").textContent = isAdminEditMode ? "❌ Cancel Edit" : "✏️ Edit Pool Marks";
+            document.getElementById("btnSaveAdminEdit").style.display = isAdminEditMode ? "inline-block" : "none";
+            renderCentralMatrixTable();
+        }
+
+        async function saveAdminEditedMarks() {
+            const examName = document.getElementById("adminExamSelect").value;
+            const className = document.getElementById("mClassSelect").value;
+            const inputs = document.querySelectorAll(".admin-mark-input");
+            
+            try {
+                const batch = db.batch();
+                inputs.forEach(input => {
+                    const adm = input.getAttribute("data-adm");
+                    const sub = input.getAttribute("data-sub");
+                    const val = input.value.trim();
+                    
+                    const docId = `${currentSchoolId}_${className}_${adm}_${sub}_${examName}`;
+                    const docRef = db.collection("marks").doc(docId);
+                    
+                    if (val !== "") {
+                        batch.set(docRef, {
+                            schoolId: currentSchoolId,
+                            class: className,
+                            admissionNo: adm,
+                            subject: sub,
+                            exam: examName,
+                            score: Number(val),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                });
+
+                await batch.commit();
+                alert("Marks successfully updated!");
+                isAdminEditMode = false;
+                document.getElementById("btnToggleAdminEdit").textContent = "✏️ Edit Pool Marks";
+                document.getElementById("btnSaveAdminEdit").style.display = "none";
+                loadCentralMarksMatrix();
+            } catch (err) {
+                alert("Error saving edited marks: " + err.message);
+            }
+        }
+
+        function openOptionModal(actionType) {
+            pendingOptionAction = actionType;
             document.getElementById("optionModal").style.display = "flex";
         }
 
@@ -1369,1018 +2392,1181 @@
             document.getElementById("optionModal").style.display = "none";
         }
 
-        async function handleOptionSelection(option) {
-            closeOptionModal();
-            if (option === 'individual') {
-                const success = await renderReportFormsView();
-                if (!success) return;
-
-                const printElement = document.getElementById("printSection");
-                if (pendingOptionAction === 'download') {
-                    printElement.style.display = "block";
-                    const opt = {
-                        margin:       0.2,
-                        filename:     `Report_Forms_ALL.pdf`,
-                        image:        { type: 'jpeg', quality: 0.98 },
-                        html2canvas:  { scale: 2 },
-                        jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
-                    };
-                    html2pdf().set(opt).from(printElement).save().then(() => {
-                        printElement.style.display = "none";
-                    });
-                } else {
-                    printElement.style.display = "block";
-                    window.print();
-                    printElement.style.display = "none";
-                }
+        function checkPaymentBeforeAction(callback) {
+            if (!isGlobalPaymentEnabled || (schoolPaidUntil && schoolPaidUntil.toDate() > new Date())) {
+                callback();
             } else {
-                if (pendingOptionAction === 'download') {
-                    downloadClassMasterSheetPDF();
-                } else {
-                    printClassMasterSheet();
-                }
+                alert("Subscription expired or pending payment. Please renew term portal access.");
+                openAdminSection('tabPaymentRenewals');
             }
         }
 
-        /* RENDERING REPORT FORM */
-        async function renderReportFormsView() {
-            const printSec = document.getElementById("printSection");
-            const className = document.getElementById("mClassSelect").value || selectedTeacherClass || 'N/A';
-            const examName = document.getElementById("adminExamSelect").value || document.getElementById("examSelect").value || 'N/A';
+        async function handleOptionSelection(mode) {
+            closeOptionModal();
+            const examName = document.getElementById("adminExamSelect").value;
+            const className = document.getElementById("mClassSelect").value;
 
-            let filteredStudents = cachedStudents;
-
-            if (filteredStudents.length === 0) {
-                alert("No student found!");
-                return false;
+            if (!examName || !className) {
+                alert("Please select both Exam Type and Class.");
+                return;
             }
 
-            let rankedList = filteredStudents.map(student => {
-                const adm = student.admissionNo;
-                let total = 0;
-                let count = 0;
-                cachedSubjects.forEach(sub => {
-                    const score = cachedMarksMap[adm] && cachedMarksMap[adm][sub] !== undefined ? cachedMarksMap[adm][sub] : "-";
-                    if (score !== "-" && score !== "" && !isNaN(score)) {
-                        total += Number(score);
-                        count++;
+            const printSection = document.getElementById("printSection");
+            printSection.innerHTML = "<p>Generating documents...</p>";
+            printSection.style.display = "block";
+
+            let htmlContent = "";
+
+            if (mode === "class") {
+                htmlContent += `<div style="padding:20px; font-family:Arial;">
+                    <h2 style="text-align:center; color:#002060;">${currentSchoolName}</h2>
+                    <h3 style="text-align:center; margin-bottom:15px;">CLASS MASTER RESULTS SHEET - ${className} (${examName})</h3>
+                    ${document.getElementById("matrixContainer").innerHTML}
+                </div>`;
+            } else {
+                let targetStudents = cachedStudents;
+
+                if (mode === "range") {
+                    const rangeStart = document.getElementById("rangeStart").value.trim();
+                    const rangeEnd = document.getElementById("rangeEnd").value.trim();
+
+                    if (rangeStart && rangeEnd) {
+                        targetStudents = cachedStudents.filter(s =>
+                            String(s.admissionNo).localeCompare(rangeStart, undefined, { numeric: true }) >= 0 &&
+                            String(s.admissionNo).localeCompare(rangeEnd, undefined, { numeric: true }) <= 0
+                        );
                     }
-                });
-                return { adm: adm, total: total, avg: count > 0 ? total / count : 0 };
-            });
+                }
 
-            rankedList.sort((a, b) => b.total - a.total);
-
-            let cardsHtml = "";
-            filteredStudents.forEach(student => {
-                const adm = student.admissionNo;
-                let subjectRows = "";
-                let grandTotal = 0;
-                let count = 0;
-
-                const rankIdx = rankedList.findIndex(r => r.adm === adm);
-                const overallPos = rankIdx !== -1 ? (rankIdx + 1) + " / " + filteredStudents.length : "-";
-
+                /* Class-wide subject means used by the report table and comparison graph. */
+                const subjectStats = {};
                 cachedSubjects.forEach(sub => {
-                    const score = cachedMarksMap[adm] && cachedMarksMap[adm][sub] !== undefined ? cachedMarksMap[adm][sub] : "-";
-                    let remark = "-";
-                    let grade = "-";
+                    let total = 0;
+                    let count = 0;
 
-                    if (score !== "-" && score !== "" && !isNaN(score)) {
-                        const num = Number(score);
-                        grandTotal += num;
-                        count++;
-                        if (num >= 80) { grade = "A"; remark = "Excellent"; }
-                        else if (num >= 70) { grade = "B"; remark = "Very Good"; }
-                        else if (num >= 60) { grade = "C"; remark = "Good"; }
-                        else if (num >= 50) { grade = "D"; remark = "Average"; }
-                        else { grade = "E"; remark = "Needs Improvement"; }
-                    }
+                    cachedStudents.forEach(st => {
+                        const value = cachedMarksMap[st.admissionNo] &&
+                                      cachedMarksMap[st.admissionNo][sub] !== undefined
+                                      ? Number(cachedMarksMap[st.admissionNo][sub])
+                                      : NaN;
 
-                    subjectRows += `
-                        <tr>
-                            <td style="text-align:left;">${sub}</td>
-                            <td>${score}</td>
-                            <td>${grade}</td>
-                            <td>${remark}</td>
-                        </tr>
-                    `;
+                        if (!isNaN(value)) {
+                            total += value;
+                            count++;
+                        }
+                    });
+
+                    subjectStats[sub] = {
+                        mean: count > 0 ? total / count : 0,
+                        count: count
+                    };
                 });
 
-                const average = count > 0 ? (grandTotal / count).toFixed(1) : "-";
+                /* Calculate class ranking from total marks. */
+                const rankedStudents = cachedStudents.map(st => {
+                    let total = 0;
+                    let count = 0;
 
-                cardsHtml += `
+                    cachedSubjects.forEach(sub => {
+                        const value = cachedMarksMap[st.admissionNo] &&
+                                      cachedMarksMap[st.admissionNo][sub] !== undefined
+                                      ? Number(cachedMarksMap[st.admissionNo][sub])
+                                      : NaN;
+
+                        if (!isNaN(value)) {
+                            total += value;
+                            count++;
+                        }
+                    });
+
+                    return {
+                        admissionNo: String(st.admissionNo),
+                        total: total,
+                        count: count
+                    };
+                }).sort((a, b) => b.total - a.total);
+
+                const classPositionFor = adm => {
+                    const index = rankedStudents.findIndex(x => x.admissionNo === String(adm));
+                    return index >= 0 ? index + 1 : "-";
+                };
+
+                /* CBC points follow the eight-level structure already used by the system. */
+                const getReportPoints = grade => {
+                    const map = {
+                        "EE1": 8, "EE2": 7,
+                        "ME1": 6, "ME2": 5,
+                        "AE1": 4, "AE2": 3,
+                        "BE1": 2, "BE2": 1
+                    };
+                    return map[grade] || 0;
+                };
+
+                const escapeHtml = value => String(value ?? "")
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+
+                /* Inline SVG graph so it prints/downloads reliably with the report. */
+                const makePerformanceGraph = (studentMarks, subjects) => {
+                    const width = 900;
+                    const height = 205;
+                    const left = 42;
+                    const right = 16;
+                    const top = 18;
+                    const bottom = 45;
+                    const graphW = width - left - right;
+                    const graphH = height - top - bottom;
+
+                    const y = value => top + graphH - (Math.max(0, Math.min(100, value)) / 100) * graphH;
+                    const x = index => subjects.length <= 1
+                        ? left + graphW / 2
+                        : left + (index * graphW / (subjects.length - 1));
+
+                    let grid = "";
+                    [0, 25, 50, 75, 100].forEach(v => {
+                        const yy = y(v);
+                        grid += `<line x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}" stroke="#e5e7eb" stroke-width="1"/>`;
+                        grid += `<text x="5" y="${yy+4}" font-size="11" fill="#374151">${v}</text>`;
+                    });
+
+                    const studentPoints = subjects.map((sub, i) => {
+                        const val = studentMarks[sub] !== undefined && studentMarks[sub] !== "-"
+                            ? Number(studentMarks[sub])
+                            : 0;
+                        return `${x(i)},${y(val)}`;
+                    }).join(" ");
+
+                    const meanPoints = subjects.map((sub, i) => {
+                        return `${x(i)},${y(subjectStats[sub].mean)}`;
+                    }).join(" ");
+
+                    let labels = "";
+                    subjects.forEach((sub, i) => {
+                        const label = String(sub).length > 12
+                            ? String(sub).substring(0, 11) + "…"
+                            : String(sub);
+                        labels += `<text x="${x(i)}" y="${height-17}" text-anchor="middle" font-size="10" fill="#374151">${escapeHtml(label)}</text>`;
+                    });
+
+                    let studentDots = "";
+                    let meanDots = "";
+                    subjects.forEach((sub, i) => {
+                        const studentVal = studentMarks[sub] !== undefined && studentMarks[sub] !== "-"
+                            ? Number(studentMarks[sub])
+                            : 0;
+                        const meanVal = subjectStats[sub].mean || 0;
+
+                        studentDots += `<circle cx="${x(i)}" cy="${y(studentVal)}" r="3.2" fill="#27367a"/>`;
+                        meanDots += `<circle cx="${x(i)}" cy="${y(meanVal)}" r="2.6" fill="#ffffff" stroke="#6b7280" stroke-width="1.5"/>`;
+                    });
+
+                    return `
+                    <svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-label="Performance Comparison Marks">
+                        ${grid}
+                        <line x1="${left}" y1="${top}" x2="${left}" y2="${top+graphH}" stroke="#9ca3af" stroke-width="1"/>
+                        <polyline points="${meanPoints}" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>
+                        <polyline points="${studentPoints}" fill="none" stroke="#27367a" stroke-width="3"/>
+                        ${meanDots}
+                        ${studentDots}
+                        ${labels}
+
+                        <line x1="${width-205}" y1="25" x2="${width-175}" y2="25" stroke="#27367a" stroke-width="3"/>
+                        <text x="${width-168}" y="29" font-size="11" fill="#111827">Student marks</text>
+
+                        <line x1="${width-205}" y1="44" x2="${width-175}" y2="44" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/>
+                        <text x="${width-168}" y="48" font-size="11" fill="#111827">Class mean (marks)</text>
+                    </svg>`;
+                };
+
+                targetStudents.forEach(st => {
+                    const stMarks = cachedMarksMap[st.admissionNo] || {};
+                    let total = 0;
+                    let count = 0;
+                    let totalPoints = 0;
+                    let marksRowsHtml = "";
+
+                    cachedSubjects.forEach(sub => {
+                        const score = stMarks[sub] !== undefined ? Number(stMarks[sub]) : "-";
+                        let gradeObj = { grade: "-", desc: "-" };
+                        let points = 0;
+
+                        if (score !== "-") {
+                            total += score;
+                            count++;
+                            gradeObj = getCBCGradeDetails(score);
+                            points = getReportPoints(gradeObj.grade);
+                            totalPoints += points;
+                        }
+
+                        const gradeClass = gradeObj.grade.startsWith("EE") ? "rc-grade-ee" :
+                                           gradeObj.grade.startsWith("ME") ? "rc-grade-me" :
+                                           gradeObj.grade.startsWith("AE") ? "rc-grade-ae" :
+                                           gradeObj.grade.startsWith("BE") ? "rc-grade-be" : "";
+
+                        const markDisplay = score === "-" ? "-" :
+                            `<span class="rc-mark">${score}</span> <span class="${gradeClass}">(${gradeObj.grade})</span>`;
+
+                        const sMean = subjectStats[sub].count > 0
+                            ? subjectStats[sub].mean.toFixed(2)
+                            : "-";
+
+                        let subjectMeanPoints = "-";
+                        if (subjectStats[sub].count > 0) {
+                            let classPointTotal = 0;
+                            let classPointCount = 0;
+
+                            cachedStudents.forEach(cs => {
+                                const csScore = cachedMarksMap[cs.admissionNo] &&
+                                                cachedMarksMap[cs.admissionNo][sub] !== undefined
+                                                ? Number(cachedMarksMap[cs.admissionNo][sub])
+                                                : NaN;
+
+                                if (!isNaN(csScore)) {
+                                    const csGrade = getCBCGradeDetails(csScore).grade;
+                                    classPointTotal += getReportPoints(csGrade);
+                                    classPointCount++;
+                                }
+                            });
+
+                            subjectMeanPoints = classPointCount > 0
+                                ? (classPointTotal / classPointCount).toFixed(2)
+                                : "-";
+                        }
+
+                        marksRowsHtml += `<tr>
+                            <td>${escapeHtml(sub)}</td>
+                            <td>${markDisplay}</td>
+                            <td>${points ? points + " pts" : "-"}</td>
+                            <td>${sMean}</td>
+                            <td>${subjectMeanPoints}${subjectMeanPoints !== "-" ? " pts" : ""}</td>
+                        </tr>`;
+                    });
+
+                    const mean = count > 0 ? (total / count) : 0;
+                    const overallGrade = count > 0 ? getCBCGradeDetails(mean) : { grade: "-", desc: "-" };
+                    const position = classPositionFor(st.admissionNo);
+                    const level = overallGrade.grade !== "-" ? overallGrade.grade.substring(0, 2) : "-";
+                    const classTotalPossible = cachedStudents.length * cachedSubjects.length * 100;
+                    const classMeanMarks = cachedSubjects.length > 0
+                        ? cachedSubjects.reduce((sum, sub) => sum + (subjectStats[sub].mean || 0), 0) / cachedSubjects.length
+                        : 0;
+
+                    let classPointTotal = 0;
+                    let classPointCount = 0;
+                    cachedStudents.forEach(cs => {
+                        cachedSubjects.forEach(sub => {
+                            const csScore = cachedMarksMap[cs.admissionNo] &&
+                                            cachedMarksMap[cs.admissionNo][sub] !== undefined
+                                            ? Number(cachedMarksMap[cs.admissionNo][sub])
+                                            : NaN;
+
+                            if (!isNaN(csScore)) {
+                                classPointTotal += getReportPoints(getCBCGradeDetails(csScore).grade);
+                                classPointCount++;
+                            }
+                        });
+                    });
+
+                    const classMeanPoints = classPointCount > 0 ? classPointTotal / classPointCount : 0;
+                    const graph = makePerformanceGraph(stMarks, cachedSubjects);
+
+                    htmlContent += `
                     <div class="report-card">
-                        <div class="report-header">
-                            <div class="report-header-text">
-                                <h2>${currentSchoolName}</h2>
-                                <p>${currentSchoolPoBox} | Email: ${currentSchoolEmail}</p>
+                        <div class="rc-header">
+                            <div class="rc-logo">
+                                ${currentSchoolLogo
+                                    ? `<img src="${currentSchoolLogo}" alt="School Logo">`
+                                    : `<div class="rc-logo-placeholder">SCHOOL LOGO</div>`}
+                            </div>
+
+                            <div class="rc-school-info">
+                                <h2>${escapeHtml(currentSchoolName || "SCHOOL NAME")}</h2>
+                                ${currentSchoolPoBox ? `<p>P.O. Box ${escapeHtml(currentSchoolPoBox)}, Nairobi</p>` : `<p>P.O. Box</p>`}
+                                <p>Email: ${escapeHtml(currentSchoolEmail || "")}</p>
+                                <p class="rc-exam-line">
+                                    Exam Type: <span>${escapeHtml(examName)}</span>
+                                    ${st.term || st.year ? ` ${escapeHtml(st.term || "")} ${escapeHtml(st.year || "")}` : ""}
+                                </p>
+                            </div>
+
+                            <div class="rc-student-photo">
+                                ${st.photoUrl
+                                    ? `<img src="${st.photoUrl}" alt="Student Photo">`
+                                    : `<div class="rc-photo-box">STUDENT PHOTO</div>`}
                             </div>
                         </div>
 
-                        <div class="report-title">STUDENT ACADEMIC PROGRESS REPORT</div>
+                        <div class="rc-bio-grid">
+                            <div class="rc-bio-item">
+                                <span>Student Name</span>
+                                <strong>${escapeHtml(st.name)}</strong>
+                            </div>
+                            <div class="rc-bio-item">
+                                <span>Admission No.</span>
+                                <strong>${escapeHtml(st.admissionNo)}</strong>
+                            </div>
+                            <div class="rc-bio-item">
+                                <span>Class Position</span>
+                                <strong>${position} out of ${cachedStudents.length}</strong>
+                            </div>
 
-                        <div class="report-student-info">
-                            <div><strong>Student Name:</strong> ${student.name}</div>
-                            <div><strong>Admission No:</strong> ${adm}</div>
-                            <div><strong>Class / Stream:</strong> ${className}</div>
-                            <div><strong>Exam / Term:</strong> ${examName}</div>
-                            <div><strong>Overall Position:</strong> ${overallPos}</div>
-                            <div><strong>Mean Score:</strong> ${average}</div>
+                            <div class="rc-bio-item">
+                                <span>Total Marks</span>
+                                <strong>${total} / ${cachedSubjects.length * 100}</strong>
+                            </div>
+                            <div class="rc-bio-item">
+                                <span>Total Points</span>
+                                <strong>${totalPoints}</strong>
+                            </div>
+                            <div class="rc-bio-item">
+                                <span>Class Mean (marks)</span>
+                                <strong>${classMeanMarks.toFixed(2)}</strong>
+                            </div>
                         </div>
 
-                        <table class="report-table">
+                        <table class="rc-marks-table">
                             <thead>
                                 <tr>
-                                    <th>Subject Title</th>
-                                    <th>Score (%)</th>
-                                    <th>Grade</th>
-                                    <th>Teacher Remarks</th>
+                                    <th>Subject</th>
+                                    <th>Your Mark</th>
+                                    <th>Points</th>
+                                    <th>Subject Mean<br>(marks)</th>
+                                    <th>Subject Mean<br>(pts)</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                ${subjectRows}
-                                <tr style="font-weight:bold; background:#f8fafc;">
-                                    <td>TOTAL / AVERAGE</td>
-                                    <td>${grandTotal}</td>
-                                    <td>AVG: ${average}</td>
-                                    <td>-</td>
-                                </tr>
+                                ${marksRowsHtml}
                             </tbody>
                         </table>
 
-                        <div class="report-comments">
-                            <div><strong>Class Teacher Comments:</strong> Satisfactory performance. Keep putting in more effort.</div>
-                            <div><strong>Headteacher Comments:</strong> Good results. Promoted to next evaluation tier.</div>
+                        <div class="rc-performance">
+                            <div class="rc-performance-title">Performance Comparison (Marks)</div>
+                            <div class="rc-chart-wrap">${graph}</div>
                         </div>
 
-                        <div class="report-signatures">
-                            <div>Class Teacher Sign: __________________</div>
-                            <div>Headteacher Sign: __________________</div>
+                        <div class="rc-summary">
+                            <div class="rc-summary-left">
+                                <div>Your mean (marks): ${mean.toFixed(2)}</div>
+                                <div>Your mean (points): ${count > 0 ? (totalPoints / count).toFixed(2) : "0.00"}</div>
+                                <div>Your level: ${level}</div>
+                            </div>
+                            <div class="rc-summary-right">
+                                <div>Class mean (marks): ${classMeanMarks.toFixed(2)}</div>
+                                <div>Class mean (points): ${classMeanPoints.toFixed(2)}</div>
+                            </div>
                         </div>
-                    </div>
-                `;
-            });
 
-            printSec.innerHTML = cardsHtml;
-            return true;
-        }
+                        <div class="rc-comment-box">
+                            <div class="rc-comment-heading">Class Teacher's Comment</div>
+                            <div>Excellent performance. Keep up the good work and consistency.</div>
+                        </div>
 
-        function downloadClassMasterSheetPDF() {
-            const matrix = document.getElementById("matrixContainer");
-            const opt = {
-                margin:       0.3,
-                filename:     `Class_Master_Sheet.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
-            };
-            html2pdf().set(opt).from(matrix).save();
-        }
+                        <div class="rc-comment-box">
+                            <div class="rc-comment-heading">Principal's / HOI Comment</div>
+                            <div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div>
+                        </div>
 
-        function printClassMasterSheet() {
-            const matrix = document.getElementById("matrixContainer").innerHTML;
-            const printSec = document.getElementById("printSection");
-            printSec.innerHTML = `
-                <div style="padding:20px; text-align:center;">
-                    <h2>${currentSchoolName}</h2>
-                    <h3>CLASS MASTER RESULTS SHEET</h3>
-                    <br>
-                    ${matrix}
-                </div>
-            `;
-            printSec.style.display = "block";
-            window.print();
-            printSec.style.display = "none";
-        }
+                        <div class="rc-footer-dates">
+                            <div>Closes: ${escapeHtml(currentClosingDate || "N/A")}</div>
+                            <div>Opens: ${escapeHtml(currentOpeningDate || "N/A")}</div>
+                        </div>
+                    </div>`;
+                });
+            }
 
-        async function compileResults() {
-            alert("Compiled successful!");
-            await loadCentralMarksMatrix();
-        }
+            printSection.innerHTML = htmlContent;
 
-        /* ADMIN EDIT MODE FOR POOL MARKS */
-        function toggleAdminEditMarks() {
-            isAdminEditMode = !isAdminEditMode;
-            const btnToggle = document.getElementById("btnToggleAdminEdit");
-            const btnSave = document.getElementById("btnSaveAdminEdit");
-            
-            if (isAdminEditMode) {
-                btnToggle.textContent = "❌ Cancel Editing";
-                btnSave.style.display = "inline-block";
+            if (pendingOptionAction === "download") {
+                const opt = {
+                    margin: 5,
+                    filename: `${className}_Report_Forms.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 2 },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().from(printSection).set(opt).save().then(() => {
+                    printSection.style.display = "none";
+                });
             } else {
-                btnToggle.textContent = "✏️ Edit Pool Marks";
-                btnSave.style.display = "none";
-            }
-            loadCentralMarksMatrix();
-        }
-
-        async function saveAdminEditedMarks() {
-            const exam = document.getElementById("adminExamSelect").value;
-            const className = document.getElementById("mClassSelect").value;
-            if (!exam || !className) return;
-
-            const inputs = document.querySelectorAll("#matrixContainer .admin-score-input");
-            const batch = db.batch();
-
-            inputs.forEach(input => {
-                const adm = input.getAttribute("data-adm");
-                const sub = input.getAttribute("data-sub");
-                const val = input.value.trim();
-
-                if (adm && sub && val !== "") {
-                    const docId = `${currentSchoolId}_${className}_${exam}_${sub}_${adm}`;
-                    const ref = db.collection("marks").doc(docId);
-                    batch.set(ref, {
-                        schoolId: currentSchoolId,
-                        class: className,
-                        subject: sub,
-                        exam: exam,
-                        admissionNo: adm,
-                        score: Number(val),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                }
-            });
-
-            try {
-                await batch.commit();
-                alert("Central pool marks successfully updated by Admin!");
-                toggleAdminEditMarks();
-            } catch (err) {
-                alert("Error updating marks: " + err.message);
-            }
-        }
-
-        /* SAVE TEACHER MARKS */
-        async function saveTeacherMarks() {
-            const exam = document.getElementById("examSelect").value;
-            if (!exam || !selectedTeacherClass || !selectedTeacherSubject) return;
-
-            const inputs = document.querySelectorAll("#teacherMarksContainer .score-input");
-            const batch = db.batch();
-
-            inputs.forEach(input => {
-                const adm = input.getAttribute("data-adm");
-                const val = input.value.trim();
-
-                if (adm && val !== "") {
-                    const docId = `${currentSchoolId}_${selectedTeacherClass}_${exam}_${selectedTeacherSubject}_${adm}`;
-                    const ref = db.collection("marks").doc(docId);
-                    batch.set(ref, {
-                        schoolId: currentSchoolId,
-                        class: selectedTeacherClass,
-                        subject: selectedTeacherSubject,
-                        exam: exam,
-                        admissionNo: adm,
-                        score: Number(val),
-                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                }
-            });
-
-            try {
-                await batch.commit();
-                alert("Marks saved successfully to Central Pool!");
-            } catch (err) {
-                alert("Error saving marks: " + err.message);
-            }
-        }
-
-        /* LOAD CENTRAL MARKS MATRIX FUNCTION */
-        async function loadCentralMarksMatrix() {
-            const exam = document.getElementById("adminExamSelect").value;
-            const className = document.getElementById("mClassSelect").value;
-            const container = document.getElementById("matrixContainer");
-            const actionBar = document.getElementById("actionBar");
-            const summaryStats = document.getElementById("summaryStats");
-            const adminEditToggleBox = document.getElementById("adminEditToggleBox");
-
-            if (!exam || !className) {
-                container.innerHTML = "";
-                if (actionBar) actionBar.style.display = "none";
-                if (summaryStats) summaryStats.innerHTML = "";
-                if (adminEditToggleBox) adminEditToggleBox.style.display = "none";
-                return;
-            }
-
-            container.innerHTML = "<p style='padding:12px;'>Loading central marks matrix...</p>";
-
-            try {
-                const studentsSnap = await db.collection("students")
-                    .where("schoolId", "==", currentSchoolId)
-                    .where("class", "==", className)
-                    .get();
-
-                if (studentsSnap.empty) {
-                    container.innerHTML = "<p style='padding:12px; color:#ef4444;'>No students found in this class.</p>";
-                    if (actionBar) actionBar.style.display = "none";
-                    if (adminEditToggleBox) adminEditToggleBox.style.display = "none";
-                    return;
-                }
-
-                cachedStudents = [];
-                studentsSnap.forEach(doc => {
-                    cachedStudents.push(doc.data());
-                });
-
-                const allocSnap = await db.collection("allocations")
-                    .where("schoolId", "==", currentSchoolId)
-                    .where("className", "==", className)
-                    .get();
-
-                let subjects = [];
-                allocSnap.forEach(doc => {
-                    const sub = doc.data().subjectName;
-                    if (sub && !subjects.includes(sub)) subjects.push(sub);
-                });
-
-                if (subjects.length === 0) {
-                    const subSnap = await db.collection("subjects")
-                        .where("schoolId", "==", currentSchoolId)
-                        .get();
-                    subSnap.forEach(doc => {
-                        const sub = doc.data().name;
-                        if (sub && !subjects.includes(sub)) subjects.push(sub);
-                    });
-                }
-
-                cachedSubjects = subjects;
-
-                const marksSnap = await db.collection("marks")
-                    .where("schoolId", "==", currentSchoolId)
-                    .where("exam", "==", exam)
-                    .where("class", "==", className)
-                    .get();
-
-                let marksMap = {};
-                marksSnap.forEach(doc => {
-                    const d = doc.data();
-                    if (!marksMap[d.admissionNo]) marksMap[d.admissionNo] = {};
-                    marksMap[d.admissionNo][d.subject] = d.score;
-                });
-
-                cachedMarksMap = marksMap;
-
-                let subjectTotals = {};
-                let subjectCounts = {};
-                subjects.forEach(sub => {
-                    subjectTotals[sub] = 0;
-                    subjectCounts[sub] = 0;
-                });
-
-                let studentSummaries = cachedStudents.map(student => {
-                    const adm = student.admissionNo;
-                    let total = 0;
-                    let count = 0;
-                    subjects.forEach(sub => {
-                        const score = marksMap[adm] && marksMap[adm][sub] !== undefined ? marksMap[adm][sub] : "-";
-                        if (score !== "-" && score !== "" && !isNaN(score)) {
-                            total += Number(score);
-                            count++;
-                        }
-                    });
-                    return { adm: adm, total: total, avg: count > 0 ? (total / count) : 0 };
-                });
-
-                studentSummaries.sort((a, b) => b.total - a.total);
-                let rankMap = {};
-                studentSummaries.forEach((item, index) => {
-                    rankMap[item.adm] = index + 1;
-                });
-
-                let html = "<table><thead><tr><th>ADM</th><th>Name</th>";
-                subjects.forEach(sub => {
-                    html += `<th>${sub}</th>`;
-                });
-                html += "<th>Total</th><th>Avg</th><th>Pos</th></tr></thead><tbody>";
-
-                let studentCount = 0;
-                let classTotalSum = 0;
-                let classTotalCount = 0;
-
-                cachedStudents.forEach(student => {
-                    studentCount++;
-                    const adm = student.admissionNo;
-                    const name = student.name;
-                    let total = 0;
-                    let count = 0;
-
-                    html += `<tr><td>${adm}</td><td style="text-align:left;">${name}</td>`;
-                    subjects.forEach(sub => {
-                        const score = marksMap[adm] && marksMap[adm][sub] !== undefined ? marksMap[adm][sub] : "-";
-                        
-                        if (score !== "-" && score !== "" && !isNaN(score)) {
-                            const numericScore = Number(score);
-                            total += numericScore;
-                            count++;
-                            subjectTotals[sub] += numericScore;
-                            subjectCounts[sub]++;
-                        }
-
-                        if (isAdminEditMode) {
-                            const inputVal = score === "-" ? "" : score;
-                            html += `<td><input type="number" min="0" max="100" class="admin-score-input" data-adm="${adm}" data-sub="${sub}" value="${inputVal}" style="width:60px; padding:4px; text-align:center;"></td>`;
-                        } else {
-                            html += `<td>${score}</td>`;
-                        }
-                    });
-
-                    const avg = count > 0 ? (total / count).toFixed(1) : "-";
-                    if (count > 0) {
-                        classTotalSum += total / count;
-                        classTotalCount++;
-                    }
-
-                    const pos = rankMap[adm] ? rankMap[adm] : "-";
-                    html += `<td><strong>${total}</strong></td><td><strong>${avg}</strong></td><td><strong>${pos}</strong></td></tr>`;
-                });
-
-                const overallClassMean = classTotalCount > 0 ? (classTotalSum / classTotalCount).toFixed(2) : "-";
-                html += `<tr class="subject-means-row"><td colspan="2"><strong>SUBJECT MEAN SCORE</strong></td>`;
-                subjects.forEach(sub => {
-                    const subMean = subjectCounts[sub] > 0 ? (subjectTotals[sub] / subjectCounts[sub]).toFixed(2) : "-";
-                    html += `<td><strong>${subMean}</strong></td>`;
-                });
-                html += `<td colspan="3"><strong>CLASS MEAN: ${overallClassMean}</strong></td></tr>`;
-
-                html += "</tbody></table>";
-                container.innerHTML = html;
-
-                if (summaryStats) summaryStats.innerHTML = `Total Students Enrolled: ${studentCount} | Subjects Tracked: ${subjects.length} | Overall Class Mean: ${overallClassMean}`;
-                if (actionBar) actionBar.style.display = "flex";
-                if (adminEditToggleBox) adminEditToggleBox.style.display = "block";
-            } catch (err) {
-                container.innerHTML = "<p style='padding:12px; color:red;'>Error loading central marks: " + err.message + "</p>";
-            }
-        }
-
-        window.onload = function () {
-            for (const county in kenyaData) {
-                let option = document.createElement("option");
-                option.value = county;
-                option.text = county;
-                countySelect.appendChild(option);
-            }
-            countySelect.addEventListener("change", populateSubCounties);
-            listenToGlobalPaymentControl();
-
-            document.getElementById('classForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const className = document.getElementById('cName').value.trim();
-                if (!className || !currentSchoolId) return;
-
-                try {
-                    await db.collection("classes").add({
-                        name: className,
-                        schoolId: currentSchoolId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert("Class saved successfully!");
-                    document.getElementById('cName').value = "";
-                    populateAllDropdowns();
-                } catch (err) {
-                    alert("Error saving class: " + err.message);
-                }
-            });
-
-            document.getElementById('subjectForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const subjectName = document.getElementById('subName').value.trim();
-                if (!subjectName || !currentSchoolId) return;
-
-                try {
-                    await db.collection("subjects").add({
-                        name: subjectName,
-                        schoolId: currentSchoolId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert("Subject saved successfully!");
-                    document.getElementById('subName').value = "";
-                    populateAllDropdowns();
-                } catch (err) {
-                    alert("Error saving subject: " + err.message);
-                }
-            });
-
-            document.getElementById('teacherForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const name = document.getElementById('tName').value.trim();
-                const email = document.getElementById('tEmail').value.trim();
-                const password = document.getElementById('tPassword').value;
-
-                if (!name || !email || !password || !currentSchoolId) return;
-
-                try {
-                    const cred = await secAuth.createUserWithEmailAndPassword(email.toLowerCase(), password);
-                    await db.collection("users").doc(cred.user.uid).set({
-                        name: name,
-                        email: email.toLowerCase(),
-                        role: "teacher",
-                        schoolId: currentSchoolId
-                    });
-                    await secAuth.signOut();
-                    alert("Teacher registered successfully!");
-                    document.getElementById('tName').value = "";
-                    document.getElementById('tEmail').value = "";
-                    document.getElementById('tPassword').value = "";
-                    populateAllDropdowns();
-                } catch (err) {
-                    alert("Error registering teacher: " + err.message);
-                }
-            });
-
-            document.getElementById('examTypeForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const examName = document.getElementById('examTypeName').value.trim();
-                if (!examName || !currentSchoolId) return;
-
-                try {
-                    await db.collection("examTypes").add({
-                        name: examName,
-                        schoolId: currentSchoolId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert("Exam type saved successfully!");
-                    document.getElementById('examTypeName').value = "";
-                    loadExamTypesList();
-                    populateAllDropdowns();
-                } catch (err) {
-                    alert("Error saving exam type: " + err.message);
-                }
-            });
-
-            document.getElementById('termsYearForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const year = document.getElementById('termYearInput').value;
-                const term = document.getElementById('termNameInput').value;
-                if (!year || !term || !currentSchoolId) return;
-
-                try {
-                    await db.collection("academicTerms").add({
-                        year: year,
-                        term: term,
-                        schoolId: currentSchoolId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert("Academic period registered!");
-                    loadTermsYearList();
-                } catch (err) {
-                    alert("Error saving period: " + err.message);
-                }
-            });
-
-            document.getElementById('studentForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const adm = document.getElementById('sAdm').value.trim();
-                const name = document.getElementById('sName').value.trim();
-                const sClass = document.getElementById('sClassSelect').value;
-                const term = document.getElementById('sTermSelect').value;
-                const year = document.getElementById('sYearSelect').value;
-
-                if (!adm || !name || !sClass || !currentSchoolId) return;
-
-                try {
-                    await db.collection("students").add({
-                        admissionNo: adm,
-                        name: name,
-                        class: sClass,
-                        term: term,
-                        year: year,
-                        schoolId: currentSchoolId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert("Student enrolled successfully!");
-                    document.getElementById('sAdm').value = "";
-                    document.getElementById('sName').value = "";
-                } catch (err) {
-                    alert("Error enrolling student: " + err.message);
-                }
-            });
-
-            document.getElementById('allocForm').addEventListener('submit', async function(e) {
-                e.preventDefault();
-                const teacherId = document.getElementById('allocTeacherSelect').value;
-                const className = document.getElementById('allocClassSelect').value;
-                const subjectName = document.getElementById('allocSubjectSelect').value;
-
-                if (!teacherId || !className || !subjectName || !currentSchoolId) return;
-
-                try {
-                    await db.collection("allocations").add({
-                        teacherId: teacherId,
-                        className: className,
-                        subjectName: subjectName,
-                        schoolId: currentSchoolId,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    alert("Allocation saved successfully!");
-                } catch (err) {
-                    alert("Error saving allocation: " + err.message);
-                }
-            });
-        };
-
-        function populateSubCounties() {
-            const selectedCounty = countySelect.value;
-            subCountySelect.innerHTML = '<option value="">-- Select Sub-County --</option>';
-            if (selectedCounty && kenyaData[selectedCounty]) {
-                kenyaData[selectedCounty].forEach(function (subCounty) {
-                    let option = document.createElement("option");
-                    option.value = subCounty;
-                    option.text = subCounty;
-                    subCountySelect.appendChild(option);
-                });
-            }
-            validateRegistrationForm();
-        }
-
-        function validateRegistrationForm() {
-            if (currentAuthMode !== "register") return;
-            const isCountySelected = countySelect.value !== "";
-            const isSubCountySelected = subCountySelect.value !== "";
-            const isTermsAgreed = termsCheckbox.checked;
-            submitAuthBtn.disabled = !(isCountySelected && isSubCountySelected && isTermsAgreed);
-        }
-
-        function listenToGlobalPaymentControl() {
-            db.collection("settings").doc("paymentControl").onSnapshot((doc) => {
-                if (doc.exists) {
-                    isGlobalPaymentEnabled = doc.data().enabled ?? true;
-                } else {
-                    isGlobalPaymentEnabled = true;
-                }
-                updatePaymentControlUI();
-            });
-        }
-
-        function updatePaymentControlUI() {
-            const toggle = document.getElementById("globalPaymentToggle");
-            const badge = document.getElementById("paymentControlBadge");
-            const statusText = document.getElementById("paymentStatusText");
-
-            if (toggle) toggle.checked = isGlobalPaymentEnabled;
-            if (badge) {
-                badge.textContent = isGlobalPaymentEnabled ? "PAYMENT ENABLED" : "TESTING MODE (FREE)";
-                badge.className = isGlobalPaymentEnabled ? "badge badge-success" : "badge badge-danger";
-            }
-            if (statusText) {
-                statusText.textContent = isGlobalPaymentEnabled 
-                    ? "Payments are currently active. Schools must pay KES 1,000 per term to download or print report forms."
-                    : "Testing mode active! Payments are currently turned off. All schools can download and print report forms for free.";
-            }
-        }
-
-        async function toggleGlobalPaymentControl(enabled) {
-            await db.collection("settings").doc("paymentControl").set({ enabled: enabled }, { merge: true });
-            alert(enabled ? "Payment system enabled!" : "Testing mode activated! All report forms free.");
-        }
-
-        function handlePaymentMethodChange(method) {
-            const mpesaSection = document.getElementById('mpesa-daraja-section');
-            const otherSection = document.getElementById('other-paystack-section');
-            
-            if (method === 'mpesa' || method === 'mpesa_express') {
-                mpesaSection.style.display = 'block';
-                otherSection.style.display = 'none';
-            } else {
-                mpesaSection.style.display = 'none';
-                otherSection.style.display = 'block';
-            }
-        }
-
-        // Helper function to format phone numbers to Safaricom Daraja 254XXXXXXXXX format
-        function formatPhoneNumber(phone) {
-          let cleaned = phone.replace(/[^0-9]/g, '');
-          if (cleaned.startsWith('0')) {
-            return '254' + cleaned.substring(1);
-          } else if (cleaned.startsWith('254')) {
-            return cleaned;
-          } else if (cleaned.startsWith('+254')) {
-            return cleaned.substring(1);
-          } else if (cleaned.length === 9) {
-            return '254' + cleaned;
-          }
-          return cleaned;
-        }
-
-        async function handlePayment(event) {
-          event.preventDefault();
-
-          const payBtn = document.getElementById('payBtn');
-          const statusMsg = document.getElementById('statusMessage');
-          const rawPhone = document.getElementById('paystack-phone').value;
-          const email = document.getElementById('paystack-email').value;
-          const amount = document.getElementById('paystack-amount').value;
-
-          // Reset status
-          statusMsg.className = 'status-message';
-          statusMsg.innerText = 'Initiating M-Pesa prompt...';
-          payBtn.disabled = true;
-
-          // Format phone number to international 254 format
-          const formattedPhone = formatPhoneNumber(rawPhone);
-
-          if (formattedPhone.length !== 12 || !formattedPhone.startsWith('254')) {
-            statusMsg.className = 'status-message status-error';
-            statusMsg.innerText = 'Invalid phone number format. Use 07XXXXXXXX or 2547XXXXXXXX.';
-            payBtn.disabled = false;
-            return;
-          }
-
-          try {
-            // Sends request to backend payment endpoint
-            const response = await fetch('/api/stkpush', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              body: JSON.stringify({
-                phone: formattedPhone,
-                email: email,
-                amount: amount
-              })
-            });
-
-            const data = await response.json();
-
-            if (response.ok && (data.ResponseCode === "0" || data.success)) {
-              statusMsg.className = 'status-message status-success';
-              statusMsg.innerText = 'M-Pesa prompt sent! Check your phone to complete payment.';
-            } else {
-              statusMsg.className = 'status-message status-error';
-              statusMsg.innerText = data.message || data.CustomerMessage || 'Failed to initiate M-Pesa prompt. Check backend status.';
-            }
-          } catch (error) {
-            console.error('Payment Error:', error);
-            statusMsg.className = 'status-message status-error';
-            statusMsg.innerText = 'Network error: Unable to connect to backend server at ' + window.location.origin;
-          } finally {
-            payBtn.disabled = false;
-          }
-        }
-
-        async function payWithDarajaMpesa() {
-            const phone = document.getElementById('paystack-phone').value.trim();
-            const amount = document.getElementById('paystack-amount').value;
-            const status = document.getElementById('daraja-status');
-
-            if (!phone) {
-                alert("Please enter a phone number");
-                return;
-            }
-
-            status.innerText = "Sending STK push to M-Pesa...";
-            status.style.color = "#0277bd";
-
-            try {
-                const res = await fetch('/api/stkpush', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ phone, amount })
-                });
-                
-                const data = await res.json();
-
-                if (data.ResponseCode === "0") {
-                    status.innerText = "Prompt triggered! Check your phone for M-Pesa PIN request.";
-                    status.style.color = "#2e7d32";
-                } else {
-                    status.innerText = "Error: " + (data.errorMessage || "Request failed");
-                    status.style.color = "#c62828";
-                }
-            } catch (err) {
-                status.innerText = "Network error. Check server console.";
-                status.style.color = "#c62828";
-            }
-        }
-
-        function payWithPaystack() {
-            const email = document.getElementById('paystack-email').value;
-            const phone = document.getElementById('paystack-phone').value;
-            const method = document.getElementById('paymentMethod').value;
-            const amount = 1000;
-
-            if (!email || !phone) {
-                alert('Please fill in Email and Phone Number!');
-                return;
-            }
-
-            const PAYSTACK_PUBLIC_KEY = 'pk_test_f7c252c81c472732325c9f24f65d31595a5541d8';
-
-            let channels = ['card', 'bank', 'ussd', 'qr', 'mobile_money', 'bank_transfer'];
-            if (method === 'mpesa' || method === 'airtel' || method === 'mpesa_express') {
-                channels = ['mobile_money'];
-            } else if (method === 'card') {
-                channels = ['card'];
-            }
-
-            const handler = PaystackPop.setup({
-                key: PAYSTACK_PUBLIC_KEY,
-                email: email,
-                amount: amount * 100,
-                currency: 'KES',
-                channels: channels,
-                metadata: {
-                    custom_fields: [
-                        { display_name: "Phone Number", variable_name: "phone_number", value: phone },
-                        { display_name: "Payment Method", variable_name: "payment_method", value: method },
-                        { display_name: "School ID", variable_name: "school_id", value: currentSchoolId }
-                    ]
-                },
-                onClose: function() {
-                    alert('Payment transaction canceled.');
-                },
-                callback: function(response) {
-                    alert('Payment Successful!\nRef: ' + response.reference);
-                    recordSchoolPayment(response.reference);
-                }
-            });
-
-            handler.openIframe();
-        }
-
-        async function recordSchoolPayment(reference) {
-            if (!currentSchoolId) return;
-
-            const fourMonthsMs = 120 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            
-            let baseTime = now;
-            if (schoolPaidUntil && schoolPaidUntil > now) {
-                baseTime = schoolPaidUntil;
-            }
-            const newPaidUntil = baseTime + fourMonthsMs;
-
-            await db.collection("schools").doc(currentSchoolId).update({
-                paidUntil: newPaidUntil,
-                lastPaymentRef: reference,
-                lastPaymentDate: firebase.firestore.FieldValue.serverTimestamp()
-            });
-
-            alert("Subscription updated successfully for 4 months (1 Term)!");
-            fetchSchoolPaymentStatus();
-        }
-
-        function isPaymentActive() {
-            if (!isGlobalPaymentEnabled) return true;
-            if (!schoolPaidUntil) return false;
-            return Date.now() < schoolPaidUntil;
-        }
-
-        function checkPaymentBeforeAction(actionCallback) {
-            if (isPaymentActive()) {
-                actionCallback();
-            } else {
-                alert("Subscription Required!\n\nYour school's portal access/term period has expired. Please navigate to the 'Payment & Renewals' tab in your Admin Panel to pay KES 1,000 for full term access.");
-                openAdminSection('tabPaymentRenewals');
+                window.print();
+                printSection.style.display = "none";
             }
         }
 
         async function fetchSchoolPaymentStatus() {
             if (!currentSchoolId) return;
-            const doc = await db.collection("schools").doc(currentSchoolId).get();
-            const timerContainer = document.getElementById("schoolPaymentTimer");
-            
-            if (doc.exists && doc.data().paidUntil) {
-                schoolPaidUntil = doc.data().paidUntil;
-                timerContainer.style.display = "flex";
-                startPaymentCountdown();
-            } else {
-                schoolPaidUntil = null;
-                timerContainer.style.display = "flex";
-                document.getElementById("paymentTimerCountdown").textContent = "Access: Expired / Unpaid (KES 1,000 / Term)";
+            try {
+                const doc = await db.collection("subscriptions").doc(currentSchoolId).get();
+                const timerBanner = document.getElementById("schoolPaymentTimer");
+                const timerText = document.getElementById("paymentTimerCountdown");
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    schoolPaidUntil = data.paidUntil;
+                    if (schoolPaidUntil && schoolPaidUntil.toDate() > new Date()) {
+                        timerBanner.style.display = "flex";
+                        const diffTime = schoolPaidUntil.toDate() - new Date();
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        timerText.textContent = `Subscription Active: ${diffDays} Days Remaining`;
+                    } else {
+                        timerBanner.style.display = "flex";
+                        timerText.textContent = "Subscription Expired - Please Renew";
+                    }
+                } else {
+                    timerBanner.style.display = "flex";
+                    timerText.textContent = "No Active Subscription Found";
+                }
+            } catch (err) {
+                console.error("Payment status error:", err);
             }
         }
 
-        function startPaymentCountdown() {
-            if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-
-            countdownTimerInterval = setInterval(() => {
-                const now = Date.now();
-                const diff = schoolPaidUntil - now;
-
-                if (diff <= 0) {
-                    clearInterval(countdownTimerInterval);
-                    document.getElementById("paymentTimerCountdown").textContent = "Access Expired! Renew term subscription.";
-                    return;
+        async function uploadSchoolLogo() {
+            const fileInput = document.getElementById("schoolLogoInput");
+            if (fileInput.files.length === 0) {
+                alert("Please select a logo image.");
+                return;
+            }
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Str = e.target.result;
+                try {
+                    await db.collection("schools").doc(currentSchoolId).update({
+                        logoUrl: base64Str
+                    });
+                    currentSchoolLogo = base64Str;
+                    const logoImg = document.getElementById("adminLogoDisplay");
+                    logoImg.src = base64Str;
+                    logoImg.style.display = "block";
+                    alert("School logo updated successfully!");
+                } catch (err) {
+                    alert("Error saving logo: " + err.message);
                 }
-
-                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-                document.getElementById("paymentTimerCountdown").textContent = `Closes in: ${days}d ${hours}h ${mins}m ${secs}s`;
-            }, 1000);
+            };
+            reader.readAsDataURL(file);
         }
 
-        function loginAsSuperAdmin() {
-            setAuthMode("login");
-            document.getElementById("userRole").value = "superadmin";
-            handleRoleChange("superadmin");
-            document.getElementById("email").value = "teshjunior438@gmail.com";
-            document.getElementById("password").value = "135018476";
+        async function saveSchoolDates(e) {
+            e.preventDefault();
+            const closing = document.getElementById("closingDateInput").value;
+            const opening = document.getElementById("openingDateInput").value;
+            try {
+                await db.collection("schools").doc(currentSchoolId).update({
+                    closingDate: closing,
+                    openingDate: opening
+                });
+                currentClosingDate = closing;
+                currentOpeningDate = opening;
+                alert("Term dates updated successfully!");
+            } catch (err) {
+                alert("Error updating dates: " + err.message);
+            }
         }
 
-        function openSuperAdminSection(tabId) {
-            document.getElementById('superAdminMainMenu').style.display = 'none';
-            document.getElementById('superAdminSectionsContainer').style.display = 'block';
-            document.querySelectorAll('#superAdminSectionsContainer .tab-pane').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            if(tabId === 'saTabRegisteredSchools') loadRegisteredSchoolsList();
-            if(tabId === 'saTabVerification') loadVerificationSchoolsList();
-            if(tabId === 'saTabPaymentControl') updatePaymentControlUI();
+        async function loadGradingSystem() {
+            try {
+                const doc = await db.collection("gradingSystems").doc(currentSchoolId).get();
+                if (doc.exists) {
+                    currentGradingSystem = doc.data().bands || defaultCBCGrading;
+                } else {
+                    currentGradingSystem = defaultCBCGrading;
+                }
+                renderGradingTable();
+            } catch (e) {
+                currentGradingSystem = defaultCBCGrading;
+                renderGradingTable();
+            }
         }
 
-        function closeSuperAdminSection() {
-            document.getElementById('superAdminMainMenu').style.display = 'grid';
-            document.getElementById('superAdminSectionsContainer').style.display = 'none';
-        }
-
-        function logout() {
-            if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-            auth.signOut().then(() => {
-                showView("authView");
+        function renderGradingTable() {
+            const tbody = document.getElementById("gradingTableBody");
+            if (!tbody) return;
+            tbody.innerHTML = "";
+            currentGradingSystem.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><input type="text" value="${item.grade}" class="g-grade" style="width:70px; text-align:center;"></td>
+                        <td><input type="number" value="${item.min}" class="g-min" style="width:70px; text-align:center;"></td>
+                        <td><input type="number" value="${item.max}" class="g-max" style="width:70px; text-align:center;"></td>
+                        <td><input type="text" value="${item.desc}" class="g-desc"></td>
+                        <td><button type="button" class="btn-danger" onclick="removeGradingRow(${index})">Delete</button></td>
+                    </tr>`;
             });
         }
 
-        function handleRoleChange(role) {
-            const registerTabBtn = document.getElementById("registerTab");
-            const passwordGroup = document.getElementById("passwordGroup");
-            const authIdLabel = document.getElementById("authIdLabel");
+        function addGradingRow() {
+            currentGradingSystem.push({ grade: "NEW", min: 0, max: 0, desc: "New Grade Descriptor" });
+            renderGradingTable();
+        }
 
-            if (role === "teacher" || role === "student" || role === "superadmin") {
-                registerTabBtn.style.display = "none";
-                setAuthMode("login");
-            } else {
-                registerTabBtn.style.display = "block";
-            }
+        function removeGradingRow(index) {
+            currentGradingSystem.splice(index, 1);
+            renderGradingTable();
+        }
 
-            if (role === "student") {
-                authIdLabel.textContent = "Admission / Registration Number";
-                document.getElementById("email").placeholder = "e.g. ADM-001";
-                document.getElementById("email").type = "text";
-                passwordGroup.style.display = "none";
-                document.getElementById("password").required = false;
-            } else {
-                authIdLabel.textContent = "Email Address";
-                document.getElementById("email").placeholder = "name@school.com";
-                document.getElementById("email").type = "email";
-                passwordGroup.style.display = "flex";
-                document.getElementById("password").required = true;
+        function loadDefaultCBCGrading() {
+            currentGradingSystem = [...defaultCBCGrading];
+            renderGradingTable();
+        }
+
+        async function saveGradingSystem() {
+            const rows = document.querySelectorAll("#gradingTableBody tr");
+            let newBands = [];
+            rows.forEach(row => {
+                const grade = row.querySelector(".g-grade").value.trim();
+                const min = Number(row.querySelector(".g-min").value);
+                const max = Number(row.querySelector(".g-max").value);
+                const desc = row.querySelector(".g-desc").value.trim();
+                if (grade) {
+                    newBands.push({ grade, min, max, desc });
+                }
+            });
+
+            try {
+                await db.collection("gradingSystems").doc(currentSchoolId).set({
+                    bands: newBands
+                });
+                currentGradingSystem = newBands;
+                alert("CBC Grading System updated successfully!");
+            } catch (err) {
+                alert("Error saving grading system: " + err.message);
             }
         }
 
-        function setAuthMode(mode) {
-            currentAuthMode = mode;
-            document.getElementById("loginTab").classList.toggle("active", mode === "login");
-            document.getElementById("registerTab").classList.toggle("active", mode === "register");
+        async function loadTermsYearList() {
+            const container = document.getElementById("termsYearListContainer");
+            if (!container) return;
+            try {
+                const snap = await db.collection("termsYears").where("schoolId", "==", currentSchoolId).get();
+                if (snap.empty) {
+                    container.innerHTML = "<p>No academic terms registered yet.</p>";
+                    return;
+                }
+                let html = `<table><thead><tr><th>Academic Year</th><th>Term</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.year}</td><td>${d.term}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = "<p>Error loading terms.</p>";
+            }
+        }
+
+        async function loadExamTypesList() {
+            const container = document.getElementById("examTypesList");
+            if (!container) return;
+            try {
+                const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+                if (snap.empty) {
+                    container.innerHTML = "<p>No exam types configured.</p>";
+                    return;
+                }
+                let html = `<table><thead><tr><th>Exam Title</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.name}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = "<p>Error loading exam types.</p>";
+            }
+        }
+
+        async function loadRegisteredSchoolsList() {
+            const container = document.getElementById("registeredSchoolsContainer");
+            if (!container) return;
+            try {
+                const snap = await db.collection("schools").get();
+                let html = `<table><thead><tr><th>School Name</th><th>County</th><th>Sub-County</th><th>Email</th><th>Status</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.name}</td><td>${d.county}</td><td>${d.subCounty}</td><td>${d.email}</td><td>${d.verified ? 'Verified' : 'Pending'}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = "<p>Error loading registered schools.</p>";
+            }
+        }
+
+        async function loadVerificationSchoolsList() {
+            const container = document.getElementById("verificationSchoolsContainer");
+            if (!container) return;
+            try {
+                const snap = await db.collection("schools").get();
+                let html = `<table><thead><tr><th>School Name</th><th>Headteacher</th><th>Phone</th><th>Action</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.name}</td><td>${d.headteacher || 'N/A'}</td><td>${d.phone || 'N/A'}</td><td><button class="btn-primary" onclick="viewSchoolDetails('${doc.id}')">Review & Verify</button></td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = "<p>Error loading verification list.</p>";
+            }
+        }
+
+        async function viewSchoolDetails(schoolId) {
+            try {
+                const doc = await db.collection("schools").doc(schoolId).get();
+                if (!doc.exists) return;
+                const d = doc.data();
+                const body = document.getElementById("schoolDetailsBody");
+                body.innerHTML = `
+                    <p><strong>School Name:</strong> ${d.name}</p>
+                    <p><strong>Email:</strong> ${d.email}</p>
+                    <p><strong>P.O. Box:</strong> ${d.poBox || 'N/A'}</p>
+                    <p><strong>Headteacher:</strong> ${d.headteacher || 'N/A'}</p>
+                    <p><strong>TSC Number:</strong> ${d.tscNumber || 'N/A'}</p>
+                    <p><strong>Phone:</strong> ${d.phone || 'N/A'}</p>
+                    <p><strong>County:</strong> ${d.county}</p>
+                    <p><strong>Sub-County:</strong> ${d.subCounty}</p>
+                    <p><strong>Verification Status:</strong> ${d.verified ? 'Verified' : 'Pending'}</p>
+                `;
+                const btn = document.getElementById("verifyActionBtn");
+                btn.textContent = d.verified ? "Unverify School Access" : "Verify School Access";
+                btn.onclick = async function() {
+                    await db.collection("schools").doc(schoolId).update({ verified: !d.verified });
+                    closeSchoolDetailsModal();
+                    loadVerificationSchoolsList();
+                };
+                document.getElementById("schoolDetailsModal").style.display = "flex";
+            } catch (e) {
+                alert("Error loading school details.");
+            }
+        }
+
+        function closeSchoolDetailsModal() {
+            document.getElementById("schoolDetailsModal").style.display = "none";
+        }
+
+        async function loadGlobalPaymentStatus() {
+            try {
+                const doc = await db.collection("systemSettings").doc("globalConfig").get();
+                if (doc.exists) {
+                    isGlobalPaymentEnabled = doc.data().paymentRequired !== false;
+                } else {
+                    isGlobalPaymentEnabled = true;
+                }
+                const toggle = document.getElementById("globalPaymentToggle");
+                const badge = document.getElementById("paymentControlBadge");
+                const text = document.getElementById("paymentStatusText");
+                
+                toggle.checked = isGlobalPaymentEnabled;
+                badge.className = isGlobalPaymentEnabled ? "badge badge-success" : "badge badge-danger";
+                badge.textContent = isGlobalPaymentEnabled ? "Enforced" : "Disabled (Free Mode)";
+                text.textContent = isGlobalPaymentEnabled ? "Term subscription payment is required to generate/download report cards." : "Testing mode active: All schools can generate and download documents for free.";
+            } catch (e) {
+                console.error("Global payment status error:", e);
+            }
+        }
+
+        async function toggleGlobalPaymentControl(val) {
+            try {
+                await db.collection("systemSettings").doc("globalConfig").set({ paymentRequired: val }, { merge: true });
+                isGlobalPaymentEnabled = val;
+                loadGlobalPaymentStatus();
+            } catch (e) {
+                alert("Error updating payment control setting.");
+            }
+        }
+
+        async function listenToMarksControl() {
+            db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    const lockToggle = document.getElementById("teacherMarksToggle");
+                    const publishToggle = document.getElementById("publishResultsToggle");
+                    if (lockToggle) lockToggle.checked = data.teachersCanEnter !== false;
+                    if (publishToggle) publishToggle.checked = data.resultsPublished === true;
+                }
+            });
+        }
+
+        async function toggleMarksEntryControl(val) {
+            try {
+                await db.collection("marksControls").doc(currentSchoolId).set({ teachersCanEnter: val }, { merge: true });
+            } catch (e) {
+                alert("Error updating entry status.");
+            }
+        }
+
+        async function togglePublishResults(val) {
+            try {
+                await db.collection("marksControls").doc(currentSchoolId).set({ resultsPublished: val }, { merge: true });
+            } catch (e) {
+                alert("Error updating publish status.");
+            }
+        }
+
+        async function saveMarksDeadline() {
+            const days = document.getElementById("marksDeadlineDaysInput").value;
+            if (!days) return;
+            const deadlineDate = new Date();
+            deadlineDate.setDate(deadlineDate.getDate() + Number(days));
+            try {
+                await db.collection("marksControls").doc(currentSchoolId).set({ deadline: firebase.firestore.Timestamp.fromDate(deadlineDate) }, { merge: true });
+                alert("Marks entry deadline saved successfully!");
+            } catch (e) {
+                alert("Error saving deadline.");
+            }
+        }
+
+        async function loadTeacherAllocations(teacherUid) {
+            const listContainer = document.getElementById("teacherAllocationsList");
+            if (!listContainer) return;
+            try {
+                const snap = await db.collection("allocations")
+                    .where("schoolId", "==", currentSchoolId)
+                    .where("teacherId", "==", teacherUid)
+                    .get();
+                
+                if (snap.empty) {
+                    listContainer.innerHTML = "<p>No class/subject allocations assigned to you yet.</p>";
+                    return;
+                }
+
+                let html = "";
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<div class="control-card">
+                        <div class="control-info">
+                            <h4>Class: ${d.className}</h4>
+                            <p>Subject: ${d.subjectName}</p>
+                        </div>
+                        <div class="control-actions">
+                            <button class="btn-primary" onclick="openTeacherMarksEntry('${d.className}', '${d.subjectName}')">Enter Marks</button>
+                        </div>
+                    </div>`;
+                });
+                listContainer.innerHTML = html;
+            } catch (e) {
+                listContainer.innerHTML = "<p>Error loading allocations.</p>";
+            }
+        }
+
+        function openTeacherMarksEntry(className, subjectName) {
+            selectedTeacherClass = className;
+            selectedTeacherSubject = subjectName;
+            document.getElementById("selectedClassNameHeading").textContent = `Class: ${className} | Subject: ${subjectName}`;
+            openTeacherSection('tTabClassActions');
+            loadTeacherExamDropdown();
+        }
+
+        async function loadTeacherExamDropdown() {
+            try {
+                const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+                const sel = document.getElementById("examSelect");
+                sel.innerHTML = '<option value="">-- Choose Exam Type --</option>';
+                snap.forEach(doc => {
+                    sel.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`;
+                });
+            } catch (e) {
+                console.error("Exam load error", e);
+            }
+        }
+
+        async function handleExamSelection(examName) {
+            const promptBox = document.getElementById("examPromptBox");
+            const formSection = document.getElementById("teacherMarksFormSection");
+            if (!examName) {
+                promptBox.style.display = "block";
+                formSection.style.display = "none";
+                return;
+            }
+            promptBox.style.display = "none";
+            formSection.style.display = "block";
             
-            const isReg = mode === "register";
-            document.getElementById("roleGroup").style.display = isReg ? "none" : "flex";
-            document.getElementById("schoolGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("schoolEmailGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("poBoxGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("headteacherGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("tscGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("phoneGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("countyGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("subcountyGroup").style.display = isReg ? "flex" : "none";
-            document.getElementById("termsGroup").style.display = isReg ? "flex" : "none";
+            const container = document.getElementById("teacherMarksContainer");
+            container.innerHTML = "<p>Loading students...</p>";
 
-            submitAuthBtn.textContent = isReg ? "Register & Create Portal" : "Login";
-            submitAuthBtn.disabled = isReg;
+            try {
+                const studSnap = await db.collection("students")
+                    .where("schoolId", "==", currentSchoolId)
+                    .where("class", "==", selectedTeacherClass)
+                    .get();
+                
+                if (studSnap.empty) {
+                    container.innerHTML = "<p style='color:red;'>No students registered in this class.</p>";
+                    return;
+                }
+
+                let studentsList = [];
+                studSnap.forEach(d => studentsList.push(d.data()));
+
+                let html = `<table><thead><tr><th>Admission No</th><th>Student Name</th><th>Score (%)</th></tr></thead><tbody>`;
+                studentsList.forEach(st => {
+                    html += `<tr><td>${st.admissionNo}</td><td style="text-align:left;">${st.name}</td><td><input type="number" class="teacher-score-input" data-adm="${st.admissionNo}" min="0" max="100" style="width:70px; text-align:center;" placeholder="-"></td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+
+                const marksSnap = await db.collection("marks")
+                    .where("schoolId", "==", currentSchoolId)
+                    .where("class", "==", selectedTeacherClass)
+                    .where("subject", "==", selectedTeacherSubject)
+                    .where("exam", "==", examName)
+                    .get();
+
+                marksSnap.forEach(doc => {
+                    const data = doc.data();
+                    const input = container.querySelector(`input[data-adm="${data.admissionNo}"]`);
+                    if (input) input.value = data.score;
+                });
+            } catch (e) {
+                container.innerHTML = "<p style='color:red;'>Error loading student marks: " + e.message + "</p>";
+            }
         }
 
-        function showView(viewId) {
-            document.querySelectorAll('.view-screen').forEach(v => v.classList.remove('active'));
-            document.getElementById(viewId).classList.add('active');
+        async function saveTeacherMarks() {
+            const examName = document.getElementById("examSelect").value;
+            if (!examName) return;
+            const inputs = document.querySelectorAll(".teacher-score-input");
+            
+            try {
+                const batch = db.batch();
+                inputs.forEach(input => {
+                    const adm = input.getAttribute("data-adm");
+                    const val = input.value.trim();
+                    const docId = `${currentSchoolId}_${selectedTeacherClass}_${adm}_${selectedTeacherSubject}_${examName}`;
+                    const docRef = db.collection("marks").doc(docId);
+                    
+                    if (val !== "") {
+                        batch.set(docRef, {
+                            schoolId: currentSchoolId,
+                            class: selectedTeacherClass,
+                            admissionNo: adm,
+                            subject: selectedTeacherSubject,
+                            exam: examName,
+                            score: Number(val),
+                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                        }, { merge: true });
+                    }
+                });
+
+                await batch.commit();
+                alert("Marks successfully submitted to central pool!");
+            } catch (e) {
+                alert("Error saving marks: " + e.message);
+            }
         }
 
-        function openAdminSection(tabId) {
-            document.getElementById('adminMainMenu').style.display = 'none';
-            document.getElementById('adminSectionsContainer').style.display = 'block';
-            document.querySelectorAll('#adminSectionsContainer .tab-pane').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        async function listenToTeacherDeadline() {
+            db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
+                if (doc.exists && doc.data().deadline) {
+                    const deadline = doc.data().deadline.toDate();
+                    const banner = document.getElementById("teacherDeadlineBanner");
+                    const countdown = document.getElementById("teacherDeadlineCountdown");
+                    banner.style.display = "flex";
+                    
+                    if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+                    countdownTimerInterval = setInterval(() => {
+                        const now = new Date();
+                        const diff = deadline - now;
+                        if (diff <= 0) {
+                            countdown.textContent = "Marks Entry Deadline Passed";
+                            clearInterval(countdownTimerInterval);
+                        } else {
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}h`;
+                        }
+                    }, 1000);
+                }
+            });
         }
 
-        function closeAdminSection() {
-            document.getElementById('adminMainMenu').style.display = 'grid';
-            document.getElementById('adminSectionsContainer').style.display = 'none';
+        async function loadClassListDetails(className) {
+            const container = document.getElementById("classListContainer");
+            if (!className) { container.innerHTML = ""; return; }
+            try {
+                const snap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
+                if (snap.empty) { container.innerHTML = "<p>No students found.</p>"; return; }
+                let html = `<table><thead><tr><th>Admission No</th><th>Name</th><th>Term</th><th>Year</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.admissionNo}</td><td style="text-align:left;">${d.name}</td><td>${d.term || 'Term 1'}</td><td>${d.year || '2026'}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) { container.innerHTML = "<p>Error loading class list.</p>"; }
         }
 
-        function openTeacherSection(tabId) {
-            document.getElementById('teacherMainMenu').style.display = 'none';
-            document.getElementById('teacherSectionsContainer').style.display = 'block';
-            document.querySelectorAll('#teacherSectionsContainer .tab-pane').forEach(t => t.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
+        async function loadTeacherClassList(className) {
+            const container = document.getElementById("tClassListContainer");
+            if (!className) { container.innerHTML = ""; return; }
+            try {
+                const snap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
+                if (snap.empty) { container.innerHTML = "<p>No students found.</p>"; return; }
+                let html = `<table><thead><tr><th>Admission No</th><th>Name</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.admissionNo}</td><td style="text-align:left;">${d.name}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) { container.innerHTML = "<p>Error loading roster.</p>"; }
         }
 
-        function closeTeacherSection() {
-            document.getElementById('teacherMainMenu').style.display = 'grid';
-            document.getElementById('teacherSectionsContainer').style.display = 'none';
+        async function saveTimetableEntry(e) {
+            e.preventDefault();
+            const className = document.getElementById("timetableClassSelect").value;
+            const day = document.getElementById("ttDay").value;
+            const time = document.getElementById("ttTime").value.trim();
+            const subject = document.getElementById("ttSubject").value.trim();
+
+            if (!className) { alert("Select a class."); return; }
+
+            try {
+                await db.collection("timetable").add({
+                    schoolId: currentSchoolId,
+                    class: className,
+                    day: day,
+                    time: time,
+                    subject: subject,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Timetable entry added!");
+                loadTimetable(className);
+            } catch (err) { alert("Error saving timetable: " + err.message); }
+        }
+
+        async function loadTimetable(className, containerId = "timetableDisplayContainer") {
+            const container = document.getElementById(containerId);
+            if (!className) { if (container) container.innerHTML = ""; return; }
+            try {
+                const snap = await db.collection("timetable").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
+                if (snap.empty) { if (container) container.innerHTML = "<p>No timetable slots registered.</p>"; return; }
+                let html = `<table><thead><tr><th>Day</th><th>Time Slot</th><th>Subject & Teacher</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td>${d.day}</td><td>${d.time}</td><td>${d.subject}</td></tr>`;
+                });
+                html += `</tbody></table>`;
+                if (container) container.innerHTML = html;
+            } catch (e) { if (container) container.innerHTML = "<p>Error loading timetable.</p>"; }
+        }
+
+        async function saveResourceEntry(e) {
+            e.preventDefault();
+            const className = document.getElementById("resourcesClassSelect").value;
+            const title = document.getElementById("resTitle").value.trim();
+            const link = document.getElementById("resLink").value.trim();
+
+            if (!className) { alert("Select a class."); return; }
+
+            try {
+                await db.collection("resources").add({
+                    schoolId: currentSchoolId,
+                    class: className,
+                    title: title,
+                    link: link,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                alert("Resource uploaded successfully!");
+                loadResources(className);
+            } catch (err) { alert("Error saving resource: " + err.message); }
+        }
+
+        async function loadResources(className, containerId = "resourcesDisplayContainer") {
+            const container = document.getElementById(containerId);
+            if (!className) { if (container) container.innerHTML = ""; return; }
+            try {
+                const snap = await db.collection("resources").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
+                if (snap.empty) { if (container) container.innerHTML = "<p>No resources uploaded for this class.</p>"; return; }
+                let html = `<table><thead><tr><th>Resource Title</th><th>Action</th></tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr><td style="text-align:left;">${d.title}</td><td><a href="${d.link}" target="_blank" class="btn-secondary" style="padding:4px 8px; text-decoration:none;">Open Link</a></td></tr>`;
+                });
+                html += `</tbody></table>`;
+                if (container) container.innerHTML = html;
+            } catch (e) { if (container) container.innerHTML = "<p>Error loading resources.</p>"; }
+        }
+
+        async function loadRegisteredCollection(type) {
+            const heading = document.getElementById("collectionHeading");
+            const container = document.getElementById("registeredDataContainer");
+            heading.textContent = `Registered ${type.toUpperCase()}`;
+            container.innerHTML = "<p>Loading collection...</p>";
+
+            try {
+                const snap = await db.collection(type).where("schoolId", "==", currentSchoolId).get();
+                if (snap.empty) {
+                    container.innerHTML = `<p>No records found in ${type}.</p>`;
+                    return;
+                }
+                
+                let html = `<table><thead><tr>`;
+                let sampleDoc = snap.docs[0].data();
+                let keys = Object.keys(sampleDoc).filter(k => k !== "schoolId" && k !== "createdAt");
+                keys.forEach(k => { html += `<th>${k}</th>`; });
+                html += `<th>Action</th></tr></thead><tbody>`;
+
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    html += `<tr>`;
+                    keys.forEach(k => {
+                        html += `<td>${d[k] !== undefined ? d[k] : ''}</td>`;
+                    });
+                    html += `<td><button class="btn-danger" onclick="deleteCollectionRecord('${type}', '${doc.id}')">Delete</button></td></tr>`;
+                });
+                html += `</tbody></table>`;
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = `<p style="color:red;">Error loading ${type}: ${e.message}</p>`;
+            }
+        }
+
+        async function deleteCollectionRecord(type, docId) {
+            if (!confirm("Are you sure you want to delete this record?")) return;
+            try {
+                await db.collection(type).doc(docId).delete();
+                alert("Record deleted successfully.");
+                loadRegisteredCollection(type);
+            } catch (e) {
+                alert("Error deleting record: " + e.message);
+            }
+        }
+
+        // Secure M-PESA payment backend. Replace this URL with your deployed Node.js server URL.
+        const PAYMENT_SERVER_URL = "https://YOUR-PAYMENT-SERVER.onrender.com";
+
+        function normalizeMpesaPhone(phone) {
+            let p = String(phone || "").replace(/\s|-/g, "");
+            if (p.startsWith("+254")) p = p.substring(1);
+            if (p.startsWith("07") || p.startsWith("01")) p = "254" + p.substring(1);
+            return p;
+        }
+
+        function isValidMpesaPhone(phone) {
+            return /^254(7|1)\d{8}$/.test(phone);
+        }
+
+        async function handlePayment(e) {
+            e.preventDefault();
+
+            const phoneInput = document.getElementById("mpesa-phone");
+            const amount = Number(document.getElementById("mpesa-amount").value);
+            const statusMsg = document.getElementById("daraja-status");
+            const payBtn = document.getElementById("payBtn");
+            const normalizedPhone = normalizeMpesaPhone(phoneInput.value.trim());
+
+            if (!isValidMpesaPhone(normalizedPhone)) {
+                statusMsg.style.color = "#dc2626";
+                statusMsg.textContent = "Enter a valid Safaricom number, e.g. 0712345678.";
+                return;
+            }
+
+            if (!currentSchoolId) {
+                statusMsg.style.color = "#dc2626";
+                statusMsg.textContent = "School account could not be identified. Please log in again.";
+                return;
+            }
+
+            if (!auth.currentUser) {
+                statusMsg.style.color = "#dc2626";
+                statusMsg.textContent = "Your login session has expired. Please log in again.";
+                return;
+            }
+
+            if (PAYMENT_SERVER_URL.includes("YOUR-PAYMENT-SERVER")) {
+                statusMsg.style.color = "#dc2626";
+                statusMsg.textContent = "Payment server URL has not been configured yet.";
+                return;
+            }
+
+            payBtn.disabled = true;
+            payBtn.textContent = "Sending M-PESA Prompt...";
+            statusMsg.style.color = "#2563eb";
+            statusMsg.textContent = "Connecting to M-PESA. Please wait...";
+
+            try {
+                const idToken = await auth.currentUser.getIdToken(true);
+                const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/mpesa/stkpush", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + idToken
+                    },
+                    body: JSON.stringify({
+                        phone: normalizedPhone,
+                        amount: amount,
+                        schoolId: currentSchoolId
+                    })
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || "Could not start the M-PESA payment.");
+                }
+
+                statusMsg.style.color = "#2563eb";
+                statusMsg.textContent = "M-PESA prompt sent to " + normalizedPhone + ". Enter your M-PESA PIN on your phone.";
+                pollMpesaPaymentStatus(data.checkoutRequestID, statusMsg, payBtn);
+            } catch (err) {
+                console.error("M-PESA payment error:", err);
+                statusMsg.style.color = "#dc2626";
+                statusMsg.textContent = "Payment could not be started: " + (err.message || "Unknown error");
+                payBtn.disabled = false;
+                payBtn.textContent = "Send M-PESA Payment Prompt";
+            }
+        }
+
+        async function pollMpesaPaymentStatus(checkoutRequestID, statusMsg, payBtn) {
+            const maxAttempts = 40;
+            let attempts = 0;
+
+            const check = async () => {
+                attempts++;
+                try {
+                    const idToken = auth.currentUser ? await auth.currentUser.getIdToken() : "";
+                    const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/mpesa/status/" + encodeURIComponent(checkoutRequestID), {
+                        headers: { "Authorization": "Bearer " + idToken }
+                    });
+                    const data = await response.json().catch(() => ({}));
+
+                    if (data.status === "success") {
+                        statusMsg.style.color = "#16a34a";
+                        statusMsg.textContent = "Payment successful! 120 days of portal access has been activated.";
+                        payBtn.disabled = false;
+                        payBtn.textContent = "Send M-PESA Payment Prompt";
+                        document.getElementById("paymentForm").reset();
+                        fetchSchoolPaymentStatus();
+                        return;
+                    }
+
+                    if (data.status === "failed") {
+                        statusMsg.style.color = "#dc2626";
+                        statusMsg.textContent = data.resultDesc || "M-PESA payment was not completed.";
+                        payBtn.disabled = false;
+                        payBtn.textContent = "Send M-PESA Payment Prompt";
+                        return;
+                    }
+
+                    if (attempts >= maxAttempts) {
+                        statusMsg.style.color = "#b45309";
+                        statusMsg.textContent = "Payment is still pending. If you completed the PIN prompt, wait for confirmation and check your subscription status.";
+                        payBtn.disabled = false;
+                        payBtn.textContent = "Send M-PESA Payment Prompt";
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Payment status error:", err);
+                }
+
+                setTimeout(check, 3000);
+            };
+
+            setTimeout(check, 3000);
         }
     </script>
 </body>
