@@ -733,6 +733,15 @@
                         <input type="text" id="schoolName" placeholder="e.g. NTUTI JUNIOR SCHOOL">
                     </div>
 
+                    <div class="auth-form-group" id="schoolTypeGroup" style="display: none;">
+                        <label for="schoolType">School Type</label>
+                        <select id="schoolType">
+                            <option value="">-- Select School Type --</option>
+                            <option value="junior">Junior Secondary School</option>
+                            <option value="senior">Senior Secondary School</option>
+                        </select>
+                    </div>
+
                     <div class="auth-form-group" id="schoolEmailGroup" style="display: none;">
                         <label for="schoolEmail">School Email Address</label>
                         <input type="email" id="schoolEmail" placeholder="info@school.ac.ke">
@@ -797,6 +806,12 @@
                     <a href="javascript:void(0)" onclick="loginAsSuperAdmin()" style="color: #2563eb; text-decoration: none; font-weight: 600; font-size: 13px;">Login as Super Admin</a>
                     <div style="margin-top:10px;"><button type="button" class="btn-secondary" style="width:100%;" onclick="openForgotPassword()">Forgot password?</button></div>
                 </div>
+                <div style="margin-top:18px; padding-top:12px; border-top:1px solid #e2e8f0; text-align:left; font-size:12px; line-height:1.55; color:#475569;">
+                    <strong style="display:block; color:#1e293b;">TeshWeb Developers</strong>
+                    <span>For any inquiry</span><br>
+                    <span>Contact/ WhatsApp: 0798344892/0756502187</span><br>
+                    <span>Email : teshjunior438@gmail.com</span>
+                </div>
             </div>
         </div>
     </div>
@@ -821,6 +836,9 @@
                 </div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabPaymentControl')">
                     <div class="icon">💳</div><div class="title">Control Payment</div>
+                </div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabManuals')">
+                    <div class="icon">📖</div><div class="title">MANUALS</div>
                 </div>
             </div>
 
@@ -856,6 +874,19 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div id="saTabManuals" class="tab-pane">
+                        <h3>MANUALS</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Upload manuals for headteachers and teachers to view.</p>
+                        <form id="manualUploadForm" style="margin-top:12px;" onsubmit="saveManual(event)">
+                            <div class="auth-form-group">
+                                <label>UPLOAD MANUAL</label>
+                                <input type="file" id="manualFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg,.webp" required>
+                            </div>
+                            <button class="btn-primary" type="submit">Save Manual</button>
+                        </form>
+                        <div id="superAdminManualsContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
                 </div>
             </div>
@@ -940,9 +971,6 @@
                 <div class="admin-card" onclick="openAdminSection('tabGateway')">
                     <div class="icon">📱</div><div class="title">SMS / Email Gateway</div>
                 </div>
-                <div class="admin-card" onclick="openAdminSection('tabAuditLogs')">
-                    <div class="icon">📜</div><div class="title">Audit Trail & Logs</div>
-                </div>
                 <div class="admin-card" onclick="openAdminSection('tabExamTypes')">
                     <div class="icon">📝</div><div class="title">Exams Setup</div>
                 </div>
@@ -969,6 +997,9 @@
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabResources')">
                     <div class="icon">📂</div><div class="title">Resources</div>
+                </div>
+                <div class="admin-card" onclick="openAdminSection('tabManuals')">
+                    <div class="icon">📖</div><div class="title">MANUALS</div>
                 </div>
             </div>
 
@@ -1066,7 +1097,7 @@
                     <div id="tabTermsYear" class="tab-pane">
                         <h3>Register Academic Terms & Years</h3>
                         <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Manage academic periods (Max 3 terms per year: Term 1, Term 2, Term 3).</p>
-                        <form id="termsYearForm">
+                        <form id="termsYearForm" onsubmit="saveTermsYear(event)">
                             <div class="auth-form-group">
                                 <label>Academic Year</label>
                                 <input type="number" id="termYearInput" placeholder="e.g. 2026" required min="2020" max="2100">
@@ -1238,13 +1269,7 @@
                             <button type="submit" class="btn-primary">Dispatch Broadcast</button>
                         </form>
                     </div>
-
-                    <div id="tabAuditLogs" class="tab-pane">
-                        <h3>System Audit Trail & Logs</h3>
-                        <div id="auditLogsContainer" class="table-responsive"></div>
-                    </div>
-
-                    <div id="tabExamTypes" class="tab-pane">
+<div id="tabExamTypes" class="tab-pane">
                         <h3>Configure Examination Types</h3>
                         <form id="examTypeForm" onsubmit="saveExamType(event)">
                             <div class="auth-form-group">
@@ -1291,6 +1316,7 @@
                             <div class="auth-form-group"><label>Admission No</label><input type="text" id="sAdm" required></div>
                             <div class="auth-form-group"><label>Full Name</label><input type="text" id="sName" required></div>
                             <div class="auth-form-group"><label>Class</label><select id="sClassSelect" required></select></div>
+                            <div class="auth-form-group" id="studentSubjectsGroup" style="display:none;"><label>Subjects / Units (select all the learner takes)</label><select id="sSubjectsSelect" multiple size="6"></select><p style="font-size:12px;color:#64748b;margin-top:6px;">Select the subjects/units assigned to this learner according to their pathway.</p></div>
                             <div class="auth-form-group"><label>Entry Term</label>
                                 <select id="sTermSelect">
                                     <option value="Term 1">Term 1</option>
@@ -1355,16 +1381,16 @@
 
                     <div id="tabTimetable" class="tab-pane">
                         <h3>Class Timetable Management</h3>
-                        <div class="auth-form-group" style="margin-top:12px;">
-                            <label>Select Class</label>
-                            <select id="timetableClassSelect" onchange="loadTimetable(this.value)"></select>
-                        </div>
                         <form id="timetableForm" style="margin-top:12px;" onsubmit="saveTimetableEntry(event)">
-                            <div class="auth-form-group"><label>Day of Week</label><select id="ttDay"><option value="Monday">Monday</option><option value="Tuesday">Tuesday</option><option value="Wednesday">Wednesday</option><option value="Thursday">Thursday</option><option value="Friday">Friday</option></select></div>
-                            <div class="auth-form-group"><label>Time Slot</label><input type="text" id="ttTime" placeholder="e.g. 08:00 AM - 08:40 AM" required></div>
-                            <div class="auth-form-group"><label>Subject & Teacher</label><input type="text" id="ttSubject" placeholder="e.g. Mathematics (Mr. Smith)" required></div>
-                            <div class="auth-form-group"><label>Upload Timetable File (optional)</label><input type="file" id="ttFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg"></div>
-                            <button class="btn-primary" type="submit">Add Timetable Slot</button>
+                            <div class="auth-form-group">
+                                <label>Select Class</label>
+                                <select id="timetableClassSelect" required></select>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Upload / Update Timetable</label>
+                                <input type="file" id="ttFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" required>
+                            </div>
+                            <button class="btn-primary" type="submit">Save Timetable</button>
                         </form>
                         <div id="timetableDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
@@ -1382,6 +1408,12 @@
                             <button class="btn-primary" type="submit">Upload Resource</button>
                         </form>
                         <div id="resourcesDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+
+                    <div id="tabManuals" class="tab-pane">
+                        <h3>MANUALS</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">View manuals uploaded by the Super Administrator.</p>
+                        <div id="adminManualsContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
                 </div>
             </div>
@@ -1414,6 +1446,9 @@
                 </div>
                 <div class="admin-card" onclick="openTeacherSection('tTabResources')">
                     <div class="icon">📂</div><div class="title">Resources</div>
+                </div>
+                <div class="admin-card" onclick="openTeacherSection('tTabManuals')">
+                    <div class="icon">📖</div><div class="title">MANUALS</div>
                 </div>
             </div>
 
@@ -1475,6 +1510,12 @@
                             <select id="tResourcesClassSelect" onchange="loadResources(this.value, 'tResourcesContainer')"></select>
                         </div>
                         <div id="tResourcesContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+
+                    <div id="tTabManuals" class="tab-pane">
+                        <h3>MANUALS</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">View manuals uploaded by the Super Administrator.</p>
+                        <div id="teacherManualsContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
                 </div>
             </div>
@@ -1572,9 +1613,12 @@
         let currentSchoolEmail = "";
         let currentSchoolPoBox = "";
         let currentSchoolLogo = "";
+        let currentSchoolType = "junior";
         let currentClosingDate = "N/A";
         let currentOpeningDate = "N/A";
         let currentAuthMode = "login";
+        let pendingLoginRole = "";
+        const SUPER_ADMIN_EMAIL = "teshjunior438@gmail.com";
         let isGlobalPaymentEnabled = true;
         let schoolPaidUntil = null;
         let countdownTimerInterval = null;
@@ -1694,8 +1738,9 @@
             const submitBtn = document.getElementById('submitAuthBtn');
             const authIdLabel = document.getElementById('authIdLabel');
             const emailInput = document.getElementById('email');
+            const schoolTypeSelect = document.getElementById('schoolType');
 
-            const schoolFields = ['schoolGroup', 'schoolEmailGroup', 'poBoxGroup', 'headteacherGroup', 'tscGroup', 'phoneGroup', 'countyGroup', 'subcountyGroup', 'termsGroup'];
+            const schoolFields = ['schoolGroup', 'schoolTypeGroup', 'schoolEmailGroup', 'poBoxGroup', 'headteacherGroup', 'tscGroup', 'phoneGroup', 'countyGroup', 'subcountyGroup', 'termsGroup'];
 
             if (mode === 'login') {
                 loginBtn.classList.add('active');
@@ -1708,6 +1753,7 @@
                     if (el) el.style.display = 'none';
                 });
                 document.getElementById('roleGroup').style.display = 'flex';
+                if (schoolTypeSelect) schoolTypeSelect.required = false;
             } else {
                 regBtn.classList.add('active');
                 loginBtn.classList.remove('active');
@@ -1719,10 +1765,11 @@
                     if (el) el.style.display = 'flex';
                 });
                 document.getElementById('roleGroup').style.display = 'none';
+                if (schoolTypeSelect) schoolTypeSelect.required = true;
             }
         }
 
-        function handleRoleChange(role) {
+        window.handleRoleChange = function(role) {
             const authIdLabel = document.getElementById('authIdLabel');
             const emailInput = document.getElementById('email');
             const passGroup = document.getElementById('passwordGroup');
@@ -1738,7 +1785,7 @@
                 passGroup.style.display = 'flex';
                 document.getElementById('password').required = true;
             }
-        }
+        };
 
         function validateRegistrationForm() {
             if (currentAuthMode === 'register') {
@@ -1752,6 +1799,8 @@
             document.querySelectorAll('#adminSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
+            if (tabId === 'tabLogo') loadSchoolLogoPreview();
+            if (tabId === 'tabManuals') loadManuals('adminManualsContainer');
         }
 
         function closeAdminSection() {
@@ -1765,6 +1814,7 @@
             document.querySelectorAll('#teacherSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
+            if (tabId === 'tTabManuals') loadManuals('teacherManualsContainer');
         }
 
         function closeTeacherSection() {
@@ -1782,6 +1832,7 @@
             if (tabId === 'saTabRegisteredSchools') loadRegisteredSchoolsList();
             if (tabId === 'saTabVerification') loadVerificationSchoolsList();
             if (tabId === 'saTabPaymentControl') loadGlobalPaymentStatus();
+            if (tabId === 'saTabManuals') loadManuals('superAdminManualsContainer');
         }
 
         function closeSuperAdminSection() {
@@ -1793,7 +1844,7 @@
             setAuthMode('login');
             document.getElementById('userRole').value = 'superadmin';
             handleRoleChange('superadmin');
-            document.getElementById('email').value = 'superadmin@portal.com';
+            document.getElementById('email').value = SUPER_ADMIN_EMAIL;
             displayMsg('Ready for Super Admin authentication.', false);
         }
 
@@ -1813,8 +1864,34 @@
                     if (userDoc.exists) {
                         const userData = userDoc.data();
                         currentSchoolId = userData.schoolId || "";
+
+                        if (pendingLoginRole === "superadmin" && String(user.email || "").toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase() && userData.role !== "superadmin") {
+                            await db.collection("users").doc(user.uid).set({
+                                name: "Super Admin",
+                                email: SUPER_ADMIN_EMAIL,
+                                role: "superadmin"
+                            }, { merge: true });
+                            userData.role = "superadmin";
+                            userData.email = SUPER_ADMIN_EMAIL;
+                        } else if (pendingLoginRole && pendingLoginRole !== userData.role) {
+                            const selectedRole = pendingLoginRole;
+                            pendingLoginRole = "";
+                            await auth.signOut();
+                            showView("authView");
+                            displayMsg(selectedRole === "admin"
+                                ? "The selected role is Headteacher / Administrator, but this email is not registered as an administrator."
+                                : "The selected role does not match this account.");
+                            return;
+                        }
+                        pendingLoginRole = "";
                         
                         if (userData.role === "superadmin") {
+                            if (String(user.email || "").toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase() || String(userData.email || "").toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase()) {
+                                await auth.signOut();
+                                showView("authView");
+                                displayMsg("This account is not authorized as Super Admin.");
+                                return;
+                            }
                             document.getElementById("superAdminNameDisplay").textContent = userData.name || "Super Admin";
                             showView("superAdminView");
                         } else if (userData.role === "admin") {
@@ -1824,6 +1901,7 @@
                                 if (schoolDoc.exists) {
                                     const schoolData = schoolDoc.data();
                                     currentSchoolName = schoolData.name || "School";
+                                    currentSchoolType = schoolData.schoolType || "junior";
                                     currentSchoolEmail = schoolData.email || "";
                                     currentSchoolPoBox = schoolData.poBox || "";
                                     currentSchoolLogo = schoolData.logoUrl || "";
@@ -1880,65 +1958,95 @@
 
         async function renderStudentPortal(studentData) {
             const content = document.getElementById("studentPortalContent");
-            content.innerHTML = `
-                <h3>Student Report Portal</h3><div style="margin:10px 0;"><button type="button" class="btn-primary" onclick="printStudentReport()">Print</button> <button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div>
-                <p><strong>Name:</strong> ${studentData.name}</p>
-                <p><strong>Admission No:</strong> ${studentData.admissionNo}</p>
-                <p><strong>Class:</strong> ${studentData.class}</p>
-                <p><strong>Term & Year:</strong> ${studentData.term || 'Term 1'} ${studentData.year || '2026'}</p>
-                <hr style="margin: 15px 0;">
-                <h4>Terminal Results</h4>
-                <div id="studentMarksDisplay">Loading results...</div>
-            `;
+            const schoolId = studentData.schoolId || currentSchoolId;
+            content.innerHTML = '<p>Loading report card...</p>';
             try {
-                const controlSnap = await db.collection("marksControls").doc(studentData.schoolId || currentSchoolId).get();
+                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap] = await Promise.all([
+                    db.collection("schools").doc(schoolId).get(),
+                    db.collection("marksControls").doc(schoolId).get(),
+                    db.collection("marks").where("schoolId", "==", schoolId).where("admissionNo", "==", studentData.admissionNo).get(),
+                    db.collection("subjects").where("schoolId", "==", schoolId).get(),
+                    db.collection("students").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get()
+                ]);
                 if (!controlSnap.exists || controlSnap.data().resultsPublished !== true) {
-                    document.getElementById("studentMarksDisplay").innerHTML = "<p>Results have not been published by the school yet.</p>";
+                    content.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">Results have not been published by the school yet.</p>';
                     return;
                 }
-                const marksSnap = await db.collection("marks")
-                    .where("schoolId", "==", studentData.schoolId || currentSchoolId)
-                    .where("admissionNo", "==", studentData.admissionNo)
-                    .get();
-                
-                if (marksSnap.empty) {
-                    document.getElementById("studentMarksDisplay").innerHTML = "<p>No published marks available yet.</p>";
+                const school = schoolSnap.exists ? schoolSnap.data() : {};
+                const classStudents = classSnap.docs.map(d => d.data());
+                const allSubjects = subjectsSnap.docs.map(d => { const dta=d.data()||{}; return String(dta.name || dta.subjectName || dta.title || dta.subject || '').trim(); }).filter(Boolean);
+                const selectedSubjects = Array.isArray(studentData.subjects) ? studentData.subjects.map(String).map(v=>v.trim()).filter(Boolean) : [];
+                const isSeniorSchool = String(school.schoolType || "junior").toLowerCase() === "senior";
+                const subjects = isSeniorSchool && selectedSubjects.length ? allSubjects.filter(s => selectedSubjects.includes(s)) : allSubjects;
+                const marks = marksSnap.docs.map(d => d.data());
+                if (!marks.length) {
+                    content.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">No published marks available yet.</p>';
                     return;
                 }
-                let html = `<table style="width:100%; border-collapse:collapse; margin-top:10px;"><thead><tr><th>Subject</th><th>Score</th><th>Grade</th><th>Descriptor</th></tr></thead><tbody>`;
-                marksSnap.forEach(doc => {
-                    const m = doc.data();
-                    const g = getCBCGradeDetails(m.score);
-                    html += `<tr><td>${m.subject}</td><td>${m.score}</td><td>${g.grade}</td><td>${g.desc}</td></tr>`;
+                const examName = studentData.exam || marks.find(m => m.exam)?.exam || (studentData.term ? `${studentData.term} ${studentData.year || ''}`.trim() : 'Results');
+                const marksForExam = marks.filter(m => !m.exam || String(m.exam).trim().toLowerCase() === String(examName).trim().toLowerCase());
+                const marksMap = {};
+                marksForExam.forEach(m => { marksMap[m.subject] = m.score; });
+                const classMarksSnap = await db.collection("marks").where("schoolId", "==", schoolId).where("class", "==", studentData.class).where("exam", "==", examName).get();
+                const allClassMarks = classMarksSnap.docs.map(d => d.data());
+                const subjectStats = {};
+                subjects.forEach(sub => {
+                    const vals = allClassMarks.map(m => m.subject === sub ? Number(m.score) : NaN).filter(Number.isFinite);
+                    subjectStats[sub] = { mean: vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : 0, count: vals.length };
                 });
-                html += `</tbody></table>`;
-                document.getElementById("studentMarksDisplay").innerHTML = html;
-            } catch (err) {
-                document.getElementById("studentMarksDisplay").innerHTML = "<p style='color:red;'>Error loading student marks.</p>";
-            }
+                const ranked = classStudents.map(st => {
+                    const vals = allClassMarks.filter(m => String(m.admissionNo) === String(st.admissionNo)).map(m => Number(m.score)).filter(Number.isFinite);
+                    return { adm: String(st.admissionNo), total: vals.reduce((a,b)=>a+b,0) };
+                }).sort((a,b)=>b.total-a.total);
+                const position = Math.max(1, ranked.findIndex(x => x.adm === String(studentData.admissionNo)) + 1);
+                const points = {EE1:8,EE2:7,ME1:6,ME2:5,AE1:4,AE2:3,BE1:2,BE2:1};
+                let total=0,count=0,totalPoints=0,rows='';
+                subjects.forEach(sub=>{
+                    const raw=marksMap[sub]; const score=raw===undefined||raw===''?'-':Number(raw); let g={grade:'-',desc:'-'}; let pts=0;
+                    if(score!=='-' && Number.isFinite(score)){ total+=score; count++; g=getCBCGradeDetails(score); pts=points[g.grade]||0; totalPoints+=pts; }
+                    const gc=g.grade.startsWith('EE')?'rc-grade-ee':g.grade.startsWith('ME')?'rc-grade-me':g.grade.startsWith('AE')?'rc-grade-ae':g.grade.startsWith('BE')?'rc-grade-be':'';
+                    const mean=subjectStats[sub].count?subjectStats[sub].mean.toFixed(2):'-';
+                    rows += `<tr><td>${esc(sub)}</td><td>${score==='-'?'-':`<span class="rc-mark">${score}</span> <span class="${gc}">(${g.grade})</span>`}</td><td>${pts?pts+' pts':'-'}</td><td>${mean}</td><td>${mean==='-'?'-':mean}</td></tr>`;
+                });
+                const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
+                const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
+                currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
+                content.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>Excellent performance. Keep up the good work and consistency.</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
+            } catch(err) { content.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
+        }
+
+        function buildStudentPerformanceGraph(studentMarks, subjects, subjectStats) {
+            const width=900,height=205,left=42,right=16,top=18,bottom=45,graphW=width-left-right,graphH=height-top-bottom;
+            const y=v=>top+graphH-(Math.max(0,Math.min(100,Number(v)||0))/100)*graphH;
+            const x=i=>subjects.length<=1?left+graphW/2:left+i*graphW/(subjects.length-1);
+            let grid=''; [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}" stroke="#e5e7eb"/><text x="5" y="${yy+4}" font-size="11" fill="#374151">${v}</text>`;});
+            const sp=subjects.map((s,i)=>`${x(i)},${y(studentMarks[s])}`).join(' '), mp=subjects.map((s,i)=>`${x(i)},${y(subjectStats[s].mean)}`).join(' ');
+            let labels='',dots='',mdots=''; subjects.forEach((s,i)=>{const lab=String(s).length>12?String(s).substring(0,11)+'…':s;labels+=`<text x="${x(i)}" y="${height-17}" text-anchor="middle" font-size="10" fill="#374151">${esc(lab)}</text>`;dots+=`<circle cx="${x(i)}" cy="${y(studentMarks[s])}" r="3.2" fill="#27367a"/>`;mdots+=`<circle cx="${x(i)}" cy="${y(subjectStats[s].mean)}" r="2.6" fill="#fff" stroke="#6b7280" stroke-width="1.5"/>`;});
+            return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">${grid}<line x1="${left}" y1="${top}" x2="${left}" y2="${top+graphH}" stroke="#9ca3af"/><polyline points="${mp}" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><polyline points="${sp}" fill="none" stroke="#27367a" stroke-width="3"/>${mdots}${dots}${labels}<line x1="${width-205}" y1="25" x2="${width-175}" y2="25" stroke="#27367a" stroke-width="3"/><text x="${width-168}" y="29" font-size="11">Student marks</text><line x1="${width-205}" y1="44" x2="${width-175}" y2="44" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><text x="${width-168}" y="48" font-size="11">Class mean (marks)</text></svg>`;
+        }
+
+        function getStudentReportDocumentHtml() {
+            const report = document.getElementById("studentReportCard");
+            if (!report) return null;
+            const styles = Array.from(document.querySelectorAll("style")).map(el => el.innerHTML).join("\n");
+            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Student Report</title><style>${styles}</style></head><body>${report.outerHTML}</body></html>`;
         }
 
         function printStudentReport() {
-            const content = document.getElementById("studentPortalContent");
-            if (!content) return;
+            const html = getStudentReportDocumentHtml();
+            if (!html) return;
             const win = window.open("", "_blank");
             if (!win) return alert("Please allow pop-ups to print the report.");
-            win.document.write("<html><head><title>Student Report</title></head><body>" + content.innerHTML + "</body></html>");
-            win.document.close();
-            win.focus();
-            win.print();
+            win.document.write(html); win.document.close(); win.focus();
+            setTimeout(() => win.print(), 300);
         }
 
         function downloadStudentReport() {
-            const content = document.getElementById("studentPortalContent");
-            if (!content) return;
-            const blob = new Blob(["<html><head><meta charset=\"UTF-8\"><title>Student Report</title></head><body>" + content.innerHTML + "</body></html>"], { type: "text/html" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "student-report.html";
-            a.click();
-            URL.revokeObjectURL(url);
+            const html = getStudentReportDocumentHtml();
+            if (!html) return;
+            const blob = new Blob([html], { type: "text/html" });
+            const url = URL.createObjectURL(blob); const a = document.createElement("a");
+            a.href = url; a.download = "student-report.html"; a.click(); URL.revokeObjectURL(url);
         }
 
         document.getElementById("authForm").addEventListener("submit", async function(e) {
@@ -1971,6 +2079,9 @@
                         const userDoc = await db.collection("users").doc(userCred.user.uid).get();
                         if (userDoc.exists && userDoc.data().role === "teacher") {
                             const userData = userDoc.data();
+                            if (userData.teacherActivated !== true) {
+                                await db.collection("users").doc(userCred.user.uid).set({ teacherActivated: true, passwordSetAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+                            }
                             currentSchoolId = userData.schoolId || "";
                             document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
                             populateAllDropdowns();
@@ -1990,20 +2101,28 @@
                     try {
                         submitAuthBtn.disabled = true;
                         submitAuthBtn.textContent = "Authenticating...";
-                        const cred = await auth.signInWithEmailAndPassword(email, password);
-                        const saDoc = await db.collection("users").doc(cred.user.uid).get();
-                        if (saDoc.exists && saDoc.data().role === "superadmin") {
-                            showView("superAdminView");
-                        } else {
-                            await db.collection("users").doc(cred.user.uid).set({
-                                name: "Super Admin",
-                                email: email,
-                                role: "superadmin"
-                            }, { merge: true });
-                            showView("superAdminView");
+                        if (email.toLowerCase() !== SUPER_ADMIN_EMAIL.toLowerCase()) {
+                            displayMsg("Only the authorized Super Admin email can access the Super Admin panel.");
+                            return;
                         }
+                        pendingLoginRole = "superadmin";
+                        await auth.signInWithEmailAndPassword(SUPER_ADMIN_EMAIL, password);
                     } catch (err) {
+                        pendingLoginRole = "";
                         displayMsg("Super Admin Authentication Failed: " + err.message);
+                    } finally {
+                        submitAuthBtn.disabled = false;
+                        submitAuthBtn.textContent = "Login";
+                    }
+                } else if (role === "admin") {
+                    try {
+                        submitAuthBtn.disabled = true;
+                        submitAuthBtn.textContent = "Authenticating...";
+                        pendingLoginRole = "admin";
+                        await auth.signInWithEmailAndPassword(email, password);
+                    } catch (err) {
+                        pendingLoginRole = "";
+                        displayMsg("Administrator Authentication Failed: " + err.message);
                     } finally {
                         submitAuthBtn.disabled = false;
                         submitAuthBtn.textContent = "Login";
@@ -2021,6 +2140,7 @@
                 }
             } else {
                 const schoolName = document.getElementById("schoolName").value.trim();
+                const schoolType = document.getElementById("schoolType").value;
                 const schoolEmail = document.getElementById("schoolEmail").value.trim();
                 const poBox = document.getElementById("poBox").value.trim();
                 const headteacher = document.getElementById("headteacher").value.trim();
@@ -2029,7 +2149,7 @@
                 const county = countySelect.value;
                 const subCounty = subCountySelect.value;
 
-                if (!schoolName || !email || !password || !county || !subCounty) {
+                if (!schoolName || !schoolType || !email || !password || !county || !subCounty) {
                     displayMsg("Please fill in all mandatory fields.");
                     return;
                 }
@@ -2042,6 +2162,7 @@
                     
                     const schoolRef = await db.collection("schools").add({
                         name: schoolName,
+                        schoolType: schoolType,
                         email: schoolEmail,
                         poBox: poBox,
                         headteacher: headteacher,
@@ -2068,6 +2189,30 @@
                 }
             }
         });
+
+        async function populateStudentSubjectDropdown() {
+            const group = document.getElementById("studentSubjectsGroup");
+            const select = document.getElementById("sSubjectsSelect");
+            if (!group || !select) return;
+            const isSenior = String(currentSchoolType || "junior").toLowerCase() === "senior";
+            if (!isSenior) {
+                group.style.display = "none";
+                select.required = false;
+                select.innerHTML = "";
+                return;
+            }
+            group.style.display = "flex";
+            select.required = true;
+            select.innerHTML = '<option value="">-- Select Subject / Unit --</option>';
+            const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+            subSnap.docs
+                .map(doc => String((doc.data() || {}).name || "").trim())
+                .filter(Boolean)
+                .filter((name, index, list) => list.indexOf(name) === index)
+                .forEach(name => {
+                    select.innerHTML += `<option value="${esc(name)}">${esc(name)}</option>`;
+                });
+        }
 
         async function populateAllDropdowns() {
             if (!currentSchoolId) return;
@@ -2100,14 +2245,29 @@
                 });
 
                 const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+                const subjectNames = [];
+                subSnap.forEach(doc => {
+                    const data = doc.data() || {};
+                    const name = String(data.name || data.subjectName || data.title || data.subject || '').trim();
+                    if (name && !subjectNames.includes(name)) subjectNames.push(name);
+                });
+                subjectNames.sort((a,b) => a.localeCompare(b, undefined, {numeric:true, sensitivity:'base'}));
                 const subSel = document.getElementById("allocSubjectSelect");
                 if (subSel) {
                     subSel.innerHTML = '<option value="">-- Select Subject --</option>';
-                    subSnap.forEach(doc => {
-                        const s = doc.data().name;
-                        subSel.innerHTML += `<option value="${s}">${s}</option>`;
+                    subjectNames.forEach(name => {
+                        subSel.innerHTML += `<option value="${esc(name)}">${esc(name)}</option>`;
                     });
                 }
+                const studentSubSel = document.getElementById("sSubjectsSelect");
+                if (studentSubSel) {
+                    studentSubSel.innerHTML = '';
+                    subjectNames.forEach(name => {
+                        studentSubSel.innerHTML += `<option value="${esc(name)}">${esc(name)}</option>`;
+                    });
+                }
+
+                await populateStudentSubjectDropdown();
 
                 const teacherSnap = await db.collection("users")
                     .where("schoolId", "==", currentSchoolId)
@@ -2117,7 +2277,9 @@
                 if (tSel) {
                     tSel.innerHTML = '<option value="">-- Select Teacher --</option>';
                     teacherSnap.forEach(doc => {
-                        tSel.innerHTML += `<option value="${doc.id}">${doc.data().name} (${doc.data().email})</option>`;
+                        const td=doc.data()||{};
+                        if(td.teacherActivated !== true) return;
+                        tSel.innerHTML += `<option value="${doc.id}">${esc(td.name||td.displayName||'Teacher')} (${esc(td.email||'')})</option>`;
                     });
                 }
 
@@ -2218,6 +2380,9 @@
                 });
                 const result = await response.json();
                 if (!response.ok || !result.success) throw new Error(result.message || "Teacher registration failed.");
+                if (result.uid) {
+                    await db.collection("users").doc(result.uid).set({ teacherActivated: false, passwordSetAt: null }, { merge: true });
+                }
                 await firebase.auth().sendPasswordResetEmail(email);
                 alert("Teacher registered. A password-setting email has been sent to the teacher.");
                 document.getElementById("teacherForm").reset();
@@ -2251,13 +2416,19 @@
             const adm = document.getElementById("sAdm").value.trim();
             const name = document.getElementById("sName").value.trim();
             const className = document.getElementById("sClassSelect").value;
+            const subjectSelect = document.getElementById("sSubjectsSelect");
+            const isSenior = String(currentSchoolType || "junior").toLowerCase() === "senior";
+            const subjects = isSenior && subjectSelect ? Array.from(subjectSelect.selectedOptions).map(o => o.value).filter(Boolean) : [];
             const term = document.getElementById("sTermSelect").value;
             const year = document.getElementById("sYearSelect").value;
 
-            if (!adm || !name || !className) return;
+            if (!adm || !name || !className || (isSenior && !subjects.length)) {
+                if (isSenior) alert("Select at least one subject/unit for the learner.");
+                return;
+            }
 
             try {
-                await db.collection("students").add({
+                const studentRecord = {
                     schoolId: currentSchoolId,
                     admissionNo: adm,
                     name: name,
@@ -2265,7 +2436,9 @@
                     term: term,
                     year: year,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                };
+                if (isSenior) studentRecord.subjects = subjects;
+                await db.collection("students").add(studentRecord);
                 alert("Student enrolled successfully!");
                 document.getElementById("studentForm").reset();
             } catch (err) {
@@ -2282,11 +2455,11 @@
             if (!teacherId || !className || !subjectName) return;
 
             try {
+                const teacherSnap = await db.collection("users").doc(teacherId).get();
+                const teacherData = teacherSnap.exists ? teacherSnap.data() : {};
                 await db.collection("allocations").add({
-                    schoolId: currentSchoolId,
-                    teacherId: teacherId,
-                    className: className,
-                    subjectName: subjectName,
+                    schoolId: currentSchoolId, teacherId: teacherId, className: className, subjectName: subjectName,
+                    teacherName: teacherData.name || teacherData.displayName || "", teacherEmail: teacherData.email || "",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 alert("Allocation saved!");
@@ -2657,12 +2830,15 @@
 
                 targetStudents.forEach(st => {
                     const stMarks = cachedMarksMap[st.admissionNo] || {};
+                    const studentSubjects = Array.isArray(st.subjects) && st.subjects.length
+                        ? cachedSubjects.filter(sub => st.subjects.map(String).includes(String(sub)))
+                        : cachedSubjects;
                     let total = 0;
                     let count = 0;
                     let totalPoints = 0;
                     let marksRowsHtml = "";
 
-                    cachedSubjects.forEach(sub => {
+                    studentSubjects.forEach(sub => {
                         const score = stMarks[sub] !== undefined ? Number(stMarks[sub]) : "-";
                         let gradeObj = { grade: "-", desc: "-" };
                         let points = 0;
@@ -2723,15 +2899,15 @@
                     const overallGrade = count > 0 ? getCBCGradeDetails(mean) : { grade: "-", desc: "-" };
                     const position = classPositionFor(st.admissionNo);
                     const level = overallGrade.grade !== "-" ? overallGrade.grade.substring(0, 2) : "-";
-                    const classTotalPossible = cachedStudents.length * cachedSubjects.length * 100;
-                    const classMeanMarks = cachedSubjects.length > 0
-                        ? cachedSubjects.reduce((sum, sub) => sum + (subjectStats[sub].mean || 0), 0) / cachedSubjects.length
+                    const classTotalPossible = cachedStudents.length * studentSubjects.length * 100;
+                    const classMeanMarks = studentSubjects.length > 0
+                        ? studentSubjects.reduce((sum, sub) => sum + (subjectStats[sub].mean || 0), 0) / studentSubjects.length
                         : 0;
 
                     let classPointTotal = 0;
                     let classPointCount = 0;
                     cachedStudents.forEach(cs => {
-                        cachedSubjects.forEach(sub => {
+                        studentSubjects.forEach(sub => {
                             const csScore = cachedMarksMap[cs.admissionNo] &&
                                             cachedMarksMap[cs.admissionNo][sub] !== undefined
                                             ? Number(cachedMarksMap[cs.admissionNo][sub])
@@ -2745,7 +2921,7 @@
                     });
 
                     const classMeanPoints = classPointCount > 0 ? classPointTotal / classPointCount : 0;
-                    const graph = makePerformanceGraph(stMarks, cachedSubjects);
+                    const graph = makePerformanceGraph(stMarks, studentSubjects);
 
                     htmlContent += `
                     <div class="report-card">
@@ -2789,7 +2965,7 @@
 
                             <div class="rc-bio-item">
                                 <span>Total Marks</span>
-                                <strong>${total} / ${cachedSubjects.length * 100}</strong>
+                                <strong>${total} / ${studentSubjects.length * 100}</strong>
                             </div>
                             <div class="rc-bio-item">
                                 <span>Total Points</span>
@@ -2899,6 +3075,12 @@
             }
         }
 
+        async function loadSchoolLogoPreview() {
+            const c=document.getElementById("logoPreviewContainer"); if(!c) return;
+            if(currentSchoolLogo){ c.innerHTML=`<img src="${esc(currentSchoolLogo)}" alt="School Logo" style="max-width:160px;max-height:160px;object-fit:contain;border:1px solid #cbd5e1;border-radius:8px;padding:4px;">`; }
+            else c.innerHTML='<p style="color:#64748b;font-size:13px;">No school logo uploaded yet.</p>';
+        }
+
         async function uploadSchoolLogo() {
             const fileInput = document.getElementById("schoolLogoInput");
             if (fileInput.files.length === 0) {
@@ -2917,6 +3099,7 @@
                     const logoImg = document.getElementById("adminLogoDisplay");
                     logoImg.src = base64Str;
                     logoImg.style.display = "block";
+                    await loadSchoolLogoPreview();
                     alert("School logo updated successfully!");
                 } catch (err) {
                     alert("Error saving logo: " + err.message);
@@ -3010,6 +3193,19 @@
             } catch (err) {
                 alert("Error saving grading system: " + err.message);
             }
+        }
+
+        async function saveTermsYear(e) {
+            e.preventDefault();
+            const year = Number(document.getElementById("termYearInput").value);
+            const term = document.getElementById("termNameInput").value;
+            if (!year || !term || !currentSchoolId) return;
+            try {
+                await db.collection("termsYears").add({ schoolId: currentSchoolId, year: year, term: term, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                alert("Academic term and year registered successfully!");
+                document.getElementById("termsYearForm").reset();
+                await loadTermsYearList();
+            } catch (err) { alert("Error saving academic term/year: " + err.message); }
         }
 
         async function loadTermsYearList() {
@@ -3174,6 +3370,8 @@
                     const publishToggle = document.getElementById("publishResultsToggle");
                     if (lockToggle) lockToggle.checked = data.teachersCanEnter !== false;
                     if (publishToggle) publishToggle.checked = data.resultsPublished === true;
+                    const publishBadge=document.getElementById("publishStatusBadge");
+                    if(publishBadge){ const published=data.resultsPublished===true; publishBadge.className=published?"badge badge-success":"badge badge-danger"; publishBadge.textContent=published?"Published":"Unpublished"; }
                 }
             });
         }
@@ -3415,38 +3613,73 @@
             return await snapshot.ref.getDownloadURL();
         }
 
-        async function saveTimetableEntry(e) {
+        async function saveManual(e) {
             e.preventDefault();
-            const className = document.getElementById("timetableClassSelect").value;
-            const day = document.getElementById("ttDay").value;
-            const time = document.getElementById("ttTime").value.trim();
-            const subject = document.getElementById("ttSubject").value.trim();
-            const file = document.getElementById("ttFile")?.files?.[0] || null;
-            if (!className) { alert("Select a class."); return; }
+            const file = document.getElementById('manualFile')?.files?.[0];
+            if (!file) { alert('Select a manual file.'); return; }
+            const maxBytes = 25 * 1024 * 1024;
+            if (file.size > maxBytes) { alert('File is too large. Maximum size is 25 MB.'); return; }
+            if (file.size === 0) { alert('The selected file is empty.'); return; }
             try {
-                const fileUrl = await uploadPortalFile(file, "timetables");
-                await db.collection("timetable").add({
-                    schoolId: currentSchoolId, class: className, day, time, subject,
-                    fileUrl: fileUrl || "", fileName: file ? file.name : "",
+                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const ref = storage.ref().child(`manuals/${Date.now()}_${safeName}`);
+                const snapshot = await ref.put(file, { contentType: file.type || 'application/octet-stream' });
+                const fileUrl = await snapshot.ref.getDownloadURL();
+                await db.collection('manuals').add({
+                    fileUrl,
+                    fileName: file.name,
+                    fileType: file.type || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-                document.getElementById("timetableForm").reset();
-                alert("Timetable entry added!");
-                loadTimetable(className);
-            } catch (err) { alert("Error saving timetable: " + err.message); }
+                document.getElementById('manualUploadForm').reset();
+                alert('Manual saved successfully!');
+                await loadManuals('superAdminManualsContainer');
+            } catch (err) {
+                alert('Error saving manual: ' + err.message);
+            }
         }
 
-        async function loadTimetable(className, containerId = "timetableDisplayContainer") {
+        async function loadManuals(containerId) {
             const container = document.getElementById(containerId);
-            if (!className) { if (container) container.innerHTML = ""; return; }
+            if (!container) return;
+            container.innerHTML = '<p>Loading manuals...</p>';
             try {
-                const snap = await db.collection("timetable").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
-                if (snap.empty) { if (container) container.innerHTML = "<p>No timetable slots registered.</p>"; return; }
-                let html = `<table><thead><tr><th>Day</th><th>Time Slot</th><th>Subject & Teacher</th><th>File</th></tr></thead><tbody>`;
-                snap.forEach(doc => { const d = doc.data(); html += `<tr><td>${esc(d.day)}</td><td>${esc(d.time)}</td><td>${esc(d.subject)}</td><td>${d.fileUrl ? `<a href="${esc(d.fileUrl)}" target="_blank" rel="noopener">Open file</a>` : "—"}</td></tr>`; });
-                html += `</tbody></table>`;
-                if (container) container.innerHTML = html;
-            } catch (e) { if (container) container.innerHTML = "<p>Error loading timetable.</p>"; }
+                const snap = await db.collection('manuals').get();
+                if (snap.empty) { container.innerHTML = '<p>No manuals uploaded yet.</p>'; return; }
+                let html = '<table><thead><tr><th>Manual</th><th>Action</th></tr></thead><tbody>';
+                snap.docs.forEach(doc => {
+                    const d = doc.data() || {};
+                    const url = d.fileUrl || d.downloadURL || d.url || '';
+                    const name = d.fileName || 'Manual';
+                    const isImg = /^image\//i.test(d.fileType || '') || /\.(png|jpe?g|gif|webp)$/i.test(name);
+                    html += `<tr><td style="text-align:left;">${isImg ? `<img src="${esc(url)}" alt="Manual" style="max-width:100%;max-height:320px;object-fit:contain;display:block;">` : `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a>`}</td><td><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;text-decoration:none;">Open</a></td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (err) {
+                container.innerHTML = '<p style="color:red;">Error loading manuals.</p>';
+            }
+        }
+
+        async function saveTimetableEntry(e) {
+            e.preventDefault();
+            const className=document.getElementById("timetableClassSelect").value;
+            const file=document.getElementById("ttFile")?.files?.[0];
+            if(!className){alert("Select a class.");return;} if(!file){alert("Select a timetable file.");return;}
+            try{
+                const fileUrl=await uploadPortalFile(file,"timetables");
+                await db.collection("timetable").add({schoolId:currentSchoolId,class:className,fileUrl,fileName:file.name,fileType:file.type||"",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                document.getElementById("timetableForm").reset(); alert("Timetable saved successfully!"); await loadTimetable(className);
+            }catch(err){alert("Error saving timetable: "+err.message);}
+        }
+
+        async function loadTimetable(className, containerId="timetableDisplayContainer") {
+            const container=document.getElementById(containerId); if(!container)return; if(!className){container.innerHTML="";return;}
+            try{const snap=await db.collection("timetable").where("schoolId","==",currentSchoolId).where("class","==",className).get(); if(snap.empty){container.innerHTML="<p>No timetable uploaded for this class.</p>";return;}
+                let html='<table><thead><tr><th>Class</th><th>Uploaded Timetable</th><th>Action</th></tr></thead><tbody>';
+                snap.docs.forEach(doc=>{const d=doc.data()||{},url=d.fileUrl||d.downloadURL||d.url; if(!url)return; const name=d.fileName||'Timetable'; const isImg=/^image\//i.test(d.fileType||'')||/\.(png|jpe?g|gif|webp)$/i.test(name); html+=`<tr><td>${esc(d.class||className)}</td><td style="text-align:left;">${isImg?`<img src="${esc(url)}" alt="Timetable" style="max-width:100%;max-height:420px;object-fit:contain;display:block;margin:auto;">`:`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a>`}</td><td><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;text-decoration:none;">Open</a></td></tr>`;});
+                html+='</tbody></table>'; container.innerHTML=html;
+            }catch(e){container.innerHTML='<p style="color:red;">Error loading timetable.</p>';}
         }
 
         async function saveResourceEntry(e) {
@@ -3526,58 +3759,19 @@
             }
         }
 
+        const pendingStudentPhotos = {};
         async function loadStudentsByClass(className, containerId, mode) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            if (!className) { container.innerHTML = ''; return; }
-            container.innerHTML = '<p>Loading students...</p>';
-            try {
-                const snap = await db.collection('students')
-                    .where('schoolId', '==', currentSchoolId)
-                    .where('class', '==', className)
-                    .get();
-                if (snap.empty) { container.innerHTML = '<p>No students found in this class.</p>'; return; }
-                const students = snap.docs.sort((a,b) => String(a.data().name || '').localeCompare(String(b.data().name || '')));
-                let html = `<h4 style="margin:14px 0;">${esc(className)}</h4><table><thead><tr><th>Student Name</th><th>ADM Number</th>`;
-                if (mode === 'photos') html += '<th>Upload Photo</th>';
-                else if (mode === 'transfer') html += '<th>Action</th>';
-                html += '</tr></thead><tbody>';
-                students.forEach(doc => {
-                    const d = doc.data();
-                    html += `<tr><td>${esc(d.name || '')}</td><td>${esc(d.admissionNo || '')}</td>`;
-                    if (mode === 'photos') {
-                        html += `<td><input type="file" accept="image/*" onchange="uploadStudentPhoto('${doc.id}', this)"><div id="photoStatus-${doc.id}" style="font-size:12px;margin-top:4px;">${d.photoUrl ? '<a href="'+esc(d.photoUrl)+'" target="_blank" rel="noopener">View photo</a>' : 'No photo uploaded'}</div></td>`;
-                    } else if (mode === 'transfer') {
-                        html += `<td><button class="btn-secondary" onclick="transferSingleStudent('${doc.id}', 'next')">Transfer to Next</button> <button class="btn-secondary" onclick="transferSingleStudent('${doc.id}', 'previous')">Transfer to Previous</button></td>`;
-                    }
-                    html += '</tr>';
-                });
-                html += '</tbody></table>';
-                if (mode === 'mass') html += `<button class="btn-primary" style="margin-top:14px;" onclick="transferClassToNext('${esc(className)}')">Transfer to Next Class</button>`;
-                container.innerHTML = html;
-            } catch (e) {
-                container.innerHTML = '<p style="color:red;">Error loading students: ' + esc(e.message) + '</p>';
-            }
+            const container=document.getElementById(containerId); if(!container)return; if(!className){container.innerHTML='';return;}
+            container.innerHTML='<p>Loading students...</p>';
+            try{const snap=await db.collection('students').where('schoolId','==',currentSchoolId).where('class','==',className).get(); if(snap.empty){container.innerHTML='<p>No students found in this class.</p>';return;}
+                const students=snap.docs.sort((a,b)=>String(a.data().name||'').localeCompare(String(b.data().name||''))); let html=`<h4 style="margin:14px 0;">${esc(className)}</h4><table><thead><tr><th>Student Name</th><th>ADM Number</th>`;
+                if(mode==='photos')html+='<th>Photo</th><th>Action</th>'; else if(mode==='transfer')html+='<th>Action</th>'; html+='</tr></thead><tbody>';
+                students.forEach(doc=>{const d=doc.data()||{}; if(mode==='photos'){const src=d.photoUrl||''; html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><div id="photoPreview-${doc.id}" style="min-height:90px;display:flex;align-items:center;justify-content:center;">${src?`<img src="${esc(src)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`:'<span style="color:#64748b;">No photo</span>'}</div><input type="file" id="photoInput-${doc.id}" accept="image/*" onchange="selectStudentPhoto('${doc.id}', this)"></td><td><button type="button" class="btn-success" onclick="saveStudentPhoto('${doc.id}')">Save</button> <button type="button" class="btn-danger" onclick="removeStudentPhoto('${doc.id}')">Remove</button></td></tr>`;} else if(mode==='transfer'){html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','next')">Transfer to Next</button> <button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','previous')">Transfer to Previous</button></td></tr>`;}}); html+='</tbody></table>'; if(mode==='mass')html+=`<button class="btn-primary" style="margin-top:14px;" onclick="transferClassToNext('${esc(className)}')">Transfer to Next Class</button>`; container.innerHTML=html;
+            }catch(e){container.innerHTML='<p style="color:red;">Error loading students: '+esc(e.message)+'</p>';}
         }
-
-        async function uploadStudentPhoto(studentId, input) {
-            const file = input.files && input.files[0];
-            if (!file) return;
-            if (!file.type.startsWith('image/')) { alert('Please select an image file.'); return; }
-            if (file.size > 25 * 1024 * 1024) { alert('Photo must not exceed 25 MB.'); return; }
-            const status = document.getElementById('photoStatus-' + studentId);
-            if (status) status.textContent = 'Uploading...';
-            try {
-                const ref = storage.ref().child('studentPhotos/' + currentSchoolId + '/' + studentId + '-' + Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_'));
-                await ref.put(file);
-                const photoUrl = await ref.getDownloadURL();
-                await db.collection('students').doc(studentId).update({ photoUrl, photoFileName: file.name, photoUpdatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-                if (status) status.innerHTML = `<a href="${esc(photoUrl)}" target="_blank" rel="noopener">Photo uploaded - View photo</a>`;
-            } catch (e) {
-                if (status) status.textContent = 'Upload failed.';
-                alert('Photo upload failed: ' + e.message);
-            }
-        }
+        function selectStudentPhoto(studentId,input){const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Please select an image file.');input.value='';return;}if(file.size>25*1024*1024){alert('Photo must not exceed 25 MB.');input.value='';return;}pendingStudentPhotos[studentId]=file;const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${URL.createObjectURL(file)}" alt="Selected student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;}
+        async function saveStudentPhoto(studentId){const file=pendingStudentPhotos[studentId];if(!file){alert('Select a photo first.');return;}try{const ref=storage.ref().child('studentPhotos/'+currentSchoolId+'/'+studentId+'-'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'));await ref.put(file);const photoUrl=await ref.getDownloadURL();await db.collection('students').doc(studentId).update({photoUrl,photoFileName:file.name,photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${esc(photoUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo saved successfully.');}catch(e){alert('Photo save failed: '+e.message);}}
+        async function removeStudentPhoto(studentId){if(!confirm('Remove this student photo?'))return;try{await db.collection('students').doc(studentId).update({photoUrl:firebase.firestore.FieldValue.delete(),photoFileName:firebase.firestore.FieldValue.delete(),photoUpdatedAt:firebase.firestore.FieldValue.delete()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML='<span style="color:#64748b;">No photo</span>';const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo removed.');}catch(e){alert('Could not remove photo: '+e.message);}}
 
         async function transferSingleStudent(studentId, direction) {
             try {
@@ -3672,46 +3866,56 @@
         }
 
         async function loadRegisteredCollection(type) {
-            const heading=document.getElementById('collectionHeading');
-            const container=document.getElementById('registeredDataContainer');
-            heading.textContent=`Registered ${type.toUpperCase()}`; container.innerHTML='<p>Loading...</p>';
-            try {
-                const snap=await db.collection(type).where('schoolId','==',currentSchoolId).get();
+            const heading=document.getElementById('collectionHeading'),container=document.getElementById('registeredDataContainer'); heading.textContent='Registered '+type.toUpperCase(); container.innerHTML='<p>Loading...</p>';
+            try{
+                let snap;
+                if(type==='teachers') snap=await db.collection('users').where('schoolId','==',currentSchoolId).where('role','==','teacher').get();
+                else snap=await db.collection(type).where('schoolId','==',currentSchoolId).get();
                 if(snap.empty){container.innerHTML='<p>No records found.</p>';return;}
-                if(type==='students'){
-                    const groups={}; snap.docs.forEach(doc=>{const d=doc.data();const k=d.class||'Unassigned Class';(groups[k] ||= []).push({id:doc.id,d});});
-                    let html=''; Object.keys(groups).sort().forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Name</th><th>ADM</th><th>Class</th><th>Year</th><th>Action</th></tr></thead><tbody>`; groups[cls].sort((a,b)=>String(a.d.name||'').localeCompare(String(b.d.name||''))).forEach(x=>{html+=`<tr><td>${esc(x.d.name)}</td><td>${esc(x.d.admissionNo)}</td><td>${esc(x.d.class)}</td><td>${esc(x.d.year||'')}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;}); html+='</tbody></table>';}); container.innerHTML=html; return;
+
+                // Resolve class/subject IDs from older records to their human-readable names.
+                let classNameById={}, subjectNameById={};
+                if(['classes','subjects','allocations','timetable','resources'].includes(type)){
+                    const [classSnap,subjectSnap]=await Promise.all([
+                        db.collection('classes').where('schoolId','==',currentSchoolId).get(),
+                        db.collection('subjects').where('schoolId','==',currentSchoolId).get()
+                    ]);
+                    classSnap.docs.forEach(d=>{const x=d.data()||{};classNameById[d.id]=x.name||x.className||x.title||x.class||'';});
+                    subjectSnap.docs.forEach(d=>{const x=d.data()||{};subjectNameById[d.id]=x.name||x.subjectName||x.title||x.subject||'';});
                 }
+                const displayClassName=v=>{const value=String(v||'').trim();return classNameById[value]||value;};
+                const displaySubjectName=v=>{const value=String(v||'').trim();return subjectNameById[value]||value;};
                 if(type==='teachers'){
-                    let html='<table><thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead><tbody>'; snap.forEach(doc=>{const d=doc.data();html+=`<tr><td>${esc(d.name||d.displayName)}</td><td>${esc(d.email)}</td><td><button class="btn-secondary" onclick="editTeacherRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('teachers','${doc.id}')">Delete</button></td></tr>`;}); container.innerHTML=html+'</tbody></table>'; return;
+                    const docs=snap.docs.filter(d=>(d.data()||{}).teacherActivated===true); if(!docs.length){container.innerHTML='<p>No teachers have completed password setup yet.</p>';return;}
+                    let html='<table><thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead><tbody>'; docs.forEach(doc=>{const d=doc.data();html+=`<tr><td>${esc(d.name||d.displayName||'')}</td><td>${esc(d.email||'')}</td><td><button class="btn-secondary" onclick="editTeacherRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteTeacherRecord('${doc.id}')">Delete</button></td></tr>`;});container.innerHTML=html+'</tbody></table>';return;
+                }
+                if(type==='students'){
+                    const groups={};snap.docs.forEach(doc=>{const d=doc.data(),k=d.class||'Unassigned Class';(groups[k] ||= []).push({id:doc.id,d});});let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Name</th><th>ADM</th><th>Class</th><th>Year</th><th>Action</th></tr></thead><tbody>`;groups[cls].sort((a,b)=>String(a.d.name||'').localeCompare(String(b.d.name||''))).forEach(x=>{html+=`<tr><td>${esc(x.d.name)}</td><td>${esc(x.d.admissionNo)}</td><td>${esc(x.d.class)}</td><td>${esc(x.d.year||'')}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});container.innerHTML=html;return;
                 }
                 if(type==='allocations'){
-                    const groups={};
-                    for(const doc of snap.docs){ const d=doc.data(); const cls=d.className||d.class||'Unassigned Class'; (groups[cls] ||= []).push({ id: doc.id, d }); }
-                    let html=''; Object.keys(groups).sort(compareClassNames).forEach(cls=>{ html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Teacher Name</th><th>Email</th><th>Subject Allocated</th><th>Action</th></tr></thead><tbody>`; groups[cls].forEach(x=>{ const d=x.d; html+=`<tr><td>${esc(d.teacherName||d.name||'')}</td><td>${esc(d.teacherEmail||d.email||'')}</td><td>${esc(d.subjectName||d.subject||'')}</td><td><button class="btn-secondary" onclick="editAllocationRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('allocations','${x.id}')">Delete</button></td></tr>`; }); html+='</tbody></table>'; });
-                    container.innerHTML=html; return;
+                    const groups={}; await Promise.all(snap.docs.map(async doc=>{const d=doc.data()||{};let name=d.teacherName||'',email=d.teacherEmail||'';if((!name||!email)&&d.teacherId){const u=await db.collection('users').doc(d.teacherId).get();if(u.exists){const ud=u.data();name=name||ud.name||ud.displayName||'';email=email||ud.email||'';}}const cls=displayClassName(d.className||d.class)||'Unassigned Class';const subject=displaySubjectName(d.subjectName||d.subject)||'';(groups[cls] ||= []).push({id:doc.id,d,name,email,subject});}));let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Teacher Name</th><th>Email</th><th>Subject Allocated</th><th>Action</th></tr></thead><tbody>`;groups[cls].forEach(x=>{html+=`<tr><td>${esc(x.name)}</td><td>${esc(x.email)}</td><td>${esc(x.subject)}</td><td><button class="btn-secondary" onclick="editAllocationRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('allocations','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});container.innerHTML=html;return;
                 }
-                if(type==='timetable' || type==='resources'){
-                    const uploaded = snap.docs.filter(doc => {
-                        const d = doc.data() || {};
-                        return Boolean(d.fileUrl || d.downloadURL || d.url || d.link);
-                    });
-                    if(!uploaded.length){ container.innerHTML='<p>No uploaded items found.</p>'; return; }
-                    const heading = type === 'timetable' ? 'Timetable Item' : 'Resource';
-                    let html = `<table><thead><tr><th>${heading}</th><th>View</th><th>Action</th></tr></thead><tbody>`;
-                    uploaded.forEach(doc => {
-                        const d = doc.data() || {};
-                        const href = d.fileUrl || d.downloadURL || d.url || d.link || '';
-                        const label = d.fileName || d.title || d.name || (type === 'timetable' ? 'Uploaded timetable' : 'Uploaded resource');
-                        html += `<tr><td style="text-align:left;">${esc(label)}</td><td><a href="${esc(href)}" target="_blank" rel="noopener noreferrer" class="btn-secondary" style="display:inline-block;text-decoration:none;">View</a></td><td><button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`;
-                    });
-                    html += '</tbody></table>';
-                    container.innerHTML = html;
-                    return;
+                if(type==='timetable'||type==='resources'){
+                    const docs=snap.docs.filter(d=>{const x=d.data()||{};return Boolean(x.fileUrl||x.downloadURL||x.url||x.link);}); if(!docs.length){container.innerHTML='<p>No uploaded items found.</p>';return;} let html=type==='timetable'?'<table><thead><tr><th>Class</th><th>Uploaded Timetable</th><th>Action</th></tr></thead><tbody>':'<table><thead><tr><th>Class</th><th>Resource</th><th>Action</th></tr></thead><tbody>';docs.forEach(doc=>{const d=doc.data()||{},href=d.fileUrl||d.downloadURL||d.url||d.link,label=d.fileName||d.title||'Uploaded file',isImg=/^image\//i.test(d.fileType||'')||/\.(png|jpe?g|gif|webp)$/i.test(label);html+=`<tr><td>${esc(displayClassName(d.class||d.className||''))}</td><td style="text-align:left;">${isImg?`<img src="${esc(href)}" alt="Uploaded file" style="max-width:100%;max-height:300px;object-fit:contain;display:block;">`:`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';container.innerHTML=html;return;
+                }
+                if(type==='classes'){
+                    let html='<table><thead><tr><th>Class</th><th>Action</th></tr></thead><tbody>';
+                    snap.docs.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.className||d.title||d.class||displayClassName(doc.id))}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('classes','${doc.id}')">Delete</button></td></tr>`;});
+                    container.innerHTML=html+'</tbody></table>';return;
+                }
+                if(type==='subjects'){
+                    let html='<table><thead><tr><th>Subject</th><th>Action</th></tr></thead><tbody>';
+                    snap.docs.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.subjectName||d.title||d.subject||displaySubjectName(doc.id))}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('subjects','${doc.id}')">Delete</button></td></tr>`;});
+                    container.innerHTML=html+'</tbody></table>';return;
                 }
                 container.innerHTML='<table><thead><tr><th>Details</th><th>Action</th></tr></thead><tbody>'+snap.docs.map(doc=>`<tr><td>${esc(JSON.stringify(doc.data()))}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`).join('')+'</tbody></table>';
-            } catch(e){container.innerHTML='<p style="color:red;">Error loading records: '+esc(e.message)+'</p>';}
+            }catch(e){container.innerHTML='<p style="color:red;">Error loading records: '+esc(e.message)+'</p>';}
         }
+
+        async function editTeacherRecord(uid){const ref=db.collection('users').doc(uid);const snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit teacher name:',d.name||'');if(name===null)return;const email=prompt('Edit teacher email:',d.email||'');if(email===null)return;try{await ref.update({name:name.trim(),email:email.trim().toLowerCase()});alert('Teacher updated successfully.');await loadRegisteredCollection('teachers');populateAllDropdowns();}catch(e){alert('Error updating teacher: '+e.message);}}
+        async function deleteTeacherRecord(uid){if(!confirm('Delete this teacher record?'))return;try{await db.collection('users').doc(uid).delete();alert('Teacher record deleted successfully.');await loadRegisteredCollection('teachers');populateAllDropdowns();}catch(e){alert('Error deleting teacher: '+e.message);}}
+        async function editStudentRecord(id){const ref=db.collection('students').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit student name:',d.name||'');if(name===null)return;const adm=prompt('Edit admission number:',d.admissionNo||'');if(adm===null)return;try{await ref.update({name:name.trim(),admissionNo:adm.trim()});alert('Student updated successfully.');await loadRegisteredCollection('students');}catch(e){alert('Error updating student: '+e.message);}}
+        async function editAllocationRecord(id){const ref=db.collection('allocations').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const sub=prompt('Edit allocated subject:',d.subjectName||d.subject||'');if(sub===null)return;try{await ref.update({subjectName:sub.trim()});alert('Allocation updated successfully.');await loadRegisteredCollection('allocations');}catch(e){alert('Error updating allocation: '+e.message);}}
 
         // Secure M-PESA payment backend. Replace this URL with your deployed Node.js server URL.
         const PAYMENT_SERVER_URL = "https://results-management-payment.onrender.com";
