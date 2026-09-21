@@ -229,6 +229,14 @@
         .header-logo-preview { height: 50px; max-width: 120px; object-fit: contain; }
         
         .dashboard-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); margin-bottom: 16px; border: 1px solid #e2e8f0; }
+        .notification-badge { display:inline-flex; align-items:center; justify-content:center; min-width:22px; height:22px; padding:0 6px; margin-left:7px; border-radius:999px; background:#dc2626; color:#fff; font-size:11px; font-weight:800; vertical-align:middle; }
+        .portal-notification-overlay { position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:20px; background:rgba(15,23,42,.45); }
+        .portal-notification-box { width:100%; max-width:430px; background:#fff; border-radius:16px; padding:24px; box-shadow:0 18px 50px rgba(15,23,42,.25); text-align:center; }
+        .portal-notification-box h3 { margin-bottom:10px; color:#1e293b; }
+        .portal-notification-box p { color:#475569; line-height:1.6; margin-bottom:18px; }
+        .announcement-list-item { border:1px solid #e2e8f0; border-radius:10px; padding:14px; margin-bottom:12px; background:#fff; }
+        .announcement-list-item h4 { margin-bottom:6px; color:#1e293b; }
+        .announcement-meta { font-size:12px; color:#64748b; margin-bottom:8px; }
         .tab-pane { display: none; }
         .tab-pane.active { display: block; }
 
@@ -840,6 +848,9 @@
                 <div class="admin-card" onclick="openSuperAdminSection('saTabManuals')">
                     <div class="icon">📖</div><div class="title">MANUALS</div>
                 </div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabAnnouncements')">
+                    <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="saAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
+                </div>
             </div>
 
             <div id="superAdminSectionsContainer" style="display: none;">
@@ -874,6 +885,31 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+
+                    <div id="saTabAnnouncements" class="tab-pane">
+                        <h3>UPDATE / ANNOUNCEMENT</h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">Publish an update or portal announcement for Headteachers and Teachers.</p>
+                        <form id="announcementForm" onsubmit="saveAnnouncement(event)">
+                            <div class="auth-form-group">
+                                <label>Type</label>
+                                <select id="announcementType" required>
+                                    <option value="">-- Select Type --</option>
+                                    <option value="announcement">Announcement</option>
+                                    <option value="update">Update</option>
+                                </select>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Topic / Headline</label>
+                                <input type="text" id="announcementTitle" placeholder="Enter topic or headline" required>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Message</label>
+                                <textarea id="announcementMessage" rows="5" placeholder="Enter announcement or update details" required></textarea>
+                            </div>
+                            <button class="btn-primary" type="submit">Publish</button>
+                        </form>
+                        <div id="superAdminAnnouncementsContainer" class="table-responsive" style="margin-top:18px;"></div>
                     </div>
 
                     <div id="saTabManuals" class="tab-pane">
@@ -1000,6 +1036,9 @@
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabManuals')">
                     <div class="icon">📖</div><div class="title">MANUALS</div>
+                </div>
+                <div class="admin-card" onclick="openAdminSection('tabAnnouncements')">
+                    <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
             </div>
 
@@ -1410,6 +1449,12 @@
                         <div id="resourcesDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
 
+                    <div id="tabAnnouncements" class="tab-pane">
+                        <h3>UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadgeInside" class="notification-badge" style="display:none;">0</span></h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">View announcements and updates published by the Super Administrator.</p>
+                        <div id="adminAnnouncementsContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+
                     <div id="tabManuals" class="tab-pane">
                         <h3>MANUALS</h3>
                         <p style="font-size:13px; color:#64748b; margin-bottom:16px;">View manuals uploaded by the Super Administrator.</p>
@@ -1449,6 +1494,9 @@
                 </div>
                 <div class="admin-card" onclick="openTeacherSection('tTabManuals')">
                     <div class="icon">📖</div><div class="title">MANUALS</div>
+                </div>
+                <div class="admin-card" onclick="openTeacherSection('tTabAnnouncements')">
+                    <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="teacherAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
             </div>
 
@@ -1510,6 +1558,12 @@
                             <select id="tResourcesClassSelect" onchange="loadResources(this.value, 'tResourcesContainer')"></select>
                         </div>
                         <div id="tResourcesContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+
+                    <div id="tTabAnnouncements" class="tab-pane">
+                        <h3>UPDATE / ANNOUNCEMENT <span id="teacherAnnouncementBadgeInside" class="notification-badge" style="display:none;">0</span></h3>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:16px;">View announcements and updates published by the Super Administrator.</p>
+                        <div id="teacherAnnouncementsContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
 
                     <div id="tTabManuals" class="tab-pane">
@@ -1622,6 +1676,7 @@
         let isGlobalPaymentEnabled = true;
         let schoolPaidUntil = null;
         let countdownTimerInterval = null;
+        let paymentTimerInterval = null;
         let selectedTeacherClass = "";
         let selectedTeacherSubject = "";
         let pendingOptionAction = "";
@@ -1630,6 +1685,8 @@
         let cachedStudents = [];
         let cachedMarksMap = {};
         let currentUserId = "";
+        let latestPortalAnnouncement = null;
+        let latestPortalAnnouncementId = "";
 
         const defaultCBCGrading = [
             { grade: "EE1", min: 90, max: 100, desc: "Exceeding Expectations (Level 4 High)" },
@@ -1801,6 +1858,7 @@
             if (target) target.classList.add('active');
             if (tabId === 'tabLogo') loadSchoolLogoPreview();
             if (tabId === 'tabManuals') loadManuals('adminManualsContainer');
+            if (tabId === 'tabAnnouncements') loadAnnouncements('adminAnnouncementsContainer');
         }
 
         function closeAdminSection() {
@@ -1815,6 +1873,7 @@
             const target = document.getElementById(tabId);
             if (target) target.classList.add('active');
             if (tabId === 'tTabManuals') loadManuals('teacherManualsContainer');
+            if (tabId === 'tTabAnnouncements') loadAnnouncements('teacherAnnouncementsContainer');
         }
 
         function closeTeacherSection() {
@@ -1833,11 +1892,172 @@
             if (tabId === 'saTabVerification') loadVerificationSchoolsList();
             if (tabId === 'saTabPaymentControl') loadGlobalPaymentStatus();
             if (tabId === 'saTabManuals') loadManuals('superAdminManualsContainer');
+            if (tabId === 'saTabAnnouncements') loadAnnouncements('superAdminAnnouncementsContainer', true);
         }
 
         function closeSuperAdminSection() {
             document.getElementById('superAdminSectionsContainer').style.display = 'none';
             document.getElementById('superAdminMainMenu').style.display = 'grid';
+        }
+
+        async function saveAnnouncement(e) {
+            e.preventDefault();
+            const type = document.getElementById('announcementType')?.value || '';
+            const title = document.getElementById('announcementTitle')?.value.trim() || '';
+            const message = document.getElementById('announcementMessage')?.value.trim() || '';
+            if (!type || !title || !message) { alert('Please complete the type, topic/headline and message.'); return; }
+            try {
+                await db.collection('announcements').add({
+                    type,
+                    title,
+                    message,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdBy: currentUserId,
+                    active: true
+                });
+                document.getElementById('announcementForm').reset();
+                alert(type === 'update' ? 'Update published successfully!' : 'Portal announcement published successfully!');
+                await loadAnnouncements('superAdminAnnouncementsContainer', true);
+                updateAnnouncementBadges();
+            } catch (err) {
+                alert('Could not publish: ' + err.message);
+            }
+        }
+
+        function announcementLabel(type) {
+            return String(type || '').toLowerCase() === 'update' ? 'New Update' : 'Portal Announcement';
+        }
+
+        function announcementIcon(type) {
+            return String(type || '').toLowerCase() === 'update' ? '🔔' : '📢';
+        }
+
+        function formatAnnouncementDate(ts) {
+            try {
+                const d = ts?.toDate ? ts.toDate() : new Date(ts);
+                if (isNaN(d.getTime())) return '';
+                return d.toLocaleString();
+            } catch (_) { return ''; }
+        }
+
+        async function loadAnnouncements(containerId, includeAllForSuperAdmin = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = '<p>Loading...</p>';
+            try {
+                const snap = await db.collection('announcements').where('active', '==', true).get();
+                if (snap.empty) { container.innerHTML = '<p>No announcements or updates have been published yet.</p>'; return; }
+                const docs = snap.docs.slice().sort((a, b) => {
+                    const aTime = a.data()?.createdAt?.toMillis ? a.data().createdAt.toMillis() : 0;
+                    const bTime = b.data()?.createdAt?.toMillis ? b.data().createdAt.toMillis() : 0;
+                    return bTime - aTime;
+                });
+                let html = '';
+                docs.forEach(doc => {
+                    const d = doc.data() || {};
+                    const type = String(d.type || 'announcement').toLowerCase();
+                    html += `<div class="announcement-list-item">` +
+                        `<h4>${announcementIcon(type)} ${esc(announcementLabel(type))}: ${esc(d.title || '')}</h4>` +
+                        `<div class="announcement-meta">${esc(formatAnnouncementDate(d.createdAt))}</div>` +
+                        `<div style="white-space:pre-wrap; color:#334155; line-height:1.6;">${esc(d.message || '')}</div>` +
+                        `</div>`;
+                });
+                container.innerHTML = html;
+                if (!includeAllForSuperAdmin) {
+                    try { await markAnnouncementsRead(docs.map(d => d.id)); } catch (_) {}
+                    updateAnnouncementBadges();
+                }
+            } catch (err) {
+                console.error('Announcements load error:', err);
+                container.innerHTML = '<p style="color:red;">Error loading announcements.</p>';
+            }
+        }
+
+        async function getUnreadAnnouncements() {
+            try {
+                const snap = await db.collection('announcements').where('active', '==', true).get();
+                const docs = snap.docs.slice().sort((a, b) => {
+                    const aTime = a.data()?.createdAt?.toMillis ? a.data().createdAt.toMillis() : 0;
+                    const bTime = b.data()?.createdAt?.toMillis ? b.data().createdAt.toMillis() : 0;
+                    return bTime - aTime;
+                });
+                const readSnap = await db.collection('announcementReads').doc(currentUserId).get();
+                const read = readSnap.exists ? (readSnap.data()?.readIds || []) : [];
+                const unread = docs.filter(d => !read.includes(d.id));
+                return { snap, unread };
+            } catch (err) {
+                console.error('Unread announcements error:', err);
+                return { snap: null, unread: [] };
+            }
+        }
+
+        async function updateAnnouncementBadges() {
+            if (!currentUserId) return;
+            const role = String((await db.collection('users').doc(currentUserId).get()).data()?.role || '').toLowerCase();
+            if (role === 'superadmin') return;
+            const { unread } = await getUnreadAnnouncements();
+            const ids = ['adminAnnouncementBadge','adminAnnouncementBadgeInside','teacherAnnouncementBadge','teacherAnnouncementBadgeInside'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) { el.textContent = String(unread.length); el.style.display = unread.length ? 'inline-flex' : 'none'; }
+            });
+        }
+
+        async function markAnnouncementsRead(ids) {
+            if (!currentUserId || !ids?.length) return;
+            const ref = db.collection('announcementReads').doc(currentUserId);
+            const snap = await ref.get();
+            const old = snap.exists ? (snap.data()?.readIds || []) : [];
+            const merged = Array.from(new Set(old.concat(ids))).slice(-300);
+            await ref.set({ readIds: merged, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+        }
+
+        async function showPortalAnnouncementPopup() {
+            if (!currentUserId) return;
+            const { unread } = await getUnreadAnnouncements();
+            if (!unread.length) { updateAnnouncementBadges(); return; }
+            const doc = unread[0];
+            const d = doc.data() || {};
+            latestPortalAnnouncement = d;
+            latestPortalAnnouncementId = doc.id;
+            document.getElementById('portalNotificationIcon').textContent = announcementIcon(d.type);
+            document.getElementById('portalNotificationTitle').textContent = announcementLabel(d.type);
+            document.getElementById('portalNotificationMessage').textContent = d.title ? `${d.title}: ${d.message || ''}` : (d.message || '');
+            document.getElementById('portalNotificationOverlay').style.display = 'flex';
+        }
+
+        function closePortalNotification() {
+            document.getElementById('portalNotificationOverlay').style.display = 'none';
+        }
+
+        async function viewLatestAnnouncementFromPopup() {
+            closePortalNotification();
+            if (latestPortalAnnouncementId) await markAnnouncementsRead([latestPortalAnnouncementId]);
+            updateAnnouncementBadges();
+            const role = String((await db.collection('users').doc(currentUserId).get()).data()?.role || '').toLowerCase();
+            if (role === 'admin') openAdminSection('tabAnnouncements');
+            else if (role === 'teacher') openTeacherSection('tTabAnnouncements');
+        }
+
+        async function initializePortalAnnouncements() {
+            try {
+                const profile = await getCurrentUserProfileForAnnouncements();
+                if (!profile) return;
+                const role = String(profile.role || '').toLowerCase();
+                if (role === 'admin' || role === 'teacher') {
+                    updateAnnouncementBadges();
+                    setTimeout(showPortalAnnouncementPopup, 500);
+                }
+                if (role === 'superadmin') {
+                    loadAnnouncements('superAdminAnnouncementsContainer', true);
+                }
+            } catch (err) { console.error('Announcement initialization error:', err); }
+        }
+
+        async function getCurrentUserProfileForAnnouncements() {
+            if (!currentUserId) return null;
+            const snap = await db.collection('users').doc(currentUserId).get();
+            return snap.exists ? (snap.data() || {}) : null;
         }
 
         function loginAsSuperAdmin() {
@@ -1894,6 +2114,7 @@
                             }
                             document.getElementById("superAdminNameDisplay").textContent = userData.name || "Super Admin";
                             showView("superAdminView");
+                            initializePortalAnnouncements();
                         } else if (userData.role === "admin") {
                             document.getElementById("adminNameDisplay").textContent = userData.name || "Administrator";
                             if (currentSchoolId) {
@@ -1931,6 +2152,7 @@
                             loadExamTypesList();
                             listenToMarksControl();
                             showView("adminView");
+                            initializePortalAnnouncements();
                         } else if (userData.role === "teacher") {
                             document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
                             currentSchoolId = userData.schoolId || "";
@@ -1938,6 +2160,7 @@
                             loadTeacherAllocations(user.uid);
                             listenToTeacherDeadline();
                             showView("teacherView");
+                            initializePortalAnnouncements();
                         }
                     } else {
                         const studentSnap = await db.collection("students").doc(user.uid).get();
@@ -3047,21 +3270,53 @@
             }
         }
 
+        function formatCountdown(diffMs) {
+            const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
+        }
+
         async function fetchSchoolPaymentStatus() {
             if (!currentSchoolId) return;
             try {
                 const doc = await db.collection("subscriptions").doc(currentSchoolId).get();
                 const timerBanner = document.getElementById("schoolPaymentTimer");
                 const timerText = document.getElementById("paymentTimerCountdown");
-                
+                if (!timerBanner || !timerText) return;
+
+                if (paymentTimerInterval) {
+                    clearInterval(paymentTimerInterval);
+                    paymentTimerInterval = null;
+                }
+
                 if (doc.exists) {
                     const data = doc.data();
                     schoolPaidUntil = data.paidUntil;
-                    if (schoolPaidUntil && schoolPaidUntil.toDate() > new Date()) {
+                    const paidUntilDate = schoolPaidUntil && typeof schoolPaidUntil.toDate === "function"
+                        ? schoolPaidUntil.toDate()
+                        : (schoolPaidUntil ? new Date(schoolPaidUntil) : null);
+
+                    if (paidUntilDate && paidUntilDate > new Date()) {
                         timerBanner.style.display = "flex";
-                        const diffTime = schoolPaidUntil.toDate() - new Date();
-                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                        timerText.textContent = `Subscription Active: ${diffDays} Days Remaining`;
+
+                        const updatePaymentCountdown = () => {
+                            const diffTime = paidUntilDate.getTime() - Date.now();
+                            if (diffTime <= 0) {
+                                timerText.textContent = "Subscription Expired - Please Renew";
+                                if (paymentTimerInterval) {
+                                    clearInterval(paymentTimerInterval);
+                                    paymentTimerInterval = null;
+                                }
+                            } else {
+                                timerText.textContent = `Subscription Active: ${formatCountdown(diffTime)}`;
+                            }
+                        };
+
+                        updatePaymentCountdown();
+                        paymentTimerInterval = setInterval(updatePaymentCountdown, 1000);
                     } else {
                         timerBanner.style.display = "flex";
                         timerText.textContent = "Subscription Expired - Please Renew";
@@ -3081,31 +3336,48 @@
             else c.innerHTML='<p style="color:#64748b;font-size:13px;">No school logo uploaded yet.</p>';
         }
 
+        function ensureHostedUploadContext() {
+            if (window.location.protocol === "file:" || window.location.origin === "null") {
+                throw new Error("Uploads must be done from the live HTTPS portal link, not from a local HTML file.");
+            }
+        }
+
         async function uploadSchoolLogo() {
             const fileInput = document.getElementById("schoolLogoInput");
-            if (fileInput.files.length === 0) {
+            if (!fileInput || fileInput.files.length === 0) {
                 alert("Please select a logo image.");
                 return;
             }
             const file = fileInput.files[0];
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64Str = e.target.result;
-                try {
-                    await db.collection("schools").doc(currentSchoolId).update({
-                        logoUrl: base64Str
-                    });
-                    currentSchoolLogo = base64Str;
-                    const logoImg = document.getElementById("adminLogoDisplay");
-                    logoImg.src = base64Str;
+            if (!file.type.startsWith("image/")) {
+                alert("Please select an image file for the school logo.");
+                fileInput.value = "";
+                return;
+            }
+            if (file.size > 25 * 1024 * 1024) {
+                alert("School logo must not exceed 25 MB.");
+                fileInput.value = "";
+                return;
+            }
+            try {
+                ensureHostedUploadContext();
+                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+                const ref = storage.ref().child(`schoolLogos/${currentSchoolId}/${Date.now()}_${safeName}`);
+                const snapshot = await ref.put(file, { contentType: file.type || "image/*" });
+                const logoUrl = await snapshot.ref.getDownloadURL();
+                await db.collection("schools").doc(currentSchoolId).update({ logoUrl });
+                currentSchoolLogo = logoUrl;
+                const logoImg = document.getElementById("adminLogoDisplay");
+                if (logoImg) {
+                    logoImg.src = logoUrl;
                     logoImg.style.display = "block";
-                    await loadSchoolLogoPreview();
-                    alert("School logo updated successfully!");
-                } catch (err) {
-                    alert("Error saving logo: " + err.message);
                 }
-            };
-            reader.readAsDataURL(file);
+                await loadSchoolLogoPreview();
+                fileInput.value = "";
+                alert("School logo updated successfully!");
+            } catch (err) {
+                alert("Error saving logo: " + err.message);
+            }
         }
 
         async function saveSchoolDates(e) {
@@ -3546,25 +3818,40 @@
 
         async function listenToTeacherDeadline() {
             db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
+                const banner = document.getElementById("teacherDeadlineBanner");
+                const countdown = document.getElementById("teacherDeadlineCountdown");
+                if (!banner || !countdown) return;
+
                 if (doc.exists && doc.data().deadline) {
-                    const deadline = doc.data().deadline.toDate();
-                    const banner = document.getElementById("teacherDeadlineBanner");
-                    const countdown = document.getElementById("teacherDeadlineCountdown");
+                    const deadlineValue = doc.data().deadline;
+                    const deadline = typeof deadlineValue.toDate === "function"
+                        ? deadlineValue.toDate()
+                        : new Date(deadlineValue);
                     banner.style.display = "flex";
                     
                     if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-                    countdownTimerInterval = setInterval(() => {
-                        const now = new Date();
-                        const diff = deadline - now;
+
+                    const updateDeadlineCountdown = () => {
+                        const diff = deadline.getTime() - Date.now();
                         if (diff <= 0) {
                             countdown.textContent = "Marks Entry Deadline Passed";
-                            clearInterval(countdownTimerInterval);
+                            if (countdownTimerInterval) {
+                                clearInterval(countdownTimerInterval);
+                                countdownTimerInterval = null;
+                            }
                         } else {
-                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                            countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}h`;
+                            countdown.textContent = `Marks Entry Closes in: ${formatCountdown(diff)}`;
                         }
-                    }, 1000);
+                    };
+
+                    updateDeadlineCountdown();
+                    countdownTimerInterval = setInterval(updateDeadlineCountdown, 1000);
+                } else {
+                    if (countdownTimerInterval) {
+                        clearInterval(countdownTimerInterval);
+                        countdownTimerInterval = null;
+                    }
+                    banner.style.display = "none";
                 }
             });
         }
@@ -3603,6 +3890,7 @@
 
         async function uploadPortalFile(file, folder) {
             if (!file) return null;
+            ensureHostedUploadContext();
             const maxBytes = 25 * 1024 * 1024;
             if (file.size > maxBytes) throw new Error("File is too large. Maximum size is 25 MB.");
             if (file.size === 0) throw new Error("The selected file is empty.");
@@ -3617,6 +3905,7 @@
             e.preventDefault();
             const file = document.getElementById('manualFile')?.files?.[0];
             if (!file) { alert('Select a manual file.'); return; }
+            try { ensureHostedUploadContext(); } catch (contextError) { alert(contextError.message); return; }
             const maxBytes = 25 * 1024 * 1024;
             if (file.size > maxBytes) { alert('File is too large. Maximum size is 25 MB.'); return; }
             if (file.size === 0) { alert('The selected file is empty.'); return; }
@@ -3770,7 +4059,7 @@
             }catch(e){container.innerHTML='<p style="color:red;">Error loading students: '+esc(e.message)+'</p>';}
         }
         function selectStudentPhoto(studentId,input){const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Please select an image file.');input.value='';return;}if(file.size>25*1024*1024){alert('Photo must not exceed 25 MB.');input.value='';return;}pendingStudentPhotos[studentId]=file;const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${URL.createObjectURL(file)}" alt="Selected student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;}
-        async function saveStudentPhoto(studentId){const file=pendingStudentPhotos[studentId];if(!file){alert('Select a photo first.');return;}try{const ref=storage.ref().child('studentPhotos/'+currentSchoolId+'/'+studentId+'-'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'));await ref.put(file);const photoUrl=await ref.getDownloadURL();await db.collection('students').doc(studentId).update({photoUrl,photoFileName:file.name,photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${esc(photoUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo saved successfully.');}catch(e){alert('Photo save failed: '+e.message);}}
+        async function saveStudentPhoto(studentId){const file=pendingStudentPhotos[studentId];if(!file){alert('Select a photo first.');return;}try{ensureHostedUploadContext();const ref=storage.ref().child('studentPhotos/'+currentSchoolId+'/'+studentId+'-'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_'));await ref.put(file);const photoUrl=await ref.getDownloadURL();await db.collection('students').doc(studentId).update({photoUrl,photoFileName:file.name,photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${esc(photoUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo saved successfully.');}catch(e){alert('Photo save failed: '+e.message);}}
         async function removeStudentPhoto(studentId){if(!confirm('Remove this student photo?'))return;try{await db.collection('students').doc(studentId).update({photoUrl:firebase.firestore.FieldValue.delete(),photoFileName:firebase.firestore.FieldValue.delete(),photoUpdatedAt:firebase.firestore.FieldValue.delete()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML='<span style="color:#64748b;">No photo</span>';const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo removed.');}catch(e){alert('Could not remove photo: '+e.message);}}
 
         async function transferSingleStudent(studentId, direction) {
@@ -3921,14 +4210,14 @@
         const PAYMENT_SERVER_URL = "https://results-management-payment.onrender.com";
 
         function normalizeMpesaPhone(phone) {
-            let p = String(phone || "").replace(/\s|-/g, "");
+            let p = String(phone || "").trim().replace(/[\s-]/g, "");
             if (p.startsWith("+254")) p = p.substring(1);
-            if (p.startsWith("07") || p.startsWith("01")) p = "254" + p.substring(1);
+            if (p.startsWith("0")) p = "254" + p.substring(1);
             return p;
         }
 
         function isValidMpesaPhone(phone) {
-            return /^254(7|1)\d{8}$/.test(phone);
+            return /^254[17]\d{8}$/.test(phone);
         }
 
         async function handlePayment(e) {
@@ -4049,5 +4338,16 @@
             setTimeout(check, 3000);
         }
     </script>
+    <div id="portalNotificationOverlay" class="portal-notification-overlay">
+        <div class="portal-notification-box">
+            <div id="portalNotificationIcon" style="font-size:42px; margin-bottom:8px;">🔔</div>
+            <h3 id="portalNotificationTitle">New Update</h3>
+            <p id="portalNotificationMessage">A new portal update has been posted.</p>
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+                <button class="btn-primary" onclick="viewLatestAnnouncementFromPopup()">View</button>
+                <button class="btn-secondary" onclick="closePortalNotification()">Continue</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
