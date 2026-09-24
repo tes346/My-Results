@@ -1654,6 +1654,12 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
         const storage = firebase.storage();
+
+        // Cloudinary is used only for portal file uploads. Firebase/Firestore continues
+        // to store all school, student, results and other portal data.
+        const CLOUDINARY_CLOUD_NAME = "rubyy3gz";
+        const CLOUDINARY_UPLOAD_PRESET = "school-porta-uploads";
+        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/auto/upload`;
         
         let secApp;
         try { secApp = firebase.app("Secondary"); } catch (e) { secApp = firebase.initializeApp(firebaseConfig, "Secondary"); }
@@ -1676,7 +1682,7 @@
         let isGlobalPaymentEnabled = true;
         let schoolPaidUntil = null;
         let countdownTimerInterval = null;
-        let paymentTimerInterval = null;
+        let subscriptionTimerInterval = null;
         let selectedTeacherClass = "";
         let selectedTeacherSubject = "";
         let pendingOptionAction = "";
@@ -2125,7 +2131,7 @@
                                     currentSchoolType = schoolData.schoolType || "junior";
                                     currentSchoolEmail = schoolData.email || "";
                                     currentSchoolPoBox = schoolData.poBox || "";
-                                    currentSchoolLogo = await resolveStoredFileUrl(schoolData.logoUrl || "");
+                                    currentSchoolLogo = schoolData.logoUrl || "";
                                     currentClosingDate = schoolData.closingDate || "N/A";
                                     currentOpeningDate = schoolData.openingDate || "N/A";
                                     document.getElementById("adminSchoolTitle").textContent = currentSchoolName;
@@ -2233,9 +2239,8 @@
                 });
                 const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
                 const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
-                currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=await resolveStoredFileUrl(school.logoUrl||''); currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
-                const studentPhotoUrl = await resolveStoredFileUrl(studentData.photoUrl||'');
-                content.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentPhotoUrl?`<img src="${esc(studentPhotoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>Excellent performance. Keep up the good work and consistency.</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
+                currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
+                content.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>Excellent performance. Keep up the good work and consistency.</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
             } catch(err) { content.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
         }
 
@@ -3271,173 +3276,85 @@
             }
         }
 
-        function formatCountdown(diffMs) {
-            const totalSeconds = Math.max(0, Math.floor(diffMs / 1000));
-            const days = Math.floor(totalSeconds / 86400);
-            const hours = Math.floor((totalSeconds % 86400) / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            return `${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
+        function renderSubscriptionCountdown() {
+            const timerBanner = document.getElementById("schoolPaymentTimer");
+            const timerText = document.getElementById("paymentTimerCountdown");
+            if (!timerBanner || !timerText) return;
+
+            if (subscriptionTimerInterval) {
+                clearInterval(subscriptionTimerInterval);
+                subscriptionTimerInterval = null;
+            }
+
+            const update = () => {
+                if (!schoolPaidUntil) {
+                    timerBanner.style.display = "flex";
+                    timerText.textContent = "No Active Subscription Found";
+                    return;
+                }
+
+                const endMs = typeof schoolPaidUntil.toMillis === "function"
+                    ? schoolPaidUntil.toMillis()
+                    : new Date(schoolPaidUntil).getTime();
+
+                const diffTime = endMs - Date.now();
+
+                if (diffTime <= 0) {
+                    timerBanner.style.display = "flex";
+                    timerText.textContent = "Subscription Expired - Please Renew";
+                    if (subscriptionTimerInterval) {
+                        clearInterval(subscriptionTimerInterval);
+                        subscriptionTimerInterval = null;
+                    }
+                    return;
+                }
+
+                const totalSeconds = Math.floor(diffTime / 1000);
+                const diffDays = Math.floor(totalSeconds / 86400);
+                const diffHours = Math.floor((totalSeconds % 86400) / 3600);
+                const diffMinutes = Math.floor((totalSeconds % 3600) / 60);
+                const diffSeconds = totalSeconds % 60;
+
+                timerBanner.style.display = "flex";
+                timerText.textContent =
+                    `Subscription Active: ${diffDays}d ${diffHours}hrs ${diffMinutes}min ${diffSeconds}sec`;
+            };
+
+            update();
+            subscriptionTimerInterval = setInterval(update, 1000);
         }
 
         async function fetchSchoolPaymentStatus() {
             if (!currentSchoolId) return;
             try {
                 const doc = await db.collection("subscriptions").doc(currentSchoolId).get();
-                const timerBanner = document.getElementById("schoolPaymentTimer");
-                const timerText = document.getElementById("paymentTimerCountdown");
-                if (!timerBanner || !timerText) return;
-
-                if (paymentTimerInterval) {
-                    clearInterval(paymentTimerInterval);
-                    paymentTimerInterval = null;
-                }
 
                 if (doc.exists) {
-                    const data = doc.data();
-                    schoolPaidUntil = data.paidUntil;
-                    const paidUntilDate = schoolPaidUntil && typeof schoolPaidUntil.toDate === "function"
-                        ? schoolPaidUntil.toDate()
-                        : (schoolPaidUntil ? new Date(schoolPaidUntil) : null);
-
-                    if (paidUntilDate && paidUntilDate > new Date()) {
-                        timerBanner.style.display = "flex";
-
-                        const updatePaymentCountdown = () => {
-                            const diffTime = paidUntilDate.getTime() - Date.now();
-                            if (diffTime <= 0) {
-                                timerText.textContent = "Subscription Expired - Please Renew";
-                                if (paymentTimerInterval) {
-                                    clearInterval(paymentTimerInterval);
-                                    paymentTimerInterval = null;
-                                }
-                            } else {
-                                timerText.textContent = `Subscription Active: ${formatCountdown(diffTime)}`;
-                            }
-                        };
-
-                        updatePaymentCountdown();
-                        paymentTimerInterval = setInterval(updatePaymentCountdown, 1000);
-                    } else {
-                        timerBanner.style.display = "flex";
-                        timerText.textContent = "Subscription Expired - Please Renew";
-                    }
+                    const data = doc.data() || {};
+                    schoolPaidUntil = data.paidUntil || null;
                 } else {
-                    timerBanner.style.display = "flex";
-                    timerText.textContent = "No Active Subscription Found";
+                    schoolPaidUntil = null;
                 }
+
+                renderSubscriptionCountdown();
             } catch (err) {
                 console.error("Payment status error:", err);
             }
         }
 
+
         async function loadSchoolLogoPreview() {
             const c=document.getElementById("logoPreviewContainer"); if(!c) return;
-            if(currentSchoolLogo){ const logoUrl = await resolveStoredFileUrl(currentSchoolLogo); c.innerHTML=`<img src="${esc(logoUrl)}" alt="School Logo" style="max-width:160px;max-height:160px;object-fit:contain;border:1px solid #cbd5e1;border-radius:8px;padding:4px;">`; }
+            if(currentSchoolLogo){ c.innerHTML=`<img src="${esc(currentSchoolLogo)}" alt="School Logo" style="max-width:160px;max-height:160px;object-fit:contain;border:1px solid #cbd5e1;border-radius:8px;padding:4px;">`; }
             else c.innerHTML='<p style="color:#64748b;font-size:13px;">No school logo uploaded yet.</p>';
         }
 
-        /* LOCAL TESTING SUPPORT
-           Firebase Storage requires a hosted web origin. When this HTML is opened
-           directly in TrebEdit/file://, uploaded files are stored in IndexedDB
-           on this device and Firestore stores only a small local-file reference.
-           Hosted HTTPS mode continues using Firebase Storage exactly as before.
-        */
-        const LOCAL_FILE_DB_NAME = "MyResultsPortalLocalFiles";
-        const LOCAL_FILE_STORE = "files";
-        const localFileUrlCache = {};
-
-        function isLocalFileMode() {
-            const protocol = String(window.location.protocol || "").toLowerCase();
-            const origin = String(window.location.origin || "").toLowerCase();
-            const host = String(window.location.hostname || "").toLowerCase();
-
-            // The live GitHub Pages site is the only hosted environment that
-            // should use Firebase Storage.
-            if (host === "tes346.github.io" || host.endsWith(".github.io")) return false;
-
-            // TrebEdit/local testing must never attempt Firebase Storage.
-            if (protocol === "file:" || origin === "null") return true;
-            if (host === "localhost" || host === "127.0.0.1" || host === "::1") return true;
-            if (protocol !== "http:" && protocol !== "https:") return true;
-
-            // For this portal, any non-GitHub test host is treated as local.
-            return true;
-        }
-
-        function isLocalFileRef(value) {
-            return typeof value === "string" && value.indexOf("localfile:") === 0;
-        }
-
-        function openLocalFileDb() {
-            return new Promise((resolve, reject) => {
-                if (!window.indexedDB) {
-                    reject(new Error("This browser does not support local file storage (IndexedDB)."));
-                    return;
-                }
-                const request = indexedDB.open(LOCAL_FILE_DB_NAME, 1);
-                request.onupgradeneeded = function () {
-                    const dbi = request.result;
-                    if (!dbi.objectStoreNames.contains(LOCAL_FILE_STORE)) {
-                        dbi.createObjectStore(LOCAL_FILE_STORE);
-                    }
-                };
-                request.onsuccess = function () { resolve(request.result); };
-                request.onerror = function () { reject(request.error || new Error("Could not open local file storage.")); };
-            });
-        }
-
-        async function saveLocalPortalFile(file, folder) {
-            if (!currentSchoolId) throw new Error("No school is currently selected.");
-            if (!file) return null;
-            const maxBytes = 25 * 1024 * 1024;
-            if (file.size > maxBytes) throw new Error("File is too large. Maximum size is 25 MB.");
-            if (file.size === 0) throw new Error("The selected file is empty.");
-
-            const key = `${currentSchoolId}/${folder}/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
-            const dbi = await openLocalFileDb();
-            await new Promise((resolve, reject) => {
-                const tx = dbi.transaction(LOCAL_FILE_STORE, "readwrite");
-                tx.objectStore(LOCAL_FILE_STORE).put({
-                    blob: file,
-                    name: file.name,
-                    type: file.type || "application/octet-stream",
-                    folder,
-                    schoolId: currentSchoolId,
-                    savedAt: Date.now()
-                }, key);
-                tx.oncomplete = resolve;
-                tx.onerror = () => reject(tx.error || new Error("Could not save the file locally."));
-                tx.onabort = () => reject(tx.error || new Error("Could not save the file locally."));
-            });
-            dbi.close();
-            return "localfile:" + key;
-        }
-
-        async function resolveStoredFileUrl(value) {
-            if (!value) return "";
-            if (!isLocalFileRef(value)) return value;
-            if (localFileUrlCache[value]) return localFileUrlCache[value];
-
-            const key = value.substring("localfile:".length);
-            const dbi = await openLocalFileDb();
-            const record = await new Promise((resolve, reject) => {
-                const tx = dbi.transaction(LOCAL_FILE_STORE, "readonly");
-                const req = tx.objectStore(LOCAL_FILE_STORE).get(key);
-                req.onsuccess = () => resolve(req.result || null);
-                req.onerror = () => reject(req.error || new Error("Could not read the locally saved file."));
-            });
-            dbi.close();
-
-            if (!record || !record.blob) throw new Error("The locally saved file is no longer available on this device.");
-            const url = URL.createObjectURL(record.blob);
-            localFileUrlCache[value] = url;
-            return url;
-        }
-
         function ensureHostedUploadContext() {
-            return true;
-        }        
+            if (window.location.protocol === "file:" || window.location.origin === "null") {
+                throw new Error("Uploads must be done from the live HTTPS portal link, not from a local HTML file.");
+            }
+        }
+
         async function uploadSchoolLogo() {
             const fileInput = document.getElementById("schoolLogoInput");
             if (!fileInput || fileInput.files.length === 0) {
@@ -3456,25 +3373,21 @@
                 return;
             }
             try {
-                let logoUrl;
-                if (isLocalFileMode()) {
-                    logoUrl = await saveLocalPortalFile(file, "schoolLogos");
-                } else {
-                    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-                    const ref = storage.ref().child(`schoolLogos/${currentSchoolId}/${Date.now()}_${safeName}`);
-                    const snapshot = await ref.put(file, { contentType: file.type || "image/*" });
-                    logoUrl = await snapshot.ref.getDownloadURL();
-                }
-                await db.collection("schools").doc(currentSchoolId).update({ logoUrl });
-                currentSchoolLogo = await resolveStoredFileUrl(logoUrl);
+                ensureHostedUploadContext();
+                const uploaded = await uploadCloudinaryFile(file, "school_logo");
+                const oldLogoUrl = currentSchoolLogo || "";
+                const oldLogoPublicId = (await db.collection("schools").doc(currentSchoolId).get()).data()?.logoPublicId || "";
+                await db.collection("schools").doc(currentSchoolId).update({ logoUrl: uploaded.secureUrl, logoPublicId: uploaded.publicId || "", logoResourceType: uploaded.resourceType || "image" });
+                currentSchoolLogo = uploaded.secureUrl;
+                if (oldLogoPublicId || oldLogoUrl) { try { await deleteCloudinaryAsset({ publicId: oldLogoPublicId, secureUrl: oldLogoUrl, resourceType: "image" }); } catch (cleanupError) { console.warn("Old school logo cleanup failed:", cleanupError.message); } }
                 const logoImg = document.getElementById("adminLogoDisplay");
                 if (logoImg) {
-                    logoImg.src = currentSchoolLogo;
+                    logoImg.src = logoUrl;
                     logoImg.style.display = "block";
                 }
                 await loadSchoolLogoPreview();
                 fileInput.value = "";
-                alert(isLocalFileMode() ? "School logo saved successfully on this device!" : "School logo updated successfully!");
+                alert("School logo updated successfully!");
             } catch (err) {
                 alert("Error saving logo: " + err.message);
             }
@@ -3918,40 +3831,27 @@
 
         async function listenToTeacherDeadline() {
             db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
-                const banner = document.getElementById("teacherDeadlineBanner");
-                const countdown = document.getElementById("teacherDeadlineCountdown");
-                if (!banner || !countdown) return;
-
                 if (doc.exists && doc.data().deadline) {
-                    const deadlineValue = doc.data().deadline;
-                    const deadline = typeof deadlineValue.toDate === "function"
-                        ? deadlineValue.toDate()
-                        : new Date(deadlineValue);
+                    const deadline = doc.data().deadline.toDate();
+                    const banner = document.getElementById("teacherDeadlineBanner");
+                    const countdown = document.getElementById("teacherDeadlineCountdown");
                     banner.style.display = "flex";
                     
                     if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-
-                    const updateDeadlineCountdown = () => {
-                        const diff = deadline.getTime() - Date.now();
+                    countdownTimerInterval = setInterval(() => {
+                        const now = new Date();
+                        const diff = deadline - now;
                         if (diff <= 0) {
                             countdown.textContent = "Marks Entry Deadline Passed";
-                            if (countdownTimerInterval) {
-                                clearInterval(countdownTimerInterval);
-                                countdownTimerInterval = null;
-                            }
+                            clearInterval(countdownTimerInterval);
                         } else {
-                            countdown.textContent = `Marks Entry Closes in: ${formatCountdown(diff)}`;
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                            countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
                         }
-                    };
-
-                    updateDeadlineCountdown();
-                    countdownTimerInterval = setInterval(updateDeadlineCountdown, 1000);
-                } else {
-                    if (countdownTimerInterval) {
-                        clearInterval(countdownTimerInterval);
-                        countdownTimerInterval = null;
-                    }
-                    banner.style.display = "none";
+                    }, 1000);
                 }
             });
         }
@@ -3988,41 +3888,149 @@
             } catch (e) { container.innerHTML = "<p>Error loading roster.</p>"; }
         }
 
-        async function uploadPortalFile(file, folder) {
+        async function compressImageForUpload(file, options = {}) {
+            if (!file || !file.type || !file.type.startsWith("image/")) return file;
+
+            const maxDimension = options.maxDimension || 1600;
+            const quality = options.quality || 0.82;
+
+            return await new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let width = img.naturalWidth || img.width;
+                        let height = img.naturalHeight || img.height;
+                        const scale = Math.min(1, maxDimension / Math.max(width, height));
+                        width = Math.max(1, Math.round(width * scale));
+                        height = Math.max(1, Math.round(height * scale));
+
+                        const canvas = document.createElement("canvas");
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext("2d");
+                        if (!ctx) { resolve(file); return; }
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const outputType = "image/jpeg";
+                        canvas.toBlob(blob => {
+                            if (!blob) { resolve(file); return; }
+                            const base = file.name.replace(/\.[^.]+$/, "") || "upload";
+                            resolve(new File([blob], `${base}.jpg`, { type: outputType, lastModified: Date.now() }));
+                        }, outputType, quality);
+                    };
+                    img.onerror = () => resolve(file);
+                    img.src = reader.result;
+                };
+                reader.onerror = () => reject(new Error("Could not read the selected image."));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function uploadCloudinaryFile(file, uploadKind = "file", options = {}) {
             if (!file) return null;
+            ensureHostedUploadContext();
+            // Unsigned browser upload: no API key and no API secret are sent.
             const maxBytes = 25 * 1024 * 1024;
             if (file.size > maxBytes) throw new Error("File is too large. Maximum size is 25 MB.");
             if (file.size === 0) throw new Error("The selected file is empty.");
-
-            if (isLocalFileMode()) {
-                return await saveLocalPortalFile(file, folder);
+            if (!CLOUDINARY_CLOUD_NAME || !CLOUDINARY_UPLOAD_PRESET || !CLOUDINARY_UPLOAD_URL) {
+                throw new Error("Cloudinary upload settings are incomplete.");
             }
+            let uploadFile = file;
+            if (file.type && file.type.startsWith("image/")) {
+                uploadFile = await compressImageForUpload(file, options);
+            }
+            const formData = new FormData();
+            formData.append("file", uploadFile);
+            formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+            let response;
+            try {
+                response = await fetch(CLOUDINARY_UPLOAD_URL, { method: "POST", body: formData });
+            } catch (networkError) {
+                throw new Error("Could not connect to Cloudinary. Make sure you are using the live HTTPS GitHub Pages portal.");
+            }
+            let result = null;
+            let rawText = "";
+            try {
+                rawText = await response.text();
+                result = rawText ? JSON.parse(rawText) : null;
+            } catch (_) {}
+            if (!response.ok || !result || !result.secure_url) {
+                const message = result?.error?.message || result?.error || rawText || `HTTP ${response.status}`;
+                const lowerMessage = String(message).toLowerCase();
 
-            const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
-            const path = `${folder}/${currentSchoolId}/${Date.now()}_${safeName}`;
-            const ref = storage.ref().child(path);
-            const snapshot = await ref.put(file, { contentType: file.type || "application/octet-stream" });
-            return await snapshot.ref.getDownloadURL();
+                if (lowerMessage.includes("unknown api key")) {
+                    throw new Error(
+                        "Cloudinary rejected the upload with 'Unknown API key'. " +
+                        "This browser upload uses an UNSIGNED upload preset. " +
+                        "In Cloudinary, open Upload Presets and make sure '" +
+                        CLOUDINARY_UPLOAD_PRESET +
+                        "' exists, is set to Unsigned, and belongs to cloud '" +
+                        CLOUDINARY_CLOUD_NAME + "'. No API key or API secret should be added to this HTML file."
+                    );
+                }
+
+                throw new Error("Cloudinary upload failed: " + message);
+            }
+            return {
+                secureUrl: result.secure_url,
+                publicId: result.public_id || '',
+                resourceType: result.resource_type || 'image'
+            };
+        }
+
+        async function deleteCloudinaryAsset(asset) {
+            if (!asset || (!asset.publicId && !asset.secureUrl && !asset.url)) return;
+            const user = firebase.auth().currentUser;
+            if (!user) throw new Error('You must be logged in to remove an upload.');
+            const token = await user.getIdToken();
+            const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, '') + '/api/cloudinary/assets', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    schoolId: currentSchoolId,
+                    publicId: asset.publicId || '',
+                    url: asset.secureUrl || asset.url || '',
+                    resourceType: asset.resourceType || 'image'
+                })
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || !result.success) throw new Error(result.message || 'Cloudinary deletion failed.');
+            return result;
+        }
+
+        async function uploadPortalFile(file, folder) {
+            if (!file) return null;
+            return await uploadCloudinaryFile(file, folder, {
+                maxDimension: 1800,
+                quality: 0.82
+            });
         }
 
         async function saveManual(e) {
             e.preventDefault();
             const file = document.getElementById('manualFile')?.files?.[0];
             if (!file) { alert('Select a manual file.'); return; }
+            try { ensureHostedUploadContext(); } catch (contextError) { alert(contextError.message); return; }
             const maxBytes = 25 * 1024 * 1024;
             if (file.size > maxBytes) { alert('File is too large. Maximum size is 25 MB.'); return; }
             if (file.size === 0) { alert('The selected file is empty.'); return; }
-
             try {
-                const fileUrl = await uploadPortalFile(file, "manuals");
+                const uploaded = await uploadCloudinaryFile(file, "manual");
                 await db.collection('manuals').add({
-                    fileUrl,
+                    fileUrl: uploaded.secureUrl,
+                    cloudinaryPublicId: uploaded.publicId || '',
+                    cloudinaryResourceType: uploaded.resourceType || 'image',
                     fileName: file.name,
                     fileType: file.type || '',
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 document.getElementById('manualUploadForm').reset();
-                alert(isLocalFileMode() ? 'Manual saved successfully on this device!' : 'Manual saved successfully!');
+                alert('Manual saved successfully!');
                 await loadManuals('superAdminManualsContainer');
             } catch (err) {
                 alert('Error saving manual: ' + err.message);
@@ -4037,18 +4045,17 @@
                 const snap = await db.collection('manuals').get();
                 if (snap.empty) { container.innerHTML = '<p>No manuals uploaded yet.</p>'; return; }
                 let html = '<table><thead><tr><th>Manual</th><th>Action</th></tr></thead><tbody>';
-                for (const doc of snap.docs) {
+                snap.docs.forEach(doc => {
                     const d = doc.data() || {};
-                    let url = d.fileUrl || d.downloadURL || d.url || '';
-                    if (isLocalFileRef(url)) url = await resolveStoredFileUrl(url);
+                    const url = d.fileUrl || d.downloadURL || d.url || '';
                     const name = d.fileName || 'Manual';
                     const isImg = /^image\//i.test(d.fileType || '') || /\.(png|jpe?g|gif|webp)$/i.test(name);
                     html += `<tr><td style="text-align:left;">${isImg ? `<img src="${esc(url)}" alt="Manual" style="max-width:100%;max-height:320px;object-fit:contain;display:block;">` : `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a>`}</td><td><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;text-decoration:none;">Open</a></td></tr>`;
-                }
+                });
                 html += '</tbody></table>';
                 container.innerHTML = html;
             } catch (err) {
-                container.innerHTML = '<p style="color:red;">Error loading manuals: ' + esc(err.message) + '</p>';
+                container.innerHTML = '<p style="color:red;">Error loading manuals.</p>';
             }
         }
 
@@ -4056,44 +4063,22 @@
             e.preventDefault();
             const className=document.getElementById("timetableClassSelect").value;
             const file=document.getElementById("ttFile")?.files?.[0];
-            if(!className){alert("Select a class.");return;}
-            if(!file){alert("Select a timetable file.");return;}
+            if(!className){alert("Select a class.");return;} if(!file){alert("Select a timetable file.");return;}
             try{
-                const fileUrl=await uploadPortalFile(file,"timetables");
-                await db.collection("timetable").add({
-                    schoolId:currentSchoolId,
-                    class:className,
-                    fileUrl,
-                    fileName:file.name,
-                    fileType:file.type||"",
-                    createdAt:firebase.firestore.FieldValue.serverTimestamp()
-                });
-                document.getElementById("timetableForm").reset();
-                alert(isLocalFileMode() ? "Timetable saved successfully on this device!" : "Timetable saved successfully!");
-                await loadTimetable(className);
+                const uploaded=await uploadPortalFile(file,"timetables");
+                const fileUrl=uploaded ? uploaded.secureUrl : "";
+                await db.collection("timetable").add({schoolId:currentSchoolId,class:className,fileUrl,cloudinaryPublicId:uploaded?.publicId||"",cloudinaryResourceType:uploaded?.resourceType||"image",fileName:file.name,fileType:file.type||"",createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                document.getElementById("timetableForm").reset(); alert("Timetable saved successfully!"); await loadTimetable(className);
             }catch(err){alert("Error saving timetable: "+err.message);}
         }
 
         async function loadTimetable(className, containerId="timetableDisplayContainer") {
-            const container=document.getElementById(containerId);
-            if(!container)return;
-            if(!className){container.innerHTML="";return;}
-            try{
-                const snap=await db.collection("timetable").where("schoolId","==",currentSchoolId).where("class","==",className).get();
-                if(snap.empty){container.innerHTML="<p>No timetable uploaded for this class.</p>";return;}
+            const container=document.getElementById(containerId); if(!container)return; if(!className){container.innerHTML="";return;}
+            try{const snap=await db.collection("timetable").where("schoolId","==",currentSchoolId).where("class","==",className).get(); if(snap.empty){container.innerHTML="<p>No timetable uploaded for this class.</p>";return;}
                 let html='<table><thead><tr><th>Class</th><th>Uploaded Timetable</th><th>Action</th></tr></thead><tbody>';
-                for (const doc of snap.docs) {
-                    const d=doc.data()||{};
-                    let url=d.fileUrl||d.downloadURL||d.url||"";
-                    if(isLocalFileRef(url)) url=await resolveStoredFileUrl(url);
-                    if(!url)continue;
-                    const name=d.fileName||"Timetable";
-                    const isImg=/^image\//i.test(d.fileType||"")||/\.(png|jpe?g|gif|webp)$/i.test(name);
-                    html+=`<tr><td>${esc(d.class||className)}</td><td style="text-align:left;">${isImg?`<img src="${esc(url)}" alt="Timetable" style="max-width:100%;max-height:420px;object-fit:contain;display:block;margin:auto;">`:`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a>`}</td><td><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;text-decoration:none;">Open</a></td></tr>`;
-                }
-                html+='</tbody></table>';
-                container.innerHTML=html;
-            }catch(e){container.innerHTML='<p style="color:red;">Error loading timetable: '+esc(e.message)+'</p>';}
+                snap.docs.forEach(doc=>{const d=doc.data()||{},url=d.fileUrl||d.downloadURL||d.url; if(!url)return; const name=d.fileName||'Timetable'; const isImg=/^image\//i.test(d.fileType||'')||/\.(png|jpe?g|gif|webp)$/i.test(name); html+=`<tr><td>${esc(d.class||className)}</td><td style="text-align:left;">${isImg?`<img src="${esc(url)}" alt="Timetable" style="max-width:100%;max-height:420px;object-fit:contain;display:block;margin:auto;">`:`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(name)}</a>`}</td><td><a href="${esc(url)}" target="_blank" rel="noopener" class="btn-secondary" style="display:inline-block;text-decoration:none;">Open</a></td></tr>`;});
+                html+='</tbody></table>'; container.innerHTML=html;
+            }catch(e){container.innerHTML='<p style="color:red;">Error loading timetable.</p>';}
         }
 
         async function saveResourceEntry(e) {
@@ -4106,16 +4091,16 @@
             if (!title) { alert("Enter a resource title."); return; }
             if (!link && !file) { alert("Provide a URL or select a file."); return; }
             try {
-                const fileUrl = await uploadPortalFile(file, "resources");
+                const uploaded = await uploadPortalFile(file, "resources");
+                const fileUrl = uploaded ? uploaded.secureUrl : "";
                 await db.collection("resources").add({
                     schoolId: currentSchoolId, class: className, title, link: link || "",
-                    fileUrl: fileUrl || "", fileName: file ? file.name : "",
-                    fileType: file ? (file.type || "") : "",
+                    fileUrl: fileUrl || "", cloudinaryPublicId: uploaded?.publicId || "", cloudinaryResourceType: uploaded?.resourceType || "", fileName: file ? file.name : "",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 document.getElementById("resourceForm").reset();
-                alert(isLocalFileMode() ? "Resource saved successfully on this device!" : "Resource uploaded successfully!");
-                await loadResources(className);
+                alert("Resource uploaded successfully!");
+                loadResources(className);
             } catch (err) { alert("Error saving resource: " + err.message); }
         }
 
@@ -4126,17 +4111,10 @@
                 const snap = await db.collection("resources").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
                 if (snap.empty) { if (container) container.innerHTML = "<p>No resources uploaded for this class.</p>"; return; }
                 let html = `<table><thead><tr><th>Resource Title</th><th>File / Link</th></tr></thead><tbody>`;
-                for (const doc of snap.docs) {
-                    const d = doc.data() || {};
-                    let href = d.fileUrl || d.link || "";
-                    if (isLocalFileRef(href)) href = await resolveStoredFileUrl(href);
-                    html += `<tr><td style="text-align:left;">${esc(d.title)}</td><td>${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(d.fileName || "Open resource")}</a>` : "—"}</td></tr>`;
-                }
+                snap.forEach(doc => { const d = doc.data(); const href = d.fileUrl || d.link; html += `<tr><td style="text-align:left;">${esc(d.title)}</td><td>${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(d.fileName || "Open resource")}</a>` : "—"}</td></tr>`; });
                 html += `</tbody></table>`;
                 if (container) container.innerHTML = html;
-            } catch (e) {
-                if (container) container.innerHTML = "<p style=\"color:red;\">Error loading resources: " + esc(e.message) + "</p>";
-            }
+            } catch (e) { if (container) container.innerHTML = "<p>Error loading resources.</p>"; }
         }
 
         function esc(value) {
@@ -4171,7 +4149,16 @@
             if (!collectionName || !documentId) return;
             if (!confirm('Delete this record? This action cannot be undone.')) return;
             try {
-                await db.collection(collectionName).doc(documentId).delete();
+                const ref = db.collection(collectionName).doc(documentId);
+                const snap = await ref.get();
+                const data = snap.exists ? (snap.data() || {}) : {};
+                const asset = {
+                    publicId: data.cloudinaryPublicId || data.photoPublicId || data.logoPublicId || '',
+                    secureUrl: data.fileUrl || data.photoUrl || data.logoUrl || '',
+                    resourceType: data.cloudinaryResourceType || data.photoResourceType || data.logoResourceType || 'image'
+                };
+                if (asset.publicId || asset.secureUrl) await deleteCloudinaryAsset(asset);
+                await ref.delete();
                 alert('Record deleted successfully.');
                 if (typeof loadRegisteredCollection === 'function') {
                     await loadRegisteredCollection(collectionName);
@@ -4192,27 +4179,8 @@
             }catch(e){container.innerHTML='<p style="color:red;">Error loading students: '+esc(e.message)+'</p>';}
         }
         function selectStudentPhoto(studentId,input){const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Please select an image file.');input.value='';return;}if(file.size>25*1024*1024){alert('Photo must not exceed 25 MB.');input.value='';return;}pendingStudentPhotos[studentId]=file;const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${URL.createObjectURL(file)}" alt="Selected student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;}
-        async function saveStudentPhoto(studentId){
-            const file=pendingStudentPhotos[studentId];
-            if(!file){alert('Select a photo first.');return;}
-            try{
-                const photoRef = await uploadPortalFile(file, "studentPhotos");
-                await db.collection('students').doc(studentId).update({
-                    photoUrl:photoRef,
-                    photoFileName:file.name,
-                    photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()
-                });
-                delete pendingStudentPhotos[studentId];
-                const resolvedUrl = await resolveStoredFileUrl(photoRef);
-                const p=document.getElementById('photoPreview-'+studentId);
-                if(p)p.innerHTML=`<img src="${esc(resolvedUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;
-                const i=document.getElementById('photoInput-'+studentId);
-                if(i)i.value='';
-                alert(isLocalFileMode() ? 'Student photo saved successfully on this device!' : 'Student photo saved successfully.');
-            }catch(e){alert('Photo save failed: '+e.message);}
-        }
-
-        async function removeStudentPhoto(studentId){if(!confirm('Remove this student photo?'))return;try{await db.collection('students').doc(studentId).update({photoUrl:firebase.firestore.FieldValue.delete(),photoFileName:firebase.firestore.FieldValue.delete(),photoUpdatedAt:firebase.firestore.FieldValue.delete()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML='<span style="color:#64748b;">No photo</span>';const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo removed.');}catch(e){alert('Could not remove photo: '+e.message);}}
+        async function saveStudentPhoto(studentId){const file=pendingStudentPhotos[studentId];if(!file){alert('Select a photo first.');return;}try{const uploaded=await uploadCloudinaryFile(file,'student_photo',{maxDimension:1200,quality:0.80});const studentRef=db.collection('students').doc(studentId);const oldStudentSnap=await studentRef.get();const oldStudentData=oldStudentSnap.data()||{};await studentRef.update({photoUrl:uploaded.secureUrl,photoPublicId:uploaded.publicId||"",photoResourceType:uploaded.resourceType||"image",photoFileName:file.name,photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});if(oldStudentData.photoPublicId||oldStudentData.photoUrl){try{await deleteCloudinaryAsset({publicId:oldStudentData.photoPublicId||"",secureUrl:oldStudentData.photoUrl||"",resourceType:oldStudentData.photoResourceType||"image"});}catch(cleanupError){console.warn('Old student photo cleanup failed:',cleanupError.message);}}delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${esc(uploaded.secureUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo saved successfully.');}catch(e){alert('Photo save failed: '+e.message);}}
+        async function removeStudentPhoto(studentId){if(!confirm('Remove this student photo?'))return;try{const studentRef=db.collection('students').doc(studentId);const snap=await studentRef.get();const d=snap.data()||{};if(d.photoPublicId||d.photoUrl){await deleteCloudinaryAsset({publicId:d.photoPublicId||"",secureUrl:d.photoUrl||"",resourceType:d.photoResourceType||"image"});}await studentRef.update({photoUrl:firebase.firestore.FieldValue.delete(),photoPublicId:firebase.firestore.FieldValue.delete(),photoResourceType:firebase.firestore.FieldValue.delete(),photoFileName:firebase.firestore.FieldValue.delete(),photoUpdatedAt:firebase.firestore.FieldValue.delete()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML='<span style="color:#64748b;">No photo</span>';const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo removed.');}catch(e){alert('Could not remove photo: '+e.message);}}
 
         async function transferSingleStudent(studentId, direction) {
             try {
