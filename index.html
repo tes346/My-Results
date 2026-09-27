@@ -5,7 +5,7 @@
     <meta name="google-site-verification" content="2X5BvG9pSy0dkiRLu_VNEv7ZDZbkC5-LR5VnjAyf768" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>myRezultz - School Results Management System</title>
+    <title>MyRezultz - School Results Management System</title>
     <!-- Chart.js for rendering performance graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -1066,7 +1066,7 @@
                                   </div>
 
                                   <div class="form-group">
-                                    <label for="mpesa-amount">Term Fee (KES)</label>
+                                    <label for="mpesa-amount">School Subscription Fee (KES)</label>
                                     <input type="number" id="mpesa-amount" class="form-control" name="amount" value="1000" readonly style="background:#f1f5f9;">
                                   </div>
 
@@ -1696,6 +1696,16 @@
         let latestPortalAnnouncement = null;
         let latestPortalAnnouncementId = "";
 
+        function getSchoolSubscriptionFee(schoolType) {
+            return String(schoolType || "junior").toLowerCase() === "senior" ? 1500 : 1000;
+        }
+
+        function updatePaymentAmountForSchoolType() {
+            const amountInput = document.getElementById("mpesa-amount");
+            if (!amountInput) return;
+            amountInput.value = getSchoolSubscriptionFee(currentSchoolType);
+        }
+
         const defaultCBCGrading = [
             { grade: "EE1", min: 90, max: 100, desc: "Exceeding Expectations (Level 4 High)" },
             { grade: "EE2", min: 80, max: 89, desc: "Exceeding Expectations (Level 4 Low)" },
@@ -2132,6 +2142,7 @@
                                     currentSchoolName = schoolData.name || "School";
                                     currentSchoolType = schoolData.schoolType || "junior";
                                     currentSchoolEmail = schoolData.email || "";
+                                     updatePaymentAmountForSchoolType();
                                     currentSchoolPoBox = schoolData.poBox || "";
                                     currentSchoolLogo = schoolData.logoUrl || "";
                                     currentClosingDate = schoolData.closingDate || "N/A";
@@ -2397,7 +2408,9 @@
                         email: schoolEmail,
                         poBox: poBox,
                         headteacher: headteacher,
+                        headteacherLoginEmail: email.toLowerCase(),
                         tscNumber: tsc,
+                        registrationFee: schoolType === "senior" ? 1500 : 1000,
                         phone: phone,
                         county: county,
                         subCounty: subCounty,
@@ -2412,7 +2425,33 @@
                         schoolId: schoolRef.id
                     });
 
-                    displayMsg("Registration successful! Loading portal...", false);
+                    let registrationNotice = "";
+                    try {
+                        const idToken = await cred.user.getIdToken(true);
+                        const noticeResponse = await fetch(
+                            PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/school-registration/notify",
+                            {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "Authorization": "Bearer " + idToken
+                                },
+                                body: JSON.stringify({ schoolId: schoolRef.id })
+                            }
+                        );
+                        const noticeResult = await noticeResponse.json().catch(() => ({}));
+                        if (noticeResponse.ok && noticeResult.success) {
+                            registrationNotice = " Registration details have been emailed to the Super Admin for verification.";
+                        } else {
+                            registrationNotice = " School was created, but the Super Admin email could not be sent.";
+                            console.warn("School registration email:", noticeResult.message || "Unknown error");
+                        }
+                    } catch (emailError) {
+                        registrationNotice = " School was created, but the Super Admin email could not be sent.";
+                        console.warn("School registration email error:", emailError);
+                    }
+
+                    displayMsg("Registration successful!" + registrationNotice + " Loading portal...", false);
                 } catch (err) {
                     displayMsg("Registration Failed: " + err.message);
                     submitAuthBtn.disabled = false;
@@ -2540,6 +2579,25 @@
                 }
             }
             return { grade: "BE2", desc: "Below Expectations" };
+        }
+
+        async function deleteExamType(examTypeId) {
+            if (!examTypeId || !currentSchoolId) return;
+            if (!confirm("Delete this exam type? This cannot be undone.")) return;
+            try {
+                const ref = db.collection("examTypes").doc(examTypeId);
+                const snap = await ref.get();
+                if (!snap.exists || String((snap.data() || {}).schoolId || "") !== String(currentSchoolId)) {
+                    alert("Exam type not found or not authorized.");
+                    return;
+                }
+                await ref.delete();
+                alert("Exam type deleted.");
+                await loadExamTypesList();
+                await populateAllDropdowns();
+            } catch (err) {
+                alert("Error deleting exam type: " + err.message);
+            }
         }
 
         async function saveExamType(e) {
@@ -3525,10 +3583,10 @@
                     container.innerHTML = "<p>No exam types configured.</p>";
                     return;
                 }
-                let html = `<table><thead><tr><th>Exam Title</th></tr></thead><tbody>`;
+                let html = `<table><thead><tr><th>Exam Title</th><th>Action</th></tr></thead><tbody>`;
                 snap.forEach(doc => {
                     const d = doc.data();
-                    html += `<tr><td>${d.name}</td></tr>`;
+                    html += `<tr><td>${esc(d.name || "")}</td><td><button type="button" class="btn-danger" onclick="deleteExamType('${doc.id}')">Delete</button></td></tr>`;
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
@@ -4349,6 +4407,7 @@
             const amount = Number(document.getElementById("mpesa-amount").value);
             const statusMsg = document.getElementById("daraja-status");
             const payBtn = document.getElementById("payBtn");
+            updatePaymentAmountForSchoolType();
             const normalizedPhone = normalizeMpesaPhone(phoneInput.value.trim());
 
             if (!isValidMpesaPhone(normalizedPhone)) {
@@ -4401,7 +4460,13 @@
                 }
 
                 statusMsg.style.color = "#2563eb";
-                statusMsg.textContent = "M-PESA prompt sent to " + normalizedPhone + ". Enter your M-PESA PIN on your phone.";
+                statusMsg.textContent = "STK prompt sent to " + normalizedPhone + ". Enter your M-PESA PIN on your phone.";
+                payBtn.textContent = "Waiting for M-PESA Confirmation...";
+                setTimeout(() => {
+                    if (payBtn.disabled) {
+                        statusMsg.textContent = "Waiting for payment confirmation from M-PESA...";
+                    }
+                }, 5000);
                 pollMpesaPaymentStatus(data.checkoutRequestID, statusMsg, payBtn);
             } catch (err) {
                 console.error("M-PESA payment error:", err);
@@ -4413,7 +4478,7 @@
         }
 
         async function pollMpesaPaymentStatus(checkoutRequestID, statusMsg, payBtn) {
-            const maxAttempts = 40;
+            const maxAttempts = 100;
             let attempts = 0;
 
             const check = async () => {
@@ -4431,6 +4496,7 @@
                         payBtn.disabled = false;
                         payBtn.textContent = "Send M-PESA Payment Prompt";
                         document.getElementById("paymentForm").reset();
+                        updatePaymentAmountForSchoolType();
                         fetchSchoolPaymentStatus();
                         return;
                     }
@@ -4445,7 +4511,7 @@
 
                     if (attempts >= maxAttempts) {
                         statusMsg.style.color = "#b45309";
-                        statusMsg.textContent = "Payment is still pending. If you completed the PIN prompt, wait for confirmation and check your subscription status.";
+                        statusMsg.textContent = "Payment is still waiting for confirmation from M-PESA. If you completed the PIN prompt, please wait for the final confirmation.";
                         payBtn.disabled = false;
                         payBtn.textContent = "Send M-PESA Payment Prompt";
                         return;
