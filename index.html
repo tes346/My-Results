@@ -5,7 +5,7 @@
     <meta name="google-site-verification" content="2X5BvG9pSy0dkiRLu_VNEv7ZDZbkC5-LR5VnjAyf768" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyRezultz - School Results Management System</title>
+    <title>myRezultz - School Results Management System</title>
     <!-- Chart.js for rendering performance graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -2451,7 +2451,16 @@
                         console.warn("School registration email error:", emailError);
                     }
 
-                    displayMsg("Registration successful!" + registrationNotice + " Loading portal...", false);
+                    // Registration creates the school account, but the newly created user must return to login.
+                    await auth.signOut();
+                    pendingLoginRole = "";
+                    setAuthMode("login");
+                    document.getElementById("email").value = email;
+                    document.getElementById("password").value = "";
+                    showView("authView");
+                    displayMsg("School registration successful. Please log in using your new administrator account." + registrationNotice, false);
+                    submitAuthBtn.disabled = false;
+                    submitAuthBtn.textContent = "Login";
                 } catch (err) {
                     displayMsg("Registration Failed: " + err.message);
                     submitAuthBtn.disabled = false;
@@ -2813,59 +2822,38 @@
 
         function renderCentralMatrixTable() {
             const matrixContainer = document.getElementById("matrixContainer");
-            let html = `<table><thead><tr><th>Adm</th><th>Student Name</th>`;
-            cachedSubjects.forEach(s => { html += `<th>${s}</th>`; });
+            if (!matrixContainer) return;
+            const rows = cachedStudents.map(st => {
+                const marks = cachedSubjects.map(sub => {
+                    const raw = cachedMarksMap[st.admissionNo]?.[sub];
+                    const n = raw === "" || raw === undefined || raw === null || !Number.isFinite(Number(raw)) ? null : Number(raw);
+                    return { subject: sub, raw: n === null ? "" : n, score: n === null ? 0 : n };
+                });
+                const total = marks.reduce((sum, m) => sum + m.score, 0);
+                const mean = cachedSubjects.length ? total / cachedSubjects.length : 0;
+                return { student: st, marks, total, mean };
+            }).sort((a, b) => b.mean - a.mean || String(a.student.name || "").localeCompare(String(b.student.name || "")));
+            const subjectTotals = Object.fromEntries(cachedSubjects.map(sub => [sub, 0]));
+            rows.forEach(row => row.marks.forEach(m => subjectTotals[m.subject] += m.score));
+            const classMean = rows.length ? rows.reduce((sum, row) => sum + row.mean, 0) / rows.length : 0;
+            let html = `<table><thead><tr><th>Rank</th><th>Adm</th><th>Student Name</th>`;
+            cachedSubjects.forEach(sub => { html += `<th>${esc(sub)}</th>`; });
             html += `<th>Total Marks</th><th>Mean Marks</th><th>Overall Grade</th></tr></thead><tbody>`;
-
-            let subjectTotals = {};
-            let subjectCounts = {};
-            cachedSubjects.forEach(s => {
-                subjectTotals[s] = 0;
-                subjectCounts[s] = 0;
-            });
-
-            cachedStudents.forEach(st => {
-                cachedSubjects.forEach(sub => {
-                    const val = (cachedMarksMap[st.admissionNo] && cachedMarksMap[st.admissionNo][sub] !== undefined) ? cachedMarksMap[st.admissionNo][sub] : "";
-                    if (val !== "" && !isNaN(Number(val))) {
-                        subjectTotals[sub] += Number(val);
-                        subjectCounts[sub]++;
-                    }
-                });
-            });
-
-            cachedStudents.forEach(st => {
-                html += `<tr><td>${st.admissionNo}</td><td style="text-align:left;">${st.name}</td>`;
-                let total = 0;
-                let count = 0;
-
-                cachedSubjects.forEach(sub => {
-                    const val = (cachedMarksMap[st.admissionNo] && cachedMarksMap[st.admissionNo][sub] !== undefined) ? cachedMarksMap[st.admissionNo][sub] : "";
-                    if (val !== "") {
-                        total += Number(val);
-                        count++;
-                    }
+            rows.forEach((row, index) => {
+                const st = row.student;
+                const gradeInfo = cachedSubjects.length ? getCBCGradeDetails(row.mean) : { grade: "-" };
+                html += `<tr><td><strong>${index + 1}</strong></td><td>${esc(st.admissionNo || "")}</td><td style="text-align:left;">${esc(st.name || "")}</td>`;
+                row.marks.forEach(m => {
                     if (isAdminEditMode) {
-                        html += `<td><input type="number" class="admin-mark-input" data-adm="${st.admissionNo}" data-sub="${sub}" value="${val}" style="width:50px; text-align:center;"></td>`;
-                    } else {
-                        html += `<td>${val !== "" ? val : "-"}</td>`;
-                    }
+                        html += `<td><input type="number" min="0" max="100" class="admin-mark-input" data-adm="${esc(st.admissionNo)}" data-sub="${esc(m.subject)}" value="${m.raw}" style="width:60px;text-align:center;"></td>`;
+                    } else html += `<td>${m.raw !== "" ? m.raw : "-"}</td>`;
                 });
-
-                const mean = count > 0 ? (total / count).toFixed(2) : "-";
-                const gradeInfo = count > 0 ? getCBCGradeDetails(mean) : { grade: "-" };
-
-                html += `<td><strong>${total}</strong></td><td><strong>${mean}</strong></td><td><strong>${gradeInfo.grade}</strong></td></tr>`;
+                html += `<td><strong>${row.total}</strong></td><td><strong>${row.mean.toFixed(2)}</strong></td><td><strong>${gradeInfo.grade}</strong></td></tr>`;
             });
-
-            html += `<tr class="subject-means-row"><td>-</td><td style="text-align:left;">SUBJECT MEAN</td>`;
-            cachedSubjects.forEach(sub => {
-                const sMean = subjectCounts[sub] > 0 ? (subjectTotals[sub] / subjectCounts[sub]).toFixed(1) : "-";
-                html += `<td>${sMean}</td>`;
-            });
-            html += `<td colspan="3">Class Total/Overall Mean</td></tr>`;
-
-            html += `</tbody></table>`;
+            html += `<tr class="subject-means-row"><td colspan="3" style="text-align:left;"><strong>SUBJECT MEAN</strong></td>`;
+            cachedSubjects.forEach(sub => html += `<td>${rows.length ? (subjectTotals[sub] / rows.length).toFixed(2) : "-"}</td>`);
+            html += `<td>${rows.reduce((sum, row) => sum + row.total, 0)}</td><td><strong>${classMean.toFixed(2)}</strong></td><td><strong>Class Mean</strong></td></tr>`;
+            html += `</tbody></table><p style="margin-top:8px;font-size:13px;color:#475569;">Students are ranked from highest to lowest mean. Missing subject marks count as zero for class mean and ranking.</p>`;
             matrixContainer.innerHTML = html;
         }
 
@@ -3562,16 +3550,28 @@
                     container.innerHTML = "<p>No academic terms registered yet.</p>";
                     return;
                 }
-                let html = `<table><thead><tr><th>Academic Year</th><th>Term</th></tr></thead><tbody>`;
+                let html = `<table><thead><tr><th>Academic Year</th><th>Term</th><th>Action</th></tr></thead><tbody>`;
                 snap.forEach(doc => {
-                    const d = doc.data();
-                    html += `<tr><td>${d.year}</td><td>${d.term}</td></tr>`;
+                    const d = doc.data() || {};
+                    html += `<tr><td>${esc(d.year)}</td><td>${esc(d.term)}</td><td><button type="button" class="btn-danger" onclick="deleteTermsYear('${doc.id}')">Delete</button></td></tr>`;
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
             } catch (e) {
                 container.innerHTML = "<p>Error loading terms.</p>";
             }
+        }
+
+        async function deleteTermsYear(recordId) {
+            if (!recordId || !confirm("Delete this academic year/term record? This cannot be undone.")) return;
+            try {
+                const ref = db.collection("termsYears").doc(recordId);
+                const snap = await ref.get();
+                if (!snap.exists || snap.data()?.schoolId !== currentSchoolId) throw new Error("Record not found or not owned by this school.");
+                await ref.delete();
+                alert("Academic year/term deleted successfully.");
+                await loadTermsYearList();
+            } catch (err) { alert("Could not delete academic year/term: " + err.message); }
         }
 
         async function loadExamTypesList() {
@@ -3658,7 +3658,7 @@
                     try {
                         const user = firebase.auth().currentUser;
                         const token = await user.getIdToken();
-                        const response = await fetch(PAYMENT_SERVER_URL + "/api/schools/" + encodeURIComponent(schoolId), { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
+                        const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/schools/" + encodeURIComponent(schoolId), { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
                         const result = await response.json();
                         if (!response.ok || !result.success) throw new Error(result.message || "School removal failed.");
                         alert("School and associated data removed.");
@@ -4503,7 +4503,7 @@
 
                     if (data.status === "failed") {
                         statusMsg.style.color = "#dc2626";
-                        statusMsg.textContent = data.resultDesc || "M-PESA payment was not completed.";
+                        statusMsg.textContent = "Payment not completed: " + (data.resultDesc || "M-PESA payment was cancelled or declined.");
                         payBtn.disabled = false;
                         payBtn.textContent = "Send M-PESA Payment Prompt";
                         return;
