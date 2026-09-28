@@ -597,6 +597,36 @@
         @media print {
             @page { size: A4 portrait; margin: 7mm; }
 
+            /* The class master sheet is wider than a student report card. */
+            #printSection.class-master-output {
+                width: 100% !important;
+                max-width: none !important;
+                overflow: visible !important;
+            }
+            #printSection.class-master-output .class-master-print-wrap,
+            #printSection.class-master-output .table-responsive {
+                width: 100% !important;
+                max-width: none !important;
+                overflow: visible !important;
+            }
+            #printSection.class-master-output table {
+                width: 100% !important;
+                min-width: 0 !important;
+                table-layout: fixed !important;
+                border-collapse: collapse !important;
+                font-size: 7pt !important;
+            }
+            #printSection.class-master-output th,
+            #printSection.class-master-output td {
+                padding: 3px 2px !important;
+                white-space: normal !important;
+                overflow-wrap: anywhere !important;
+                word-break: normal !important;
+                text-align: center;
+            }
+            #printSection.class-master-output h2 { font-size: 15pt !important; }
+            #printSection.class-master-output h3 { font-size: 11pt !important; }
+
             body {
                 background: #ffffff !important;
                 color: #000000 !important;
@@ -2942,9 +2972,10 @@
             let htmlContent = "";
 
             if (mode === "class") {
-                htmlContent += `<div style="padding:20px; font-family:Arial;">
-                    <h2 style="text-align:center; color:#002060;">${currentSchoolName}</h2>
-                    <h3 style="text-align:center; margin-bottom:15px;">CLASS MASTER RESULTS SHEET - ${className} (${examName})</h3>
+                printSection.classList.add("class-master-output");
+                htmlContent += `<div class="class-master-print-wrap" style="box-sizing:border-box;width:100%;font-family:Arial,sans-serif;padding:2mm;">
+                    <h2 style="text-align:center;color:#002060;margin:0 0 4px;">${currentSchoolName}</h2>
+                    <h3 style="text-align:center;margin:0 0 10px;">CLASS MASTER RESULTS SHEET - ${className} (${examName})</h3>
                     ${document.getElementById("matrixContainer").innerHTML}
                 </div>`;
             } else {
@@ -3307,20 +3338,50 @@
             printSection.innerHTML = htmlContent;
 
             if (pendingOptionAction === "download") {
+                const isClassMaster = mode === "class";
                 const opt = {
-                    margin: 5,
-                    filename: `${className}_Report_Forms.pdf`,
+                    margin: isClassMaster ? [7, 7, 7, 7] : 5,
+                    filename: isClassMaster
+                        ? `${className}_${examName}_Class_Master.pdf`
+                        : `${className}_Report_Forms.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        scrollX: 0,
+                        scrollY: 0,
+                        windowWidth: isClassMaster ? 1200 : window.innerWidth
+                    },
+                    jsPDF: {
+                        unit: 'mm',
+                        format: 'a4',
+                        orientation: isClassMaster ? 'landscape' : 'portrait'
+                    },
+                    pagebreak: { mode: ['css', 'legacy'] }
                 };
 
                 html2pdf().from(printSection).set(opt).save().then(() => {
                     printSection.style.display = "none";
+                    printSection.classList.remove("class-master-output");
+                }).catch(err => {
+                    console.error("PDF generation failed:", err);
+                    printSection.style.display = "none";
+                    printSection.classList.remove("class-master-output");
+                    alert("Could not generate the PDF. Please try again.");
                 });
             } else {
+                if (mode === "class") {
+                    let pageStyle = document.getElementById("classMasterPrintPageStyle");
+                    if (!pageStyle) {
+                        pageStyle = document.createElement("style");
+                        pageStyle.id = "classMasterPrintPageStyle";
+                        document.head.appendChild(pageStyle);
+                    }
+                    pageStyle.textContent = "@media print { @page { size: A4 landscape; margin: 7mm; } }";
+                }
                 window.print();
                 printSection.style.display = "none";
+                printSection.classList.remove("class-master-output");
             }
         }
 
