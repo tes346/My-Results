@@ -2715,7 +2715,16 @@
                     throw new Error("The server returned an unexpected response instead of JSON. Check that the latest server4.js is deployed and that the API URL is correct. Response: " + preview);
                 }
                 if (!response.ok || !result.success) throw new Error(result.message || "Teacher registration failed.");
-                alert("Teacher registered. The MYREZULTZ invitation email with a Set password link has been sent to the teacher.");
+
+                // Send only teacher password setup emails through Firebase.
+                // School registration notifications continue using the existing Resend setup.
+                try {
+                    await firebase.auth().sendPasswordResetEmail(email);
+                    alert("Teacher account created. Firebase has sent a password-setting email to the teacher.");
+                } catch (emailError) {
+                    console.error("Teacher password email error:", emailError);
+                    alert("Teacher account was created, but Firebase could not send the password-setting email. Ask the teacher to use Forgot password on the login screen. Error: " + (emailError.message || emailError.code || "Unknown email error"));
+                }
                 document.getElementById("teacherForm").reset();
                 populateAllDropdowns();
             } catch (err) { alert("Error registering teacher: " + err.message); }
