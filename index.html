@@ -5,7 +5,7 @@
     <meta name="google-site-verification" content="2X5BvG9pSy0dkiRLu_VNEv7ZDZbkC5-LR5VnjAyf768" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MYREZULTS SCHOOL SYSTEM</title>
+    <title>myRezultz - School Results Management System</title>
     <!-- Chart.js for rendering performance graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -2706,13 +2706,16 @@
                     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
                     body: JSON.stringify({ name, email, schoolId: currentSchoolId })
                 });
-                const result = await response.json();
-                if (!response.ok || !result.success) throw new Error(result.message || "Teacher registration failed.");
-                if (result.uid) {
-                    await db.collection("users").doc(result.uid).set({ teacherActivated: false, passwordSetAt: null }, { merge: true });
+                const responseText = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (_) {
+                    const preview = responseText.replace(/\s+/g, " ").slice(0, 180);
+                    throw new Error("The server returned an unexpected response instead of JSON. Check that the latest server4.js is deployed and that the API URL is correct. Response: " + preview);
                 }
-                await firebase.auth().sendPasswordResetEmail(email);
-                alert("Teacher registered. A password-setting email has been sent to the teacher.");
+                if (!response.ok || !result.success) throw new Error(result.message || "Teacher registration failed.");
+                alert("Teacher registered. The MYREZULTZ invitation email with a Set password link has been sent to the teacher.");
                 document.getElementById("teacherForm").reset();
                 populateAllDropdowns();
             } catch (err) { alert("Error registering teacher: " + err.message); }
