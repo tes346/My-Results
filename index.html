@@ -741,7 +741,1502 @@
                 gap: 20px !important;
             }
         }
-    </style>
+    
+
+/* ============================================================
+   myRezultz MODERN UI REDESIGN — VISUAL LAYER ONLY
+   Existing HTML, IDs, JavaScript, Firebase, Cloudinary,
+   M-PESA, authentication, data and functions are preserved.
+   ============================================================ */
+
+:root{
+  --mz-navy:#052e67;
+  --mz-navy-dark:#021f4a;
+  --mz-blue:#1478ef;
+  --mz-blue-dark:#075fc9;
+  --mz-text:#102f61;
+  --mz-muted:#667a94;
+  --mz-border:#d9e6f4;
+  --mz-bg:#f4f9ff;
+  --mz-shadow:0 8px 26px rgba(20,65,115,.08);
+}
+
+body{
+  background:linear-gradient(135deg,#f8fbff 0%,#eef6ff 100%);
+  color:var(--mz-text);
+}
+
+/* ---------- AUTH SCREEN ---------- */
+#authView .auth-wrapper{
+  background:
+    radial-gradient(circle at 15% 12%,rgba(20,120,239,.12),transparent 30%),
+    linear-gradient(135deg,#f7fbff,#edf5ff);
+}
+
+#authView .auth-card-main{
+  border:1px solid var(--mz-border);
+  border-radius:20px;
+  box-shadow:0 18px 55px rgba(10,55,110,.11);
+}
+
+#authView .auth-header-title{color:#073b82;}
+#authView .auth-header-sub{color:#71839a;}
+#authView .auth-tab-pill{background:#edf5ff;}
+#authView .auth-tab-btn.active{color:var(--mz-blue-dark);}
+#authView .auth-form-group input:focus,
+#authView .auth-form-group select:focus,
+#authView .auth-form-group textarea:focus{border-color:var(--mz-blue);box-shadow:0 0 0 3px rgba(20,120,239,.08);}
+#authView .btn-auth-primary{
+  background:linear-gradient(135deg,var(--mz-blue),var(--mz-blue-dark));
+  box-shadow:0 7px 16px rgba(20,120,239,.18);
+}
+
+/* ---------- MAIN PORTAL SHELL ---------- */
+#superAdminView .app-container,
+#adminView .app-container,
+#teacherView .app-container{
+  width:100%;
+  max-width:none;
+  min-height:100vh;
+  margin:0;
+  padding:0 30px 30px 300px;
+  background:linear-gradient(180deg,#f9fcff 0%,#f2f8ff 100%);
+}
+
+/* ---------- DARK BLUE SIDEBAR ---------- */
+#superAdminView .app-container>.admin-grid,
+#adminView .app-container>.admin-grid,
+#teacherView .app-container>.admin-grid{
+  position:fixed;
+  z-index:100;
+  left:0;
+  top:0;
+  bottom:0;
+  width:270px;
+  margin:0;
+  padding:18px 13px 24px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:5px;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:linear-gradient(180deg,#063d82 0%,#032e67 52%,#021f4a 100%);
+  box-shadow:8px 0 28px rgba(2,31,73,.14);
+}
+
+/* Sidebar logo/title */
+#superAdminView .app-container>.admin-grid::before,
+#adminView .app-container>.admin-grid::before,
+#teacherView .app-container>.admin-grid::before{
+  content:"🎓  MyRezultz";
+  display:block;
+  flex:0 0 auto;
+  color:#fff;
+  font-size:22px;
+  font-weight:800;
+  letter-spacing:-.5px;
+  padding:8px 12px 21px;
+  margin-bottom:7px;
+  border-bottom:1px solid rgba(255,255,255,.13);
+}
+
+/* Cards become navigation buttons */
+#superAdminView .admin-grid .admin-card,
+#adminView .admin-grid .admin-card,
+#teacherView .admin-grid .admin-card{
+  flex:0 0 auto;
+  width:100%;
+  min-height:47px;
+  margin:0;
+  padding:9px 12px;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:flex-start;
+  gap:12px;
+  text-align:left;
+  border:0;
+  border-radius:9px;
+  background:transparent;
+  color:#fff;
+  box-shadow:none;
+  transform:none;
+}
+
+#superAdminView .admin-grid .admin-card:hover,
+#adminView .admin-grid .admin-card:hover,
+#teacherView .admin-grid .admin-card:hover{
+  background:rgba(255,255,255,.11);
+  transform:translateX(2px);
+  box-shadow:none;
+}
+
+#superAdminView .admin-grid .admin-card:first-of-type,
+#adminView .admin-grid .admin-card:first-of-type,
+#teacherView .admin-grid .admin-card:first-of-type{
+  background:linear-gradient(90deg,#087cf4,#1268d7);
+  box-shadow:0 5px 16px rgba(0,93,205,.24);
+}
+
+#superAdminView .admin-grid .admin-card .icon,
+#adminView .admin-grid .admin-card .icon,
+#teacherView .admin-grid .admin-card .icon{
+  width:30px;
+  min-width:30px;
+  margin:0;
+  font-size:21px;
+  line-height:1;
+}
+
+#superAdminView .admin-grid .admin-card .title,
+#adminView .admin-grid .admin-card .title,
+#teacherView .admin-grid .admin-card .title{
+  color:#fff;
+  font-size:13px;
+  font-weight:600;
+  line-height:1.25;
+  letter-spacing:0;
+  text-transform:none;
+}
+
+/* ---------- TOP HEADER ---------- */
+#superAdminView .header,
+#adminView .header,
+#teacherView .header{
+  width:calc(100% + 300px);
+  margin:0 -30px 23px -30px;
+  min-height:84px;
+  padding:14px 30px;
+  border:0;
+  border-bottom:1px solid #dfeaf7;
+  border-radius:0;
+  background:rgba(255,255,255,.97);
+  box-shadow:0 2px 12px rgba(19,62,108,.05);
+}
+
+#superAdminView .header h2,
+#adminView .header h2,
+#teacherView .header h2{
+  color:#0a316b;
+  font-size:19px;
+  font-weight:700;
+}
+
+#superAdminView .header p,
+#adminView .header p,
+#teacherView .header p{color:#71839a;}
+
+#superAdminView .header .btn-danger,
+#adminView .header .btn-danger,
+#teacherView .header .btn-danger{
+  background:#eef5ff;
+  color:#075fc9;
+  border:1px solid #cfe2fb;
+  border-radius:9px;
+  padding:9px 15px;
+}
+
+#adminView .timer-banner,
+#teacherView .timer-banner{
+  background:#eaf5ff;
+  color:#0867d3;
+  border:1px solid #cfe6ff;
+  box-shadow:none;
+}
+
+/* ---------- CONTENT CARDS ---------- */
+#superAdminView .dashboard-card,
+#adminView .dashboard-card,
+#teacherView .dashboard-card{
+  background:#fff;
+  border:1px solid var(--mz-border);
+  border-radius:14px;
+  box-shadow:var(--mz-shadow);
+  padding:24px;
+}
+
+#superAdminView .dashboard-card h3,
+#adminView .dashboard-card h3,
+#teacherView .dashboard-card h3{
+  color:#0a316b;
+  font-weight:750;
+}
+
+#superAdminView .control-card,
+#adminView .control-card,
+#teacherView .control-card{
+  border-color:#d7e5f4;
+  border-radius:12px;
+  background:#f8fbff;
+}
+
+#superAdminView .upload-box,
+#adminView .upload-box,
+#teacherView .upload-box{
+  border-color:#cfe0f2;
+  background:#f8fbff;
+  border-radius:12px;
+}
+
+/* ---------- BUTTONS ---------- */
+#superAdminView .btn-primary,
+#adminView .btn-primary,
+#teacherView .btn-primary{
+  background:linear-gradient(135deg,#1478ef,#075ecb);
+  border-radius:9px;
+  box-shadow:0 5px 13px rgba(20,120,239,.15);
+}
+
+#superAdminView .btn-secondary,
+#adminView .btn-secondary,
+#teacherView .btn-secondary{
+  border-radius:9px;
+}
+
+/* ---------- TABLES ---------- */
+#superAdminView .table-responsive,
+#adminView .table-responsive,
+#teacherView .table-responsive{
+  border-color:#d7e4f1;
+  border-radius:10px;
+  box-shadow:0 3px 12px rgba(15,57,105,.04);
+}
+
+#superAdminView table th,
+#adminView table th,
+#teacherView table th{
+  background:#073a7b;
+  border-color:#073a7b;
+}
+
+#superAdminView table td,
+#adminView table td,
+#teacherView table td{
+  border-color:#e1e9f2;
+}
+
+/* ---------- M-PESA PAYMENT CARD ---------- */
+#adminView .card,
+#teacherView .card{
+  border:1px solid #dce8f5;
+  border-radius:14px;
+  box-shadow:0 8px 25px rgba(15,57,105,.08);
+}
+
+#adminView .btn-pay,
+#teacherView .btn-pay{
+  background:linear-gradient(135deg,#16a34a,#12823b);
+  border-radius:9px;
+}
+
+/* ---------- STUDENT/PARENT VIEW ---------- */
+#studentView .app-container{
+  width:100%;
+  max-width:none;
+  min-height:100vh;
+  padding:0 30px 30px;
+  background:linear-gradient(180deg,#f9fcff,#f2f8ff);
+}
+
+#studentView .header{
+  margin:0 -30px 24px;
+  padding:18px 30px;
+  border:0;
+  border-bottom:1px solid #dfeaf7;
+  border-radius:0;
+  background:#fff;
+  box-shadow:0 2px 12px rgba(19,62,108,.05);
+}
+
+#studentView .header h2{color:#0a316b;}
+
+#studentView .dashboard-card{
+  max-width:1180px;
+  margin:0 auto;
+  border:1px solid #dbe7f5;
+  border-radius:14px;
+  box-shadow:var(--mz-shadow);
+}
+
+/* ---------- PRESERVE PRINT LAYOUT ---------- */
+@media print{
+  #superAdminView .app-container,
+  #adminView .app-container,
+  #teacherView .app-container{
+    padding:0!important;
+    background:#fff!important;
+  }
+
+  #superAdminView .app-container>.admin-grid,
+  #adminView .app-container>.admin-grid,
+  #teacherView .app-container>.admin-grid,
+  #superAdminView .header,
+  #adminView .header,
+  #teacherView .header{
+    display:none!important;
+  }
+}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:900px){
+  #superAdminView .app-container,
+  #adminView .app-container,
+  #teacherView .app-container{
+    padding:0 14px 20px;
+  }
+
+  #superAdminView .app-container>.admin-grid,
+  #adminView .app-container>.admin-grid,
+  #teacherView .app-container>.admin-grid{
+    position:static;
+    width:100%;
+    min-height:auto;
+    max-height:none;
+    margin-bottom:12px;
+    padding:12px;
+    border-radius:12px;
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    overflow:visible;
+  }
+
+  #superAdminView .app-container>.admin-grid::before,
+  #adminView .app-container>.admin-grid::before,
+  #teacherView .app-container>.admin-grid::before{
+    grid-column:1/-1;
+    padding:7px 10px 14px;
+  }
+
+  #superAdminView .header,
+  #adminView .header,
+  #teacherView .header{
+    width:100%;
+    margin:0 0 14px;
+    padding:14px;
+  }
+}
+
+@media(max-width:560px){
+  #superAdminView .app-container>.admin-grid,
+  #adminView .app-container>.admin-grid,
+  #teacherView .app-container>.admin-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+
+
+/* ============================================================
+   PICTURE-STYLE DASHBOARD — SECOND VISUAL PASS
+   Keeps existing IDs, onclick handlers, Firebase, Cloudinary,
+   M-PESA, authentication and data functions intact.
+   ============================================================ */
+
+/* ---------- DESKTOP PORTAL ---------- */
+@media (min-width:901px){
+
+  #superAdminView .app-container,
+  #adminView .app-container,
+  #teacherView .app-container{
+    padding-left:292px !important;
+    padding-right:24px !important;
+    padding-bottom:24px !important;
+    min-height:100vh !important;
+    background:#f5f9ff !important;
+  }
+
+  /* Permanent picture-style left navigation */
+  #superAdminView .app-container>.admin-grid,
+  #adminView .app-container>.admin-grid,
+  #teacherView .app-container>.admin-grid{
+    display:flex !important;
+    position:fixed !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:268px !important;
+    height:100vh !important;
+    z-index:2000 !important;
+    margin:0 !important;
+    padding:18px 12px 22px !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:4px !important;
+    border-radius:0 !important;
+    background:linear-gradient(180deg,#063d82 0%,#06366f 52%,#032552 100%) !important;
+    box-shadow:7px 0 24px rgba(1,35,76,.16) !important;
+  }
+
+  /* Brand area */
+  #superAdminView .app-container>.admin-grid::before,
+  #adminView .app-container>.admin-grid::before,
+  #teacherView .app-container>.admin-grid::before{
+    content:"🎓  MyRezultz" !important;
+    display:flex !important;
+    align-items:center !important;
+    min-height:61px !important;
+    flex:0 0 61px !important;
+    margin:0 4px 12px !important;
+    padding:0 10px !important;
+    border-bottom:1px solid rgba(255,255,255,.13) !important;
+    color:#fff !important;
+    font-size:22px !important;
+    font-weight:800 !important;
+    letter-spacing:-.6px !important;
+  }
+
+  /* Navigation rows */
+  #superAdminView .admin-grid .admin-card,
+  #adminView .admin-grid .admin-card,
+  #teacherView .admin-grid .admin-card{
+    position:relative !important;
+    display:flex !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    min-height:47px !important;
+    height:47px !important;
+    margin:0 !important;
+    padding:0 12px !important;
+    border:0 !important;
+    border-radius:8px !important;
+    background:transparent !important;
+    color:#fff !important;
+    box-shadow:none !important;
+    transform:none !important;
+    text-align:left !important;
+    flex-direction:row !important;
+    justify-content:flex-start !important;
+    align-items:center !important;
+    gap:12px !important;
+    cursor:pointer !important;
+  }
+
+  #superAdminView .admin-grid .admin-card:hover,
+  #adminView .admin-grid .admin-card:hover,
+  #teacherView .admin-grid .admin-card:hover{
+    background:rgba(255,255,255,.10) !important;
+    transform:none !important;
+    box-shadow:none !important;
+  }
+
+  #superAdminView .admin-grid .admin-card:first-of-type,
+  #adminView .admin-grid .admin-card:first-of-type,
+  #teacherView .admin-grid .admin-card:first-of-type{
+    background:linear-gradient(90deg,#147ff4,#1269d9) !important;
+    box-shadow:0 4px 13px rgba(0,83,190,.22) !important;
+  }
+
+  #superAdminView .admin-grid .admin-card .icon,
+  #adminView .admin-grid .admin-card .icon,
+  #teacherView .admin-grid .admin-card .icon{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:28px !important;
+    min-width:28px !important;
+    height:28px !important;
+    margin:0 !important;
+    font-size:20px !important;
+    line-height:1 !important;
+  }
+
+  #superAdminView .admin-grid .admin-card .title,
+  #adminView .admin-grid .admin-card .title,
+  #teacherView .admin-grid .admin-card .title{
+    display:block !important;
+    flex:1 !important;
+    min-width:0 !important;
+    color:#fff !important;
+    font-size:13px !important;
+    font-weight:600 !important;
+    line-height:1.2 !important;
+    letter-spacing:0 !important;
+    text-transform:none !important;
+    white-space:normal !important;
+  }
+
+  /* Give navigation a subtle right arrow where appropriate */
+  #adminView #adminMainMenu .admin-card:nth-child(3) .title::after,
+  #adminView #adminMainMenu .admin-card:nth-child(9) .title::after,
+  #adminView #adminMainMenu .admin-card:nth-child(11) .title::after,
+  #adminView #adminMainMenu .admin-card:nth-child(15) .title::after,
+  #teacherView #teacherMainMenu .admin-card:nth-child(1) .title::after{
+    content:"⌄";
+    float:right;
+    color:rgba(255,255,255,.82);
+    font-size:16px;
+    line-height:11px;
+  }
+
+  /* Keep the actual content area visible beside the menu */
+  #superAdminView #superAdminSectionsContainer,
+  #adminView #adminSectionsContainer,
+  #teacherView #teacherSectionsContainer{
+    width:100% !important;
+    min-width:0 !important;
+    margin:0 !important;
+  }
+
+  /*
+     Existing JS hides the menu when opening a section.
+     !important keeps the navigation visible so the user gets
+     the same persistent sidebar behavior as the reference image.
+  */
+  #superAdminView #superAdminMainMenu,
+  #adminView #adminMainMenu,
+  #teacherView #teacherMainMenu{
+    display:flex !important;
+  }
+
+  #superAdminView #superAdminSectionsContainer,
+  #adminView #adminSectionsContainer,
+  #teacherView #teacherSectionsContainer{
+    position:relative !important;
+    display:block !important;
+  }
+
+  /* When a section is open, put its card below the header/content */
+  #superAdminView #superAdminSectionsContainer,
+  #adminView #adminSectionsContainer,
+  #teacherView #teacherSectionsContainer{
+    margin-top:0 !important;
+  }
+
+  /* The section back button becomes a compact breadcrumb button */
+  #superAdminView #superAdminSectionsContainer>.btn-secondary,
+  #adminView #adminSectionsContainer>.btn-secondary,
+  #teacherView #teacherSectionsContainer>.btn-secondary{
+    display:inline-flex !important;
+    align-items:center !important;
+    min-height:38px !important;
+    padding:8px 13px !important;
+    margin-bottom:12px !important;
+    background:#fff !important;
+    color:#1268d9 !important;
+    border:1px solid #d4e2f1 !important;
+    border-radius:8px !important;
+    box-shadow:0 2px 7px rgba(15,55,100,.05) !important;
+  }
+
+  /* ---------- HEADER LIKE THE REFERENCE ---------- */
+  #superAdminView .header,
+  #adminView .header,
+  #teacherView .header{
+    width:calc(100% + 54px) !important;
+    min-height:76px !important;
+    margin:0 -27px 20px -27px !important;
+    padding:12px 28px !important;
+    border:0 !important;
+    border-bottom:1px solid #dce8f5 !important;
+    border-radius:0 !important;
+    background:#fff !important;
+    box-shadow:0 2px 10px rgba(19,62,108,.045) !important;
+  }
+
+  #adminView .header>div:first-child,
+  #teacherView .header>div:first-child{
+    min-width:0 !important;
+  }
+
+  #superAdminView .header h2,
+  #adminView .header h2,
+  #teacherView .header h2{
+    font-size:18px !important;
+    color:#092f67 !important;
+    font-weight:700 !important;
+  }
+
+  #superAdminView .header p,
+  #adminView .header p,
+  #teacherView .header p{
+    margin-top:2px !important;
+    color:#71839a !important;
+  }
+
+  /* ---------- DASHBOARD CONTENT ---------- */
+  #superAdminView .dashboard-card,
+  #adminView .dashboard-card,
+  #teacherView .dashboard-card{
+    border:1px solid #dce7f3 !important;
+    border-radius:13px !important;
+    background:#fff !important;
+    box-shadow:0 5px 18px rgba(17,63,112,.055) !important;
+  }
+
+  /* Turn the existing menu into compact picture-style nav tabs */
+  #adminView #adminMainMenu .admin-card,
+  #teacherView #teacherMainMenu .admin-card,
+  #superAdminView #superAdminMainMenu .admin-card{
+    overflow:hidden !important;
+  }
+
+  /* Better scrollbar on sidebar */
+  #superAdminView .admin-grid::-webkit-scrollbar,
+  #adminView .admin-grid::-webkit-scrollbar,
+  #teacherView .admin-grid::-webkit-scrollbar{
+    width:5px;
+  }
+
+  #superAdminView .admin-grid::-webkit-scrollbar-thumb,
+  #adminView .admin-grid::-webkit-scrollbar-thumb,
+  #teacherView .admin-grid::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,.20);
+    border-radius:10px;
+  }
+}
+
+/* ---------- MOBILE: sidebar becomes top navigation ---------- */
+@media(max-width:900px){
+  #superAdminView .app-container,
+  #adminView .app-container,
+  #teacherView .app-container{
+    padding:0 12px 20px !important;
+  }
+
+  #superAdminView .app-container>.admin-grid,
+  #adminView .app-container>.admin-grid,
+  #teacherView .app-container>.admin-grid{
+    position:relative !important;
+    width:100% !important;
+    height:auto !important;
+    min-height:0 !important;
+    max-height:none !important;
+    display:grid !important;
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    padding:10px !important;
+    margin:0 0 12px !important;
+    border-radius:12px !important;
+    overflow:visible !important;
+  }
+
+  #superAdminView .app-container>.admin-grid::before,
+  #adminView .app-container>.admin-grid::before,
+  #teacherView .app-container>.admin-grid::before{
+    grid-column:1/-1 !important;
+    min-height:50px !important;
+    height:50px !important;
+    padding:0 8px !important;
+    margin:0 3px 7px !important;
+  }
+
+  #superAdminView #superAdminMainMenu,
+  #adminView #adminMainMenu,
+  #teacherView #teacherMainMenu{
+    display:grid !important;
+  }
+
+  #superAdminView #superAdminSectionsContainer,
+  #adminView #adminSectionsContainer,
+  #teacherView #teacherSectionsContainer{
+    display:block !important;
+  }
+
+  #superAdminView .header,
+  #adminView .header,
+  #teacherView .header{
+    width:100% !important;
+    margin:0 0 12px !important;
+    min-height:70px !important;
+    padding:12px 14px !important;
+  }
+}
+
+@media(max-width:560px){
+  #superAdminView .app-container>.admin-grid,
+  #adminView .app-container>.admin-grid,
+  #teacherView .app-container>.admin-grid{
+    grid-template-columns:1fr !important;
+  }
+}
+
+
+/* ============================================================
+   EXACT SCHOOLPORTAL-STYLE ADMIN DASHBOARD
+   ============================================================ */
+
+@media (min-width:901px){
+  #adminView .app-container{
+    padding-left:332px !important;
+    padding-right:22px !important;
+    background:#f6faff !important;
+    transition:padding-left .22s ease;
+  }
+
+  #adminView .app-container.picture-sidebar-hidden{
+    padding-left:22px !important;
+  }
+
+  #adminView .app-container>.admin-grid{
+    left:0 !important;
+    width:332px !important;
+    padding:18px 16px 22px !important;
+    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+  }
+
+  #adminView .app-container.picture-sidebar-hidden>.admin-grid{
+    transform:translateX(-100%) !important;
+  }
+
+  #adminView .header{
+    width:calc(100% + 54px) !important;
+    margin-left:-27px !important;
+    margin-right:-27px !important;
+    min-height:84px !important;
+    padding:13px 24px !important;
+    display:flex !important;
+    align-items:center !important;
+    gap:16px !important;
+  }
+
+  .picture-sidebar-toggle{
+    width:42px !important;
+    height:42px !important;
+    flex:0 0 42px !important;
+    border:0 !important;
+    border-radius:9px !important;
+    background:#edf5ff !important;
+    color:#073b82 !important;
+    font-size:24px !important;
+    line-height:1 !important;
+    cursor:pointer !important;
+  }
+
+  .picture-sidebar-toggle:hover{
+    background:#e0efff !important;
+  }
+}
+
+/* Dashboard itself */
+.picture-admin-dashboard{
+  display:block;
+  width:100%;
+  max-width:1180px;
+  margin:0 auto 28px;
+}
+
+.picture-admin-dashboard.is-hidden{
+  display:none !important;
+}
+
+/* Welcome hero */
+.picture-welcome-card{
+  min-height:198px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  padding:27px 30px;
+  margin-bottom:23px;
+  border:1px solid #cfe2f6;
+  border-radius:10px;
+  background:linear-gradient(105deg,#e5f3ff 0%,#dceeff 58%,#edf7ff 100%);
+  box-shadow:0 2px 8px rgba(18,77,130,.045);
+  overflow:hidden;
+}
+
+.picture-welcome-text h1{
+  margin:0 0 7px;
+  color:#082d65;
+  font-size:34px;
+  line-height:1.1;
+  font-weight:750;
+  letter-spacing:-.7px;
+}
+
+.picture-welcome-text p{
+  margin:0 0 22px;
+  color:#466485;
+  font-size:16px;
+}
+
+.picture-school-status{
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:10px;
+  color:#0a2f63;
+  font-size:16px;
+}
+
+.picture-school-icon{
+  font-size:21px;
+}
+
+.picture-active-badge{
+  padding:7px 15px;
+  border-radius:20px;
+  background:#b9f1d1;
+  color:#16804b;
+  font-weight:700;
+}
+
+.picture-deadline-countdown{
+  padding:7px 13px;
+  border-radius:20px;
+  background:#fff;
+  color:#075fc9;
+  border:1px solid #cce1f7;
+  font-weight:700;
+  font-size:13px;
+}
+
+.picture-welcome-art{
+  position:relative;
+  min-width:260px;
+  width:300px;
+  height:150px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:105px;
+  filter:drop-shadow(0 10px 8px rgba(12,74,130,.12));
+}
+
+.picture-welcome-art span{
+  position:absolute;
+  bottom:6px;
+  left:84px;
+  font-size:70px;
+}
+
+/* Four cards above Quick Actions */
+.picture-stat-tabs{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:18px;
+  margin-bottom:25px;
+}
+
+.picture-stat-card{
+  position:relative;
+  min-height:169px;
+  padding:18px 22px;
+  border-radius:10px;
+  border:1px solid #d3e3f2;
+  text-align:left;
+  cursor:pointer;
+  overflow:hidden;
+  transition:transform .15s ease,box-shadow .15s ease;
+}
+
+.picture-stat-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(16,69,120,.09);
+}
+
+.picture-stat-card.school{background:linear-gradient(145deg,#eef7ff,#e5f1ff);}
+.picture-stat-card.teachers{background:linear-gradient(145deg,#effdf8,#e4f9f1);}
+.picture-stat-card.students{background:linear-gradient(145deg,#f7f1ff,#f0eaff);}
+.picture-stat-card.classes{background:linear-gradient(145deg,#fff8ed,#fff2dd);}
+
+.picture-stat-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:59px;
+  height:59px;
+  margin-bottom:12px;
+  border-radius:50%;
+  font-size:29px;
+  background:#1478ef;
+  color:#fff;
+}
+
+.picture-stat-card.teachers .picture-stat-icon{background:#12a760;}
+.picture-stat-card.students .picture-stat-icon{background:#7227d9;}
+.picture-stat-card.classes .picture-stat-icon{background:#f28b0b;}
+
+.picture-stat-number{
+  display:block;
+  color:#092e67;
+  font-size:32px;
+  line-height:1;
+  font-weight:750;
+  margin-bottom:6px;
+}
+
+.picture-stat-label{
+  color:#456584;
+  font-size:17px;
+}
+
+.picture-stat-arrow{
+  position:absolute;
+  right:19px;
+  top:50%;
+  transform:translateY(-50%);
+  color:#315c89;
+  font-size:34px;
+  font-weight:300;
+}
+
+/* Quick actions + activity */
+.picture-lower-grid{
+  display:grid;
+  grid-template-columns:minmax(0,2.1fr) minmax(290px,.9fr);
+  gap:19px;
+}
+
+.picture-quick-actions,
+.picture-recent-activity{
+  padding:20px 22px;
+  border:1px solid #d8e5f1;
+  border-radius:10px;
+  background:#fff;
+  box-shadow:0 2px 8px rgba(18,77,130,.035);
+}
+
+.picture-quick-actions h2,
+.picture-recent-activity h2{
+  margin:0 0 17px;
+  color:#092f67;
+  font-size:23px;
+  font-weight:750;
+}
+
+.picture-action-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;
+}
+
+.picture-action{
+  min-height:96px;
+  display:grid;
+  grid-template-columns:58px 1fr 20px;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border:1px solid #dce7f2;
+  border-radius:9px;
+  background:#fff;
+  color:#12345f;
+  text-align:left;
+  cursor:pointer;
+}
+
+.picture-action:hover{background:#f8fbff;}
+
+.picture-action-icon{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  font-size:24px;
+  font-weight:700;
+}
+
+.picture-action-icon.blue{background:#e5f1ff;color:#0874df;}
+.picture-action-icon.green{background:#e5f8ee;color:#0da45b;}
+.picture-action-icon.purple{background:#f1e8ff;color:#7327d7;}
+.picture-action-icon.orange{background:#fff1d9;color:#ee8b0a;}
+.picture-action-icon.cyan{background:#e2f8fb;color:#09a5b1;}
+.picture-action-icon.red{background:#ffebed;color:#ef5360;}
+
+.picture-action span:not(.picture-action-icon){
+  font-size:14px;
+  line-height:1.35;
+}
+
+.picture-action b{
+  color:#345e89;
+  font-size:25px;
+  font-weight:400;
+}
+
+.picture-activity-item{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:8px 0 13px;
+}
+
+.picture-activity-item>div{
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+
+.picture-activity-item strong{
+  color:#183a64;
+  font-size:14px;
+}
+
+.picture-activity-item small{
+  color:#6d8299;
+  font-size:12px;
+}
+
+.activity-dot{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:45px;
+  height:45px;
+  flex:0 0 45px;
+  border-radius:50%;
+  font-size:21px;
+}
+
+.activity-dot.green{background:#e1f8ec;color:#10a55d;}
+.activity-dot.blue{background:#e4f1ff;color:#1176e5;}
+.activity-dot.purple{background:#f0e7ff;color:#7228d7;}
+
+/* When a section is open, the dashboard disappears and the selected section
+   becomes the full available content area. */
+#adminView #adminSectionsContainer.picture-section-open{
+  display:block !important;
+  width:100% !important;
+  min-height:calc(100vh - 110px) !important;
+  margin:0 !important;
+}
+
+#adminView #adminSectionsContainer.picture-section-open>.dashboard-card{
+  width:100% !important;
+  min-height:calc(100vh - 155px) !important;
+  margin:0 !important;
+  border-radius:10px !important;
+}
+
+#adminView #adminSectionsContainer.picture-section-open .tab-pane.active{
+  width:100% !important;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:1100px){
+  .picture-stat-tabs{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .picture-lower-grid{grid-template-columns:1fr;}
+}
+
+@media(max-width:900px){
+  #adminView .app-container{
+    padding:0 12px 20px !important;
+  }
+
+  #adminView .header{
+    width:100% !important;
+    margin:0 0 12px !important;
+  }
+
+  .picture-welcome-card{
+    min-height:auto;
+    padding:22px;
+  }
+
+  .picture-welcome-art{display:none;}
+
+  .picture-action-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
+@media(max-width:560px){
+  .picture-stat-tabs,
+  .picture-action-grid{
+    grid-template-columns:1fr;
+  }
+
+  .picture-welcome-text h1{font-size:27px;}
+  .picture-welcome-text p{font-size:14px;}
+}
+
+
+/* Final header/sidebar geometry to mirror the supplied picture */
+@media(min-width:901px){
+  #adminView .app-container{
+    padding-left:332px !important;
+  }
+
+  #adminView .app-container>.admin-grid{
+    top:84px !important;
+    height:calc(100vh - 84px) !important;
+    width:332px !important;
+  }
+
+  #adminView .header{
+    width:calc(100% + 54px) !important;
+    margin-left:-27px !important;
+    margin-right:-27px !important;
+    margin-bottom:24px !important;
+    padding:0 !important;
+    min-height:84px !important;
+    height:84px !important;
+    display:flex !important;
+    align-items:center !important;
+    background:#fff !important;
+    border-bottom:1px solid #dce6f0 !important;
+  }
+
+  .picture-top-brand{
+    width:332px;
+    height:84px;
+    flex:0 0 332px;
+    display:flex;
+    align-items:center;
+    padding:0 24px;
+    gap:10px;
+    color:#0a2e67;
+    font-size:28px;
+    font-weight:800;
+    letter-spacing:-1px;
+    border-right:1px solid #dce6f0;
+    white-space:nowrap;
+  }
+
+  .picture-top-brand>span:last-child>span{color:#1478ef;}
+  .picture-brand-mark{
+    font-size:40px;
+    line-height:1;
+  }
+
+  .picture-system-title{
+    color:#0a2f65;
+    font-size:19px;
+    font-weight:500;
+    padding-left:27px;
+    white-space:nowrap;
+  }
+
+  .picture-sidebar-toggle{
+    order:0;
+    margin-left:12px !important;
+    width:38px !important;
+    height:38px !important;
+    flex:0 0 38px !important;
+    padding:0 !important;
+    background:#edf5ff !important;
+  }
+
+  #adminView .header .picture-system-title + div{
+    margin-left:auto !important;
+    padding-right:22px;
+  }
+
+  #adminView .header .picture-system-title + div .btn-danger{
+    background:transparent !important;
+    border:0 !important;
+    color:#123562 !important;
+    padding:7px !important;
+  }
+
+  /* Dashboard starts exactly below the top header, like the reference. */
+  #adminView .picture-admin-dashboard{
+    max-width:none;
+    padding:0 2px;
+  }
+
+  #adminView .app-container.picture-sidebar-hidden{
+    padding-left:22px !important;
+  }
+
+  #adminView .app-container.picture-sidebar-hidden>.admin-grid{
+    top:84px !important;
+  }
+}
+
+@media(max-width:900px){
+  .picture-top-brand{
+    display:none;
+  }
+  .picture-system-title{
+    font-size:15px;
+    color:#0a2f65;
+    font-weight:600;
+  }
+}
+
+
+/* FINAL UPDATE: ALL EXISTING TABS IN QUICK ACTIONS */
+.picture-all-tabs{grid-template-columns:repeat(3,minmax(0,1fr)) !important;align-items:stretch !important;overflow:visible !important;max-height:none !important;}
+.picture-all-tabs .picture-action{min-height:86px !important;}
+.picture-all-tabs .picture-action-title{font-size:14px;line-height:1.3;color:#12345f;}
+
+@media (min-width:901px){
+  #adminView .app-container>.admin-grid{position:fixed !important;left:0 !important;top:0 !important;bottom:0 !important;height:100vh !important;display:flex !important;flex-direction:column !important;overflow-y:auto !important;z-index:5000 !important;transition:transform .22s ease !important;}
+  #adminView .app-container.picture-sidebar-hidden>.admin-grid{transform:translateX(-105%) !important;}
+  #adminView .app-container.picture-sidebar-hidden{padding-left:22px !important;}
+  #adminView .app-container>.admin-grid .picture-sidebar-logout{margin-top:auto !important;}
+  #adminView .header>.btn-danger{display:none !important;}
+  #adminView #adminSectionsContainer.picture-section-open{display:block !important;width:100% !important;min-height:calc(100vh - 110px) !important;margin:0 !important;}
+  #adminView #adminSectionsContainer.picture-section-open>.dashboard-card{width:100% !important;min-height:calc(100vh - 150px) !important;margin:0 !important;}
+}
+@media(max-width:1100px){.picture-all-tabs{grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
+@media(max-width:650px){.picture-all-tabs{grid-template-columns:1fr !important;}}
+
+
+/* FIX: keep the MyRezultz navigation hidden until the hamburger is tapped */
+@media (max-width: 900px) {
+  #adminView .app-container { position: relative !important; overflow-x: clip !important; }
+  #adminView .app-container > #adminMainMenu,
+  #adminView .app-container > .admin-grid {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    width: min(310px, 86vw) !important;
+    height: 100dvh !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 18px 12px 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 4px !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    box-sizing: border-box !important;
+    border-radius: 0 !important;
+    z-index: 6000 !important;
+    background: linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+    box-shadow: 7px 0 24px rgba(1,35,76,.20) !important;
+    transform: translateX(-110%) !important;
+    transition: transform .22s ease !important;
+  }
+  #adminView .app-container.picture-sidebar-open > #adminMainMenu,
+  #adminView .app-container.picture-sidebar-open > .admin-grid {
+    transform: translateX(0) !important;
+  }
+  #adminView .app-container > #adminMainMenu::before,
+  #adminView .app-container > .admin-grid::before {
+    content: "🎓  MyRezultz" !important;
+    display: flex !important;
+    flex: 0 0 61px !important;
+    min-height: 61px !important;
+    align-items: center !important;
+    margin: 0 4px 12px !important;
+    padding: 0 10px !important;
+    border-bottom: 1px solid rgba(255,255,255,.16) !important;
+    color: #fff !important;
+    font-size: 22px !important;
+    font-weight: 800 !important;
+  }
+  #adminView .app-container > #adminMainMenu .admin-card,
+  #adminView .app-container > .admin-grid .admin-card {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-height: 47px !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 10px 12px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: transparent !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 12px !important;
+  }
+  #adminView .app-container > #adminMainMenu .admin-card .title,
+  #adminView .app-container > .admin-grid .admin-card .title { color:#fff !important; }
+  #adminView .app-container.picture-sidebar-open::after {
+    content: "" !important;
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 5999 !important;
+    background: rgba(2,31,74,.28) !important;
+    pointer-events: none !important;
+  }
+  #adminView .picture-admin-dashboard { position: relative !important; z-index: 1 !important; }
+  #adminView .picture-sidebar-toggle { position: relative !important; z-index: 6101 !important; }
+}
+
+
+/* V11 FIX: SUPER ADMIN + TEACHER BLUE NAVIGATION IS A REAL SIDE DRAWER.
+   It is hidden in the default state and is shown ONLY after ☰ toggles
+   .portal-sidebar-open on the relevant portal view. */
+@media (max-width:900px){
+  #superAdminView .app-container > #superAdminSidebar,
+  #teacherView .app-container > #teacherSidebar{
+    position:fixed !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:min(310px,86vw) !important;
+    height:100vh !important;
+    max-height:100vh !important;
+    margin:0 !important;
+    padding:18px 12px 22px !important;
+    box-sizing:border-box !important;
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    gap:4px !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    border-radius:0 !important;
+    z-index:99990 !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    transform:translate3d(-110%,0,0) !important;
+    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+    box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
+    transition:transform .22s ease,opacity .15s ease,visibility 0s linear .22s !important;
+  }
+
+  #superAdminView.portal-sidebar-open .app-container > #superAdminSidebar,
+  #teacherView.portal-sidebar-open .app-container > #teacherSidebar{
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    transform:translate3d(0,0,0) !important;
+    transition:transform .22s ease,opacity .15s ease,visibility 0s !important;
+  }
+
+  #superAdminView .app-container > #superAdminSidebar .sidebar-brand,
+  #teacherView .app-container > #teacherSidebar .sidebar-brand{
+    display:flex !important;
+    align-items:center !important;
+    flex:0 0 61px !important;
+    height:61px !important;
+    margin:0 4px 12px !important;
+    padding:0 10px !important;
+    border-bottom:1px solid rgba(255,255,255,.13) !important;
+    color:#fff !important;
+    font-size:21px !important;
+    font-weight:800 !important;
+  }
+
+  #superAdminView .app-container > #superAdminSidebar .admin-card,
+  #teacherView .app-container > #teacherSidebar .admin-card{
+    display:flex !important;
+    flex:0 0 auto !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    width:100% !important;
+    min-height:47px !important;
+    height:47px !important;
+    margin:0 !important;
+    padding:0 12px !important;
+    border:0 !important;
+    border-radius:8px !important;
+    background:transparent !important;
+    color:#fff !important;
+    box-shadow:none !important;
+  }
+
+  #superAdminView .app-container > #superAdminSidebar .dashboard-nav-card,
+  #teacherView .app-container > #teacherSidebar .dashboard-nav-card{
+    background:linear-gradient(90deg,#147ff4,#1269d9) !important;
+  }
+
+  #superAdminView .app-container > #superAdminSidebar .icon,
+  #teacherView .app-container > #teacherSidebar .icon{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:28px !important;
+    min-width:28px !important;
+    height:28px !important;
+    font-size:20px !important;
+  }
+
+  #superAdminView .app-container > #superAdminSidebar .title,
+  #teacherView .app-container > #teacherSidebar .title{
+    display:block !important;
+    flex:1 !important;
+    color:#fff !important;
+    font-size:13px !important;
+    font-weight:600 !important;
+  }
+
+  #superAdminView .app-container > #superAdminSidebar .sidebar-logout-card,
+  #teacherView .app-container > #teacherSidebar .sidebar-logout-card{
+    margin-top:auto !important;
+  }
+
+  #superAdminView.portal-sidebar-open::after,
+  #teacherView.portal-sidebar-open::after{
+    content:"" !important;
+    position:fixed !important;
+    inset:0 !important;
+    z-index:99980 !important;
+    background:rgba(2,31,74,.28) !important;
+  }
+
+  #superAdminSidebarToggle,
+  #teacherSidebarToggle{
+    position:relative !important;
+    z-index:100000 !important;
+  }
+}
+
+/* On wider screens the same drawer behavior is retained. */
+@media (min-width:901px){
+  #superAdminView .app-container > #superAdminSidebar,
+  #teacherView .app-container > #teacherSidebar{
+    position:fixed !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:310px !important;
+    height:100vh !important;
+    z-index:99990 !important;
+    visibility:hidden !important;
+    opacity:0 !important;
+    pointer-events:none !important;
+    transform:translate3d(-110%,0,0) !important;
+    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+  }
+
+  #superAdminView.portal-sidebar-open .app-container > #superAdminSidebar,
+  #teacherView.portal-sidebar-open .app-container > #teacherSidebar{
+    visibility:visible !important;
+    opacity:1 !important;
+    pointer-events:auto !important;
+    transform:translate3d(0,0,0) !important;
+  }
+}
+
+</style>
+
+<style id="requested-card-only-fixes">
+/* ONLY REQUESTED FIXES: restore 2-column cards + larger/bolder card names in all 3 portals. */
+#adminView #pictureAllTabs,
+#teacherView #teacherMainMenu,
+#superAdminView #superAdminMainMenu {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+}
+
+#adminView #pictureAllTabs .picture-action,
+#teacherView #teacherMainMenu .picture-action,
+#superAdminView #superAdminMainMenu .picture-action {
+  min-width:0 !important;
+}
+
+#adminView #pictureAllTabs .picture-action-title,
+#teacherView #teacherMainMenu .picture-action-title,
+#superAdminView #superAdminMainMenu .picture-action-title {
+  font-weight:800 !important;
+  font-size:15px !important;
+}
+
+/* Headteacher sidebar had two Logout cards; keep one only. */
+#adminView #adminMainMenu .sidebar-logout-card {
+  display:none !important;
+}
+
+@media (max-width:560px){
+  #adminView #pictureAllTabs,
+  #teacherView #teacherMainMenu,
+  #superAdminView #superAdminMainMenu {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+</style>
 </head>
 <body>
 
@@ -860,28 +2355,39 @@
     <div id="superAdminView" class="view-screen">
         <div class="app-container">
             <div class="header">
+                <button type="button" id="superAdminSidebarToggle" class="portal-sidebar-toggle" aria-label="Toggle menu" onclick="togglePortalSidebar('superAdminView')">☰</button>
                 <div>
                     <h2>Super Admin Panel</h2>
                     <p id="superAdminNameDisplay">Super Admin</p>
                 </div>
-                <button class="btn-danger" onclick="logout()">Logout</button>
             </div>
 
-            <div id="superAdminMainMenu" class="admin-grid">
-                <div class="admin-card" onclick="openSuperAdminSection('saTabRegisteredSchools')">
-                    <div class="icon">🏫</div><div class="title">Registered School</div>
+            <div id="superAdminSidebar" class="portal-sidebar admin-grid">
+                <div class="sidebar-brand">🎓 <span>MyRezultz</span></div>
+                <div class="admin-card dashboard-nav-card" onclick="showSuperAdminDashboard()"><div class="icon">🏠</div><div class="title">Dashboard</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabRegisteredSchools')"><div class="icon">🏫</div><div class="title">Registered School</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabVerification')"><div class="icon">✅</div><div class="title">Verification</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabPaymentControl')"><div class="icon">💳</div><div class="title">Control Payment</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabManuals')"><div class="icon">📖</div><div class="title">MANUALS</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabAnnouncements')"><div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT</div></div>
+                <div class="admin-card sidebar-logout-card" onclick="logout()"><div class="icon">🚪</div><div class="title">Logout</div></div>
+            </div>
+
+            <div id="superAdminMainMenu" class="portal-dashboard-quick-actions picture-quick-actions"><h2>Quick Actions</h2>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabRegisteredSchools')">
+                    <div class="picture-action-icon">🏫</div><div class="picture-action-title">Registered School</div>
                 </div>
-                <div class="admin-card" onclick="openSuperAdminSection('saTabVerification')">
-                    <div class="icon">✅</div><div class="title">Verification</div>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabVerification')">
+                    <div class="picture-action-icon">✅</div><div class="picture-action-title">Verification</div>
                 </div>
-                <div class="admin-card" onclick="openSuperAdminSection('saTabPaymentControl')">
-                    <div class="icon">💳</div><div class="title">Control Payment</div>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabPaymentControl')">
+                    <div class="picture-action-icon">💳</div><div class="picture-action-title">Control Payment</div>
                 </div>
-                <div class="admin-card" onclick="openSuperAdminSection('saTabManuals')">
-                    <div class="icon">📖</div><div class="title">MANUALS</div>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabManuals')">
+                    <div class="picture-action-icon">📖</div><div class="picture-action-title">MANUALS</div>
                 </div>
-                <div class="admin-card" onclick="openSuperAdminSection('saTabAnnouncements')">
-                    <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="saAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabAnnouncements')">
+                    <div class="picture-action-icon">📢</div><div class="picture-action-title">UPDATE / ANNOUNCEMENT <span id="saAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
             </div>
 
@@ -977,7 +2483,10 @@
     <div id="adminView" class="view-screen">
         <div class="app-container">
             <div class="header">
-                <div style="display:flex; align-items:center; gap:12px;">
+                <div class="picture-top-brand"><span class="picture-brand-mark">🎓</span><span>School<span>Portal</span></span></div>
+                <button type="button" id="pictureSidebarToggle" class="picture-sidebar-toggle" aria-label="Toggle menu" onclick="togglePictureSidebar()">☰</button>
+                <div class="picture-system-title">School Results Management System</div>
+                <div style="display:flex; align-items:center; gap:12px; margin-left:auto;">
                     <img id="adminLogoDisplay" class="header-logo-preview" style="display:none;" alt="School Logo" />
                     <div>
                         <h2 id="adminSchoolTitle">Admin Panel</h2>
@@ -987,7 +2496,6 @@
                 <div id="schoolPaymentTimer" class="timer-banner" style="display:none;">
                     ⏱️ <span id="paymentTimerCountdown">Loading status...</span>
                 </div>
-                <button class="btn-danger" onclick="logout()">Logout</button>
             </div>
 
             <div id="pendingVerificationNotice" class="dashboard-card" style="display: none; text-align: center; padding: 40px 20px; background: #fff8e6; border: 1px solid #ffe082;">
@@ -996,7 +2504,74 @@
                 <p style="color: #5d4037; font-size: 14px; max-width: 500px; margin: 0 auto;">Your school registration is currently pending verification by the Super Administrator. Once verified, all admin panel features will be unlocked.</p>
             </div>
 
+
+            <!-- PICTURE-STYLE ADMIN DASHBOARD -->
+            <section id="pictureAdminDashboard" class="picture-admin-dashboard">
+                <div class="picture-welcome-card">
+                    <div class="picture-welcome-text">
+                        <h1>Welcome back, <span id="pictureAdminWelcomeName">Admin</span>!</h1>
+                        <p>Manage your school, teachers, students and results all in one place.</p>
+                        <div class="picture-school-status">
+                            <span class="picture-school-icon">🏫</span>
+                            <strong id="pictureSchoolName">School</strong>
+                            <span class="picture-active-badge">Active</span>
+                            <span id="pictureDeadlineCountdown" class="picture-deadline-countdown">Loading deadline...</span>
+                        </div>
+                    </div>
+                    <div class="picture-welcome-art" aria-hidden="true">🎓<span>📚</span></div>
+                </div>
+
+                <div class="picture-stat-tabs">
+                    <button type="button" class="picture-stat-card school" onclick="openAdminSection('tabLogo')">
+                        <span class="picture-stat-icon">🏫</span>
+                        <span class="picture-stat-number" id="pictureSchoolCount">1</span>
+                        <span class="picture-stat-label">School</span>
+                        <span class="picture-stat-arrow">›</span>
+                    </button>
+
+                    <button type="button" class="picture-stat-card teachers" onclick="openAdminSection('tabTeacher')">
+                        <span class="picture-stat-icon">👥</span>
+                        <span class="picture-stat-number" id="pictureTeacherCount">0</span>
+                        <span class="picture-stat-label">Teachers</span>
+                        <span class="picture-stat-arrow">›</span>
+                    </button>
+
+                    <button type="button" class="picture-stat-card students" onclick="openAdminSection('tabStudent')">
+                        <span class="picture-stat-icon">👥</span>
+                        <span class="picture-stat-number" id="pictureStudentCount">0</span>
+                        <span class="picture-stat-label">Students</span>
+                        <span class="picture-stat-arrow">›</span>
+                    </button>
+
+                    <button type="button" class="picture-stat-card classes" onclick="openAdminSection('tabClass')">
+                        <span class="picture-stat-icon">📄</span>
+                        <span class="picture-stat-number" id="pictureClassCount">0</span>
+                        <span class="picture-stat-label">Classes</span>
+                        <span class="picture-stat-arrow">›</span>
+                    </button>
+                </div>
+
+                <div class="picture-lower-grid">
+                    <div class="picture-quick-actions">
+                        <h2>Quick Actions</h2>
+                        <div id="pictureAllTabs" class="picture-action-grid picture-all-tabs"></div>
+                    </div>
+
+                    <div class="picture-recent-activity">
+                        <h2>Recent Activity</h2>
+                        <div id="pictureRecentActivityList">
+                            <div class="picture-activity-item"><span class="activity-dot green">+</span><div><strong>Teachers</strong><small>Registered teachers appear here</small></div></div>
+                            <div class="picture-activity-item"><span class="activity-dot blue">●</span><div><strong>Students</strong><small>Registered students appear here</small></div></div>
+                            <div class="picture-activity-item"><span class="activity-dot purple">▤</span><div><strong>Academic setup</strong><small>Years, terms and classes</small></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <div id="adminMainMenu" class="admin-grid">
+                <div class="admin-card dashboard-nav-card" onclick="showAdminDashboard()">
+                    <div class="icon">🏠</div><div class="title">Dashboard</div>
+                </div>
                 <div class="admin-card" onclick="openAdminSection('tabPaymentRenewals')">
                     <div class="icon">💳</div><div class="title">Payment & Renewals</div>
                 </div>
@@ -1071,6 +2646,12 @@
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabAnnouncements')">
                     <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
+                </div>
+                <div class="admin-card picture-sidebar-logout" onclick="logout()">
+                    <div class="icon">⇥</div><div class="title">Logout</div>
+                </div>
+            <div class="admin-card sidebar-logout-card" onclick="logout()">
+                    <div class="icon">🚪</div><div class="title">Logout</div>
                 </div>
             </div>
 
@@ -1501,6 +3082,7 @@
     <div id="teacherView" class="view-screen">
         <div class="app-container">
             <div class="header">
+                <button type="button" id="teacherSidebarToggle" class="portal-sidebar-toggle" aria-label="Toggle menu" onclick="togglePortalSidebar('teacherView')">☰</button>
                 <div>
                     <h2>Teacher Portal</h2>
                     <p id="teacherNameDisplay">Teacher</p>
@@ -1508,27 +3090,38 @@
                 <div id="teacherDeadlineBanner" class="timer-banner" style="display:none;">
                     ⏱️ <span id="teacherDeadlineCountdown">Marks Entry Closes in: Loading...</span>
                 </div>
-                <button class="btn-danger" onclick="logout()">Logout</button>
             </div>
 
-            <div id="teacherMainMenu" class="admin-grid">
-                <div class="admin-card" onclick="openTeacherSection('tTabClasses')">
-                    <div class="icon">🏫</div><div class="title">Classes</div>
+            <div id="teacherSidebar" class="portal-sidebar admin-grid">
+                <div class="sidebar-brand">🎓 <span>MyRezultz</span></div>
+                <div class="admin-card dashboard-nav-card" onclick="showTeacherDashboard()"><div class="icon">🏠</div><div class="title">Dashboard</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabClasses')"><div class="icon">🏫</div><div class="title">Classes</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabClassList')"><div class="icon">📋</div><div class="title">Class List</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabTimetable')"><div class="icon">📅</div><div class="title">Timetable</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabResources')"><div class="icon">📂</div><div class="title">Resources</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabManuals')"><div class="icon">📖</div><div class="title">MANUALS</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabAnnouncements')"><div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT</div></div>
+                <div class="admin-card sidebar-logout-card" onclick="logout()"><div class="icon">🚪</div><div class="title">Logout</div></div>
+            </div>
+
+            <div id="teacherMainMenu" class="portal-dashboard-quick-actions picture-quick-actions"><h2>Quick Actions</h2>
+                <div class="picture-action" onclick="openTeacherSection('tTabClasses')">
+                    <div class="picture-action-icon">🏫</div><div class="picture-action-title">Classes</div>
                 </div>
-                <div class="admin-card" onclick="openTeacherSection('tTabClassList')">
-                    <div class="icon">📋</div><div class="title">Class List</div>
+                <div class="picture-action" onclick="openTeacherSection('tTabClassList')">
+                    <div class="picture-action-icon">📋</div><div class="picture-action-title">Class List</div>
                 </div>
-                <div class="admin-card" onclick="openTeacherSection('tTabTimetable')">
-                    <div class="icon">📅</div><div class="title">Timetable</div>
+                <div class="picture-action" onclick="openTeacherSection('tTabTimetable')">
+                    <div class="picture-action-icon">📅</div><div class="picture-action-title">Timetable</div>
                 </div>
-                <div class="admin-card" onclick="openTeacherSection('tTabResources')">
-                    <div class="icon">📂</div><div class="title">Resources</div>
+                <div class="picture-action" onclick="openTeacherSection('tTabResources')">
+                    <div class="picture-action-icon">📂</div><div class="picture-action-title">Resources</div>
                 </div>
-                <div class="admin-card" onclick="openTeacherSection('tTabManuals')">
-                    <div class="icon">📖</div><div class="title">MANUALS</div>
+                <div class="picture-action" onclick="openTeacherSection('tTabManuals')">
+                    <div class="picture-action-icon">📖</div><div class="picture-action-title">MANUALS</div>
                 </div>
-                <div class="admin-card" onclick="openTeacherSection('tTabAnnouncements')">
-                    <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="teacherAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
+                <div class="picture-action" onclick="openTeacherSection('tTabAnnouncements')">
+                    <div class="picture-action-icon">📢</div><div class="picture-action-title">UPDATE / ANNOUNCEMENT <span id="teacherAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
             </div>
 
@@ -1662,7 +3255,67 @@
       </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    
+<script>
+/*
+ * EARLY AUTH HANDLERS
+ * These are deliberately installed before the main application script.
+ * This prevents the login page from producing:
+ *   handleRoleChange is not defined
+ *   loginAsSuperAdmin is not defined
+ * even if another part of the large portal script fails to initialize.
+ */
+(function () {
+    window.handleRoleChange = function (role) {
+        var label = document.getElementById('authIdLabel');
+        var email = document.getElementById('email');
+        var passGroup = document.getElementById('passwordGroup');
+        var password = document.getElementById('password');
+
+        if (role === 'student') {
+            if (label) label.textContent = 'Admission Number';
+            if (email) email.placeholder = 'e.g. 101';
+            if (passGroup) passGroup.style.display = 'none';
+            if (password) password.required = false;
+        } else {
+            if (label) label.textContent = 'Email Address';
+            if (email) email.placeholder = 'name@school.com';
+            if (passGroup) passGroup.style.display = 'flex';
+            if (password) password.required = true;
+        }
+    };
+
+    window.loginAsSuperAdmin = function () {
+        var role = document.getElementById('userRole');
+        var email = document.getElementById('email');
+        var passwordGroup = document.getElementById('passwordGroup');
+        var label = document.getElementById('authIdLabel');
+
+        if (role) role.value = 'superadmin';
+        window.handleRoleChange('superadmin');
+
+        if (email) {
+            email.value = 'teshjunior438@gmail.com';
+            email.placeholder = 'name@school.com';
+        }
+        if (passwordGroup) passwordGroup.style.display = 'flex';
+        if (label) label.textContent = 'Email Address';
+
+        /* Let the main app know which role was selected when it is ready. */
+        try {
+            window.pendingLoginRole = 'superadmin';
+        } catch (e) {}
+
+        var msg = document.getElementById('authMsg');
+        if (msg) {
+            msg.textContent = 'Ready for Super Admin authentication.';
+            msg.className = 'msg';
+        }
+    };
+})();
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
@@ -1898,43 +3551,343 @@
             }
         }
 
+        function togglePortalSidebar(viewId) {
+            const view = document.getElementById(viewId);
+            if (view) view.classList.toggle('portal-sidebar-open');
+        }
+
+        function showTeacherDashboard() {
+            document.documentElement.classList.remove('portal-fullscreen-active');
+            document.body.classList.remove('portal-fullscreen-active');
+
+            const view = document.getElementById('teacherView');
+            if (view) {
+                view.classList.remove('portal-sidebar-open');
+                view.classList.remove('picture-sidebar-open');
+            }
+            const sections = document.getElementById('teacherSectionsContainer');
+            const menu = document.getElementById('teacherMainMenu');
+            if (sections) {
+                sections.style.display = 'none';
+                sections.classList.remove('portal-section-fullscreen');
+                sections.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            }
+            if (menu) {
+                menu.classList.remove('portal-dashboard-hidden');
+                menu.style.display = 'grid';
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function showSuperAdminDashboard() {
+            document.documentElement.classList.remove('portal-fullscreen-active');
+            document.body.classList.remove('portal-fullscreen-active');
+
+            const view = document.getElementById('superAdminView');
+            if (view) {
+                view.classList.remove('portal-sidebar-open');
+                view.classList.remove('picture-sidebar-open');
+            }
+            const sections = document.getElementById('superAdminSectionsContainer');
+            const menu = document.getElementById('superAdminMainMenu');
+            if (sections) {
+                sections.style.display = 'none';
+                sections.classList.remove('portal-section-fullscreen');
+                sections.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            }
+            if (menu) {
+                menu.classList.remove('portal-dashboard-hidden');
+                menu.style.display = 'grid';
+            }
+            window.scrollTo(0, 0);
+        }
+
         function openAdminSection(tabId) {
-            document.getElementById('adminMainMenu').style.display = 'none';
-            document.getElementById('adminSectionsContainer').style.display = 'block';
-            document.querySelectorAll('#adminSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
+            const view = document.getElementById('adminView');
+            const menu = document.getElementById('adminMainMenu');
+            const sections = document.getElementById('adminSectionsContainer');
             const target = document.getElementById(tabId);
-            if (target) target.classList.add('active');
+
+            if (!view || !sections || !target) return;
+
+            /* Remember the original location once. */
+            if (!sections.__portalPlaceholder) {
+                sections.__portalPlaceholder = document.createComment('adminSectionsContainer-placeholder');
+                sections.parentNode.insertBefore(sections.__portalPlaceholder, sections);
+            }
+
+            /* CLOSE THE ENTIRE DASHBOARD — not just its menu. */
+            view.setAttribute('data-section-open', 'true');
+            view.setAttribute('aria-hidden', 'true');
+            view.style.setProperty('display', 'none', 'important');
+            view.style.setProperty('visibility', 'hidden', 'important');
+            view.style.setProperty('pointer-events', 'none', 'important');
+
+            if (menu) {
+                menu.style.setProperty('display', 'none', 'important');
+            }
+
+            /* Take the section completely OUT of the dashboard DOM tree. */
+            document.body.appendChild(sections);
+
+            sections.style.setProperty('position', 'fixed', 'important');
+            sections.style.setProperty('inset', '0', 'important');
+            sections.style.setProperty('z-index', '2147483647', 'important');
+            sections.style.setProperty('display', 'block', 'important');
+            sections.style.setProperty('width', '100vw', 'important');
+            sections.style.setProperty('height', '100dvh', 'important');
+            sections.style.setProperty('min-height', '100vh', 'important');
+            sections.style.setProperty('max-width', 'none', 'important');
+            sections.style.setProperty('margin', '0', 'important');
+            sections.style.setProperty('padding', '16px', 'important');
+            sections.style.setProperty('box-sizing', 'border-box', 'important');
+            sections.style.setProperty('overflow-x', 'hidden', 'important');
+            sections.style.setProperty('overflow-y', 'auto', 'important');
+            sections.style.setProperty('background', '#f5f9fd', 'important');
+
+            sections.classList.add('portal-section-fullscreen');
+            sections.setAttribute('data-portal-fullscreen', 'true');
+
+            sections.querySelectorAll('.tab-pane').forEach(function(el) {
+                el.classList.remove('active');
+                el.style.setProperty('display', 'none', 'important');
+            });
+
+            target.classList.add('active');
+            target.style.setProperty('display', 'block', 'important');
+
+            document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+            document.body.style.setProperty('overflow', 'hidden', 'important');
+            window.scrollTo(0, 0);
+
             if (tabId === 'tabLogo') loadSchoolLogoPreview();
             if (tabId === 'tabManuals') loadManuals('adminManualsContainer');
             if (tabId === 'tabAnnouncements') loadAnnouncements('adminAnnouncementsContainer');
         }
 
         function closeAdminSection() {
-            document.getElementById('adminSectionsContainer').style.display = 'none';
-            document.getElementById('adminMainMenu').style.display = 'grid';
+            const view = document.getElementById('adminView');
+            const menu = document.getElementById('adminMainMenu');
+            const sections = document.getElementById('adminSectionsContainer');
+            if (!view || !sections) return;
+
+            if (sections.__portalPlaceholder && sections.__portalPlaceholder.parentNode) {
+                sections.__portalPlaceholder.parentNode.insertBefore(
+                    sections,
+                    sections.__portalPlaceholder.nextSibling
+                );
+                sections.__portalPlaceholder.remove();
+                sections.__portalPlaceholder = null;
+            }
+
+            sections.style.removeProperty('position');
+            sections.style.removeProperty('inset');
+            sections.style.removeProperty('z-index');
+            sections.style.removeProperty('width');
+            sections.style.removeProperty('height');
+            sections.style.removeProperty('min-height');
+            sections.style.removeProperty('max-width');
+            sections.style.removeProperty('margin');
+            sections.style.removeProperty('padding');
+            sections.style.removeProperty('box-sizing');
+            sections.style.removeProperty('overflow-x');
+            sections.style.removeProperty('overflow-y');
+            sections.style.removeProperty('background');
+            sections.style.removeProperty('display');
+            sections.classList.remove('portal-section-fullscreen');
+            sections.removeAttribute('data-portal-fullscreen');
+
+            sections.querySelectorAll('.tab-pane').forEach(function(el) {
+                el.style.removeProperty('display');
+                el.classList.remove('active');
+            });
+
+            view.style.removeProperty('display');
+            view.style.removeProperty('visibility');
+            view.style.removeProperty('pointer-events');
+            view.removeAttribute('aria-hidden');
+            view.removeAttribute('data-section-open');
+
+            if (menu) {
+                menu.style.removeProperty('display');
+            }
+
+            document.documentElement.style.removeProperty('overflow');
+            document.body.style.removeProperty('overflow');
+            window.scrollTo(0, 0);
         }
 
         function openTeacherSection(tabId) {
-            document.getElementById('teacherMainMenu').style.display = 'none';
-            document.getElementById('teacherSectionsContainer').style.display = 'block';
-            document.querySelectorAll('#teacherSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
+            const view = document.getElementById('teacherView');
+            const menu = document.getElementById('teacherMainMenu');
+            const sections = document.getElementById('teacherSectionsContainer');
             const target = document.getElementById(tabId);
-            if (target) target.classList.add('active');
+
+            if (!view || !sections || !target) return;
+
+            /* Remember the original location once. */
+            if (!sections.__portalPlaceholder) {
+                sections.__portalPlaceholder = document.createComment('teacherSectionsContainer-placeholder');
+                sections.parentNode.insertBefore(sections.__portalPlaceholder, sections);
+            }
+
+            /* CLOSE THE ENTIRE DASHBOARD — not just its menu. */
+            view.setAttribute('data-section-open', 'true');
+            view.setAttribute('aria-hidden', 'true');
+            view.style.setProperty('display', 'none', 'important');
+            view.style.setProperty('visibility', 'hidden', 'important');
+            view.style.setProperty('pointer-events', 'none', 'important');
+
+            if (menu) {
+                menu.style.setProperty('display', 'none', 'important');
+            }
+
+            /* Take the section completely OUT of the dashboard DOM tree. */
+            document.body.appendChild(sections);
+
+            sections.style.setProperty('position', 'fixed', 'important');
+            sections.style.setProperty('inset', '0', 'important');
+            sections.style.setProperty('z-index', '2147483647', 'important');
+            sections.style.setProperty('display', 'block', 'important');
+            sections.style.setProperty('width', '100vw', 'important');
+            sections.style.setProperty('height', '100dvh', 'important');
+            sections.style.setProperty('min-height', '100vh', 'important');
+            sections.style.setProperty('max-width', 'none', 'important');
+            sections.style.setProperty('margin', '0', 'important');
+            sections.style.setProperty('padding', '16px', 'important');
+            sections.style.setProperty('box-sizing', 'border-box', 'important');
+            sections.style.setProperty('overflow-x', 'hidden', 'important');
+            sections.style.setProperty('overflow-y', 'auto', 'important');
+            sections.style.setProperty('background', '#f5f9fd', 'important');
+
+            sections.classList.add('portal-section-fullscreen');
+            sections.setAttribute('data-portal-fullscreen', 'true');
+
+            sections.querySelectorAll('.tab-pane').forEach(function(el) {
+                el.classList.remove('active');
+                el.style.setProperty('display', 'none', 'important');
+            });
+
+            target.classList.add('active');
+            target.style.setProperty('display', 'block', 'important');
+
+            document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+            document.body.style.setProperty('overflow', 'hidden', 'important');
+            window.scrollTo(0, 0);
+
             if (tabId === 'tTabManuals') loadManuals('teacherManualsContainer');
             if (tabId === 'tTabAnnouncements') loadAnnouncements('teacherAnnouncementsContainer');
         }
 
         function closeTeacherSection() {
-            document.getElementById('teacherSectionsContainer').style.display = 'none';
-            document.getElementById('teacherMainMenu').style.display = 'grid';
+            const view = document.getElementById('teacherView');
+            const menu = document.getElementById('teacherMainMenu');
+            const sections = document.getElementById('teacherSectionsContainer');
+            if (!view || !sections) return;
+
+            if (sections.__portalPlaceholder && sections.__portalPlaceholder.parentNode) {
+                sections.__portalPlaceholder.parentNode.insertBefore(
+                    sections,
+                    sections.__portalPlaceholder.nextSibling
+                );
+                sections.__portalPlaceholder.remove();
+                sections.__portalPlaceholder = null;
+            }
+
+            sections.style.removeProperty('position');
+            sections.style.removeProperty('inset');
+            sections.style.removeProperty('z-index');
+            sections.style.removeProperty('width');
+            sections.style.removeProperty('height');
+            sections.style.removeProperty('min-height');
+            sections.style.removeProperty('max-width');
+            sections.style.removeProperty('margin');
+            sections.style.removeProperty('padding');
+            sections.style.removeProperty('box-sizing');
+            sections.style.removeProperty('overflow-x');
+            sections.style.removeProperty('overflow-y');
+            sections.style.removeProperty('background');
+            sections.style.removeProperty('display');
+            sections.classList.remove('portal-section-fullscreen');
+            sections.removeAttribute('data-portal-fullscreen');
+
+            sections.querySelectorAll('.tab-pane').forEach(function(el) {
+                el.style.removeProperty('display');
+                el.classList.remove('active');
+            });
+
+            view.style.removeProperty('display');
+            view.style.removeProperty('visibility');
+            view.style.removeProperty('pointer-events');
+            view.removeAttribute('aria-hidden');
+            view.removeAttribute('data-section-open');
+
+            if (menu) {
+                menu.style.removeProperty('display');
+            }
+
+            document.documentElement.style.removeProperty('overflow');
+            document.body.style.removeProperty('overflow');
+            window.scrollTo(0, 0);
         }
 
         function openSuperAdminSection(tabId) {
-            document.getElementById('superAdminMainMenu').style.display = 'none';
-            document.getElementById('superAdminSectionsContainer').style.display = 'block';
-            document.querySelectorAll('#superAdminSectionsContainer .tab-pane').forEach(el => el.classList.remove('active'));
+            const view = document.getElementById('superAdminView');
+            const menu = document.getElementById('superAdminMainMenu');
+            const sections = document.getElementById('superAdminSectionsContainer');
             const target = document.getElementById(tabId);
-            if (target) target.classList.add('active');
+
+            if (!view || !sections || !target) return;
+
+            /* Remember the original location once. */
+            if (!sections.__portalPlaceholder) {
+                sections.__portalPlaceholder = document.createComment('superAdminSectionsContainer-placeholder');
+                sections.parentNode.insertBefore(sections.__portalPlaceholder, sections);
+            }
+
+            /* CLOSE THE ENTIRE DASHBOARD — not just its menu. */
+            view.setAttribute('data-section-open', 'true');
+            view.setAttribute('aria-hidden', 'true');
+            view.style.setProperty('display', 'none', 'important');
+            view.style.setProperty('visibility', 'hidden', 'important');
+            view.style.setProperty('pointer-events', 'none', 'important');
+
+            if (menu) {
+                menu.style.setProperty('display', 'none', 'important');
+            }
+
+            /* Take the section completely OUT of the dashboard DOM tree. */
+            document.body.appendChild(sections);
+
+            sections.style.setProperty('position', 'fixed', 'important');
+            sections.style.setProperty('inset', '0', 'important');
+            sections.style.setProperty('z-index', '2147483647', 'important');
+            sections.style.setProperty('display', 'block', 'important');
+            sections.style.setProperty('width', '100vw', 'important');
+            sections.style.setProperty('height', '100dvh', 'important');
+            sections.style.setProperty('min-height', '100vh', 'important');
+            sections.style.setProperty('max-width', 'none', 'important');
+            sections.style.setProperty('margin', '0', 'important');
+            sections.style.setProperty('padding', '16px', 'important');
+            sections.style.setProperty('box-sizing', 'border-box', 'important');
+            sections.style.setProperty('overflow-x', 'hidden', 'important');
+            sections.style.setProperty('overflow-y', 'auto', 'important');
+            sections.style.setProperty('background', '#f5f9fd', 'important');
+
+            sections.classList.add('portal-section-fullscreen');
+            sections.setAttribute('data-portal-fullscreen', 'true');
+
+            sections.querySelectorAll('.tab-pane').forEach(function(el) {
+                el.classList.remove('active');
+                el.style.setProperty('display', 'none', 'important');
+            });
+
+            target.classList.add('active');
+            target.style.setProperty('display', 'block', 'important');
+
+            document.documentElement.style.setProperty('overflow', 'hidden', 'important');
+            document.body.style.setProperty('overflow', 'hidden', 'important');
+            window.scrollTo(0, 0);
 
             if (tabId === 'saTabRegisteredSchools') loadRegisteredSchoolsList();
             if (tabId === 'saTabVerification') loadVerificationSchoolsList();
@@ -1944,8 +3897,55 @@
         }
 
         function closeSuperAdminSection() {
-            document.getElementById('superAdminSectionsContainer').style.display = 'none';
-            document.getElementById('superAdminMainMenu').style.display = 'grid';
+            const view = document.getElementById('superAdminView');
+            const menu = document.getElementById('superAdminMainMenu');
+            const sections = document.getElementById('superAdminSectionsContainer');
+            if (!view || !sections) return;
+
+            if (sections.__portalPlaceholder && sections.__portalPlaceholder.parentNode) {
+                sections.__portalPlaceholder.parentNode.insertBefore(
+                    sections,
+                    sections.__portalPlaceholder.nextSibling
+                );
+                sections.__portalPlaceholder.remove();
+                sections.__portalPlaceholder = null;
+            }
+
+            sections.style.removeProperty('position');
+            sections.style.removeProperty('inset');
+            sections.style.removeProperty('z-index');
+            sections.style.removeProperty('width');
+            sections.style.removeProperty('height');
+            sections.style.removeProperty('min-height');
+            sections.style.removeProperty('max-width');
+            sections.style.removeProperty('margin');
+            sections.style.removeProperty('padding');
+            sections.style.removeProperty('box-sizing');
+            sections.style.removeProperty('overflow-x');
+            sections.style.removeProperty('overflow-y');
+            sections.style.removeProperty('background');
+            sections.style.removeProperty('display');
+            sections.classList.remove('portal-section-fullscreen');
+            sections.removeAttribute('data-portal-fullscreen');
+
+            sections.querySelectorAll('.tab-pane').forEach(function(el) {
+                el.style.removeProperty('display');
+                el.classList.remove('active');
+            });
+
+            view.style.removeProperty('display');
+            view.style.removeProperty('visibility');
+            view.style.removeProperty('pointer-events');
+            view.removeAttribute('aria-hidden');
+            view.removeAttribute('data-section-open');
+
+            if (menu) {
+                menu.style.removeProperty('display');
+            }
+
+            document.documentElement.style.removeProperty('overflow');
+            document.body.style.removeProperty('overflow');
+            window.scrollTo(0, 0);
         }
 
         async function saveAnnouncement(e) {
@@ -1969,6 +3969,18 @@
                 updateAnnouncementBadges();
             } catch (err) {
                 alert('Could not publish: ' + err.message);
+            }
+        }
+
+        async function deleteAnnouncement(announcementId) {
+            if (!announcementId) return;
+            if (!confirm('Delete this announcement/update?')) return;
+            try {
+                await db.collection('announcements').doc(announcementId).delete();
+                await loadAnnouncements('superAdminAnnouncementsContainer', true);
+                updateAnnouncementBadges();
+            } catch (err) {
+                alert('Could not delete the announcement: ' + err.message);
             }
         }
 
@@ -2008,6 +4020,7 @@
                         `<h4>${announcementIcon(type)} ${esc(announcementLabel(type))}: ${esc(d.title || '')}</h4>` +
                         `<div class="announcement-meta">${esc(formatAnnouncementDate(d.createdAt))}</div>` +
                         `<div style="white-space:pre-wrap; color:#334155; line-height:1.6;">${esc(d.message || '')}</div>` +
+                        (includeAllForSuperAdmin ? `<button type="button" class="btn-danger" style="margin-top:12px;" onclick="deleteAnnouncement('${doc.id}')">Delete</button>` : '') +
                         `</div>`;
                 });
                 container.innerHTML = html;
@@ -2201,6 +4214,7 @@
                             loadExamTypesList();
                             listenToMarksControl();
                             showView("adminView");
+                            setTimeout(() => { if (typeof showAdminDashboard === "function") showAdminDashboard(); }, 150);
                             initializePortalAnnouncements();
                         } else if (userData.role === "teacher") {
                             document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
@@ -2301,7 +4315,999 @@
             const report = document.getElementById("studentReportCard");
             if (!report) return null;
             const styles = Array.from(document.querySelectorAll("style")).map(el => el.innerHTML).join("\n");
-            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Student Report</title><style>${styles}</style></head><body>${report.outerHTML}</body></html>`;
+            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Student Report</title><style>${styles}
+/* ============================================================
+   MOBILE SIDEBAR FIX
+   The MyRezultz navigation is a side drawer, not part of
+   the Quick Actions/dashboard flow.
+   ============================================================ */
+@media (max-width:900px){
+  #adminView .app-container{
+    padding:0 12px 20px !important;
+    overflow-x:hidden !important;
+  }
+
+  /* Remove the navigation grid from the normal page flow. */
+  #adminView .app-container>.admin-grid{
+    position:fixed !important;
+    left:0 !important;
+    top:0 !important;
+    bottom:0 !important;
+    width:min(310px,86vw) !important;
+    height:100vh !important;
+    min-height:100vh !important;
+    max-height:none !important;
+    margin:0 !important;
+    padding:18px 12px 22px !important;
+    display:flex !important;
+    flex-direction:column !important;
+    grid-template-columns:none !important;
+    align-items:stretch !important;
+    justify-content:flex-start !important;
+    gap:4px !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    border-radius:0 !important;
+    z-index:6000 !important;
+    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+    box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
+    transform:translateX(-105%) !important;
+    transition:transform .22s ease !important;
+  }
+
+  /* Only show the drawer after pressing the three-line button. */
+  #adminView .app-container.picture-sidebar-open>.admin-grid{
+    transform:translateX(0) !important;
+  }
+
+  /* MyRezultz remains inside the drawer, never below Quick Actions. */
+  #adminView .app-container>.admin-grid::before{
+    display:flex !important;
+    flex:0 0 61px !important;
+    min-height:61px !important;
+    height:61px !important;
+    grid-column:auto !important;
+    align-items:center !important;
+    margin:0 4px 12px !important;
+    padding:0 10px !important;
+    border-bottom:1px solid rgba(255,255,255,.13) !important;
+    color:#fff !important;
+    font-size:22px !important;
+    font-weight:800 !important;
+    content:"🎓  MyRezultz" !important;
+  }
+
+  #adminView .app-container>.admin-grid .admin-card{
+    display:flex !important;
+    flex:0 0 auto !important;
+    width:100% !important;
+    min-height:47px !important;
+    height:47px !important;
+    margin:0 !important;
+    padding:0 12px !important;
+    border:0 !important;
+    border-radius:8px !important;
+    background:transparent !important;
+    color:#fff !important;
+    box-shadow:none !important;
+    transform:none !important;
+    flex-direction:row !important;
+    justify-content:flex-start !important;
+    align-items:center !important;
+    gap:12px !important;
+  }
+
+  #adminView .app-container>.admin-grid .admin-card:hover{
+    background:rgba(255,255,255,.10) !important;
+    transform:none !important;
+  }
+
+  #adminView .app-container>.admin-grid .admin-card .icon{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    width:28px !important;
+    min-width:28px !important;
+    height:28px !important;
+    margin:0 !important;
+    font-size:20px !important;
+  }
+
+  #adminView .app-container>.admin-grid .admin-card .title{
+    display:block !important;
+    flex:1 !important;
+    color:#fff !important;
+    font-size:13px !important;
+    font-weight:600 !important;
+    text-transform:none !important;
+    white-space:normal !important;
+  }
+
+  /* Keep the actual dashboard/header unobstructed when drawer is closed. */
+  #adminView .picture-admin-dashboard{
+    position:relative !important;
+    z-index:1 !important;
+  }
+
+  #adminView .header{
+    position:relative !important;
+    z-index:6100 !important;
+  }
+
+  #adminView .picture-sidebar-toggle{
+    position:relative !important;
+    z-index:6101 !important;
+  }
+
+  /* Optional dimmed backdrop while the drawer is open. */
+  #adminView .app-container.picture-sidebar-open::after{
+    content:"" !important;
+    position:fixed !important;
+    inset:0 !important;
+    z-index:5999 !important;
+    background:rgba(2,31,74,.28) !important;
+    pointer-events:auto !important;
+  }
+
+  /* Keep the dashboard/Quick Actions in normal document flow. */
+  #adminView #pictureAdminDashboard{
+    display:block !important;
+    width:100% !important;
+    margin:0 auto 28px !important;
+  }
+}
+
+/* Desktop keeps the existing persistent sidebar behavior. */
+@media (min-width:901px){
+  #adminView .app-container.picture-sidebar-open>.admin-grid{
+    transform:translateX(0) !important;
+  }
+}
+
+
+/* ============================================================
+   TEACHER + SUPER ADMIN MOBILE SIDE DRAWERS
+   Dashboard stays in the normal page; navigation appears only
+   after the three-line menu button is pressed.
+   ============================================================ */
+@media (max-width:900px){
+  #teacherView .portal-sidebar,
+  #superAdminView .portal-sidebar{
+    position:fixed !important;
+    left:0 !important; top:0 !important; bottom:0 !important;
+    width:min(310px,86vw) !important;
+    height:100vh !important; min-height:100vh !important;
+    margin:0 !important; padding:18px 12px 22px !important;
+    display:flex !important; flex-direction:column !important;
+    align-items:stretch !important; justify-content:flex-start !important;
+    gap:4px !important; overflow-y:auto !important; overflow-x:hidden !important;
+    border-radius:0 !important; z-index:6000 !important;
+    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+    box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
+    transform:translateX(-105%) !important;
+    transition:transform .22s ease !important;
+  }
+  #teacherView.portal-sidebar-open .portal-sidebar,
+  #superAdminView.portal-sidebar-open .portal-sidebar{
+    transform:translateX(0) !important;
+  }
+  #teacherView.portal-sidebar-open::after,
+  #superAdminView.portal-sidebar-open::after{
+    content:"" !important; position:fixed !important; inset:0 !important;
+    z-index:5999 !important; background:rgba(2,31,74,.28) !important;
+  }
+  #teacherView .portal-sidebar .sidebar-brand,
+  #superAdminView .portal-sidebar .sidebar-brand{
+    display:flex !important; align-items:center !important;
+    min-height:61px !important; height:61px !important;
+    margin:0 4px 12px !important; padding:0 10px !important;
+    border-bottom:1px solid rgba(255,255,255,.13) !important;
+    color:#fff !important; font-size:21px !important; font-weight:800 !important;
+  }
+  #teacherView .portal-sidebar .admin-card,
+  #superAdminView .portal-sidebar .admin-card{
+    display:flex !important; flex:0 0 auto !important;
+    width:100% !important; min-height:47px !important; height:47px !important;
+    margin:0 !important; padding:0 12px !important;
+    border:0 !important; border-radius:8px !important;
+    background:transparent !important; color:#fff !important;
+    box-shadow:none !important; transform:none !important;
+    flex-direction:row !important; justify-content:flex-start !important;
+    align-items:center !important; gap:12px !important;
+  }
+  #teacherView .portal-sidebar .admin-card:hover,
+  #superAdminView .portal-sidebar .admin-card:hover{
+    background:rgba(255,255,255,.10) !important; transform:none !important;
+  }
+  #teacherView .portal-sidebar .admin-card .icon,
+  #superAdminView .portal-sidebar .admin-card .icon{
+    display:flex !important; align-items:center !important; justify-content:center !important;
+    width:28px !important; min-width:28px !important; height:28px !important;
+    margin:0 !important; font-size:20px !important;
+  }
+  #teacherView .portal-sidebar .admin-card .title,
+  #superAdminView .portal-sidebar .admin-card .title{
+    display:block !important; flex:1 !important; color:#fff !important;
+    font-size:13px !important; font-weight:600 !important;
+    text-transform:none !important; white-space:normal !important;
+  }
+  #teacherView .header,
+  #superAdminView .header{ position:relative !important; z-index:6100 !important; }
+  #teacherSidebarToggle,
+  #superAdminSidebarToggle{ position:relative !important; z-index:6101 !important; }
+}
+@media (min-width:901px){
+  #teacherView .portal-sidebar,
+  #superAdminView .portal-sidebar{ display:none !important; }
+  #teacherSidebarToggle,
+  #superAdminSidebarToggle{ display:none !important; }
+}
+
+
+/* ============================================================
+   FINAL SUPER ADMIN + TEACHER LAYOUT
+   Match the Headteacher portal:
+   - Dashboard shows ONE Quick Actions panel.
+   - Blue navigation exists ONLY in the hidden ☰ drawer.
+   - No permanent/duplicate blue panel on the dashboard.
+   ============================================================ */
+
+/* Normal dashboard page — no reserved sidebar space. */
+#superAdminView .app-container,
+#teacherView .app-container{
+  width:100% !important;
+  max-width:1200px !important;
+  min-height:100vh !important;
+  margin:0 auto !important;
+  padding:0 22px 30px !important;
+  background:linear-gradient(180deg,#f9fcff 0%,#f2f8ff 100%) !important;
+}
+
+/* ---------- DASHBOARD QUICK ACTIONS ---------- */
+#superAdminView #superAdminMainMenu,
+#teacherView #teacherMainMenu{
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  width:100% !important;
+  max-width:1180px !important;
+  min-height:0 !important;
+  height:auto !important;
+  margin:24px auto 28px !important;
+  padding:56px 16px 16px !important;
+  overflow:visible !important;
+  border:1px solid #d7e6f5 !important;
+  border-radius:14px !important;
+  background:#fff !important;
+  box-shadow:0 7px 24px rgba(15,57,105,.05) !important;
+}
+
+/* One Quick Actions heading — not a blue MyRezultz panel. */
+#superAdminView #superAdminMainMenu::before,
+#teacherView #teacherMainMenu::before{
+  position:absolute !important;
+  top:20px !important;
+  left:22px !important;
+  color:#082f68 !important;
+  font-size:20px !important;
+  font-weight:750 !important;
+  line-height:1 !important;
+}
+
+#superAdminView #superAdminMainMenu::before{
+  content:"Quick Actions" !important;
+}
+#teacherView #teacherMainMenu::before{
+  content:"Quick Actions" !important;
+}
+
+/* Quick Action buttons. */
+#superAdminView #superAdminMainMenu .admin-card,
+#teacherView #teacherMainMenu .admin-card{
+  position:relative !important;
+  display:flex !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:12px !important;
+  width:100% !important;
+  min-height:82px !important;
+  height:auto !important;
+  margin:0 !important;
+  padding:14px 15px !important;
+  border:1px solid #d9e8f7 !important;
+  border-radius:11px !important;
+  background:#f7fbff !important;
+  color:#123a68 !important;
+  box-shadow:none !important;
+  transform:none !important;
+  text-align:left !important;
+  cursor:pointer !important;
+  transition:transform .15s ease,box-shadow .15s ease,background .15s ease !important;
+}
+
+#superAdminView #superAdminMainMenu .admin-card:hover,
+#teacherView #teacherMainMenu .admin-card:hover{
+  transform:translateY(-2px) !important;
+  background:#eef7ff !important;
+  box-shadow:0 7px 18px rgba(15,75,135,.10) !important;
+}
+
+#superAdminView #superAdminMainMenu .admin-card .icon,
+#teacherView #teacherMainMenu .admin-card .icon{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:42px !important;
+  min-width:42px !important;
+  height:42px !important;
+  margin:0 !important;
+  border-radius:10px !important;
+  background:#e2f0ff !important;
+  font-size:22px !important;
+  line-height:1 !important;
+}
+
+#superAdminView #superAdminMainMenu .admin-card .title,
+#teacherView #teacherMainMenu .admin-card .title{
+  display:block !important;
+  flex:1 !important;
+  min-width:0 !important;
+  color:#123a68 !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  line-height:1.3 !important;
+  text-transform:none !important;
+  white-space:normal !important;
+}
+
+#superAdminView #superAdminMainMenu .admin-card::after,
+#teacherView #teacherMainMenu .admin-card::after{
+  content:"›" !important;
+  margin-left:auto !important;
+  color:#1478ef !important;
+  font-size:25px !important;
+  line-height:1 !important;
+}
+
+/* ---------- SIDEBAR: HIDDEN UNTIL ☰ ---------- */
+#superAdminView .portal-sidebar,
+#teacherView .portal-sidebar{
+  position:fixed !important;
+  left:0 !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:min(310px,86vw) !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  margin:0 !important;
+  padding:18px 12px 22px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:4px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  border-radius:0 !important;
+  z-index:7000 !important;
+  background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+  box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
+  transform:translateX(-105%) !important;
+  transition:transform .22s ease !important;
+}
+
+/* ☰ opens it. */
+#superAdminView.portal-sidebar-open .portal-sidebar,
+#teacherView.portal-sidebar-open .portal-sidebar{
+  transform:translateX(0) !important;
+}
+
+#superAdminView.portal-sidebar-open::after,
+#teacherView.portal-sidebar-open::after{
+  content:"" !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:6999 !important;
+  background:rgba(2,31,74,.28) !important;
+}
+
+/* Sidebar title. */
+#superAdminView .portal-sidebar .sidebar-brand,
+#teacherView .portal-sidebar .sidebar-brand{
+  display:flex !important;
+  align-items:center !important;
+  min-height:61px !important;
+  height:61px !important;
+  flex:0 0 61px !important;
+  margin:0 4px 12px !important;
+  padding:0 10px !important;
+  border-bottom:1px solid rgba(255,255,255,.13) !important;
+  color:#fff !important;
+  font-size:21px !important;
+  font-weight:800 !important;
+}
+
+/* Sidebar rows. */
+#superAdminView .portal-sidebar .admin-card,
+#teacherView .portal-sidebar .admin-card{
+  display:flex !important;
+  flex:0 0 auto !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:12px !important;
+  width:100% !important;
+  min-height:47px !important;
+  height:47px !important;
+  margin:0 !important;
+  padding:0 12px !important;
+  border:0 !important;
+  border-radius:8px !important;
+  background:transparent !important;
+  color:#fff !important;
+  box-shadow:none !important;
+  transform:none !important;
+  text-align:left !important;
+}
+
+#superAdminView .portal-sidebar .admin-card:hover,
+#teacherView .portal-sidebar .admin-card:hover{
+  background:rgba(255,255,255,.10) !important;
+}
+
+#superAdminView .portal-sidebar .dashboard-nav-card,
+#teacherView .portal-sidebar .dashboard-nav-card{
+  background:linear-gradient(90deg,#147ff4,#1269d9) !important;
+  box-shadow:0 4px 13px rgba(0,83,190,.22) !important;
+}
+
+#superAdminView .portal-sidebar .admin-card .icon,
+#teacherView .portal-sidebar .admin-card .icon{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:28px !important;
+  min-width:28px !important;
+  height:28px !important;
+  margin:0 !important;
+  font-size:20px !important;
+}
+
+#superAdminView .portal-sidebar .admin-card .title,
+#teacherView .portal-sidebar .admin-card .title{
+  display:block !important;
+  flex:1 !important;
+  min-width:0 !important;
+  color:#fff !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+  text-transform:none !important;
+  white-space:normal !important;
+}
+
+#superAdminView .portal-sidebar .sidebar-logout-card,
+#teacherView .portal-sidebar .sidebar-logout-card{
+  margin-top:auto !important;
+}
+
+/* Keep ☰ clickable above the drawer. */
+#superAdminView .header,
+#teacherView .header{
+  position:relative !important;
+  z-index:7100 !important;
+}
+#superAdminSidebarToggle,
+#teacherSidebarToggle{
+  position:relative !important;
+  z-index:7101 !important;
+}
+
+/* Section view fills the dashboard area when a Quick Action is opened. */
+#superAdminView #superAdminSectionsContainer,
+#teacherView #teacherSectionsContainer{
+  width:100% !important;
+  min-width:0 !important;
+  margin:0 !important;
+}
+
+@media(max-width:900px){
+  #superAdminView #superAdminMainMenu,
+  #teacherView #teacherMainMenu{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  }
+}
+
+@media(max-width:560px){
+  #superAdminView .app-container,
+  #teacherView .app-container{
+    padding:0 14px 20px !important;
+  }
+
+  #superAdminView #superAdminMainMenu,
+  #teacherView #teacherMainMenu{
+    grid-template-columns:1fr !important;
+    padding:54px 12px 12px !important;
+  }
+}
+
+
+
+/* ============================================================
+   V9 — EXACT HEADTEACHER-STYLE PORTAL NAVIGATION
+   1) The BLUE portal menu is ONLY the hidden drawer.
+   2) The dashboard contains ONLY normal white Quick Action cards.
+   3) No duplicate blue MyRezultz panel on the dashboard.
+   ============================================================ */
+
+/* ---- BLUE DRAWER: ALWAYS HIDDEN UNTIL ☰ ---- */
+#superAdminView #superAdminSidebar,
+#teacherView #teacherSidebar{
+  position:fixed !important;
+  left:0 !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:min(310px,86vw) !important;
+  height:100vh !important;
+  max-height:100vh !important;
+  margin:0 !important;
+  padding:18px 12px 22px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  z-index:99990 !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  transform:translate3d(-110%,0,0) !important;
+  pointer-events:none !important;
+  border-radius:0 !important;
+  background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+  box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
+  transition:transform .22s ease,opacity .15s ease,visibility 0s linear .22s !important;
+}
+
+/* Open state — ONLY this state makes the blue drawer visible. */
+#superAdminView.portal-sidebar-open #superAdminSidebar,
+#teacherView.portal-sidebar-open #teacherSidebar{
+  visibility:visible !important;
+  opacity:1 !important;
+  transform:translate3d(0,0,0) !important;
+  pointer-events:auto !important;
+  transition:transform .22s ease,opacity .15s ease,visibility 0s !important;
+}
+
+/* ---- DASHBOARD: NORMAL QUICK-ACTION CARD PANEL ---- */
+#superAdminView #superAdminMainMenu,
+#teacherView #teacherMainMenu{
+  position:relative !important;
+  display:grid !important;
+  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+  gap:14px !important;
+  width:100% !important;
+  max-width:1180px !important;
+  min-height:0 !important;
+  height:auto !important;
+  margin:24px auto 28px !important;
+  padding:58px 16px 16px !important;
+  border:1px solid #d7e6f5 !important;
+  border-radius:14px !important;
+  background:#fff !important;
+  box-shadow:0 7px 24px rgba(15,57,105,.05) !important;
+  overflow:visible !important;
+}
+
+/* ONE heading for the card panel. */
+#superAdminView #superAdminMainMenu::before,
+#teacherView #teacherMainMenu::before{
+  position:absolute !important;
+  top:20px !important;
+  left:22px !important;
+  color:#082f68 !important;
+  font-size:20px !important;
+  font-weight:750 !importanperAdminView .app-container > #superAdminSidebar,
+#teacherView .app-container > #teacherSidebar{
+  position:fixed !important;
+  left:0 !important;
+  top:0 !important;
+  bottom:0 !important;
+  width:min(310px,86vw) !important;
+  height:100vh !important;
+  max-height:100vh !important;
+  margin:0 !important;
+  padding:18px 12px 22px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  gap:4px !important;
+  overflow-y:auto !important;
+  overflow-x:hidden !important;
+  box-sizing:border-box !important;
+  border-radius:0 !important;
+  z-index:99990 !important;
+  visibility:hidden !important;
+  opacity:0 !important;
+  transform:translate3d(-110%,0,0) !important;
+  pointer-events:none !important;
+  background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
+  box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
+  transition:transform .22s ease,opacity .15s ease,visibility 0s linear .22s !important;
+}
+
+/* Only pressing ☰ adds portal-sidebar-open. */
+#superAdminView.portal-sidebar-open .app-container > #superAdminSidebar,
+#teacherView.portal-sidebar-open .app-container > #teacherSidebar{
+  visibility:visible !important;
+  opacity:1 !important;
+  transform:translate3d(0,0,0) !important;
+  pointer-events:auto !important;
+  transition:transform .22s ease,opacity .15s ease,visibility 0s !important;
+}
+
+/* Drawer title and rows. */
+#superAdminView .app-container > #superAdminSidebar .sidebar-brand,
+#teacherView .app-container > #teacherSidebar .sidebar-brand{
+  display:flex !important;
+  align-items:center !important;
+  flex:0 0 61px !important;
+  min-height:61px !important;
+  height:61px !important;
+  margin:0 4px 12px !important;
+  padding:0 10px !important;
+  border-bottom:1px solid rgba(255,255,255,.13) !important;
+  color:#fff !important;
+  font-size:22px !important;
+  font-weight:800 !important;
+}
+
+#superAdminView .app-container > #superAdminSidebar .admin-card,
+#teacherView .app-container > #teacherSidebar .admin-card{
+  display:flex !important;
+  flex:0 0 auto !important;
+  flex-direction:row !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:12px !important;
+  width:100% !important;
+  min-height:47px !important;
+  height:47px !important;
+  margin:0 !important;
+  padding:0 12px !important;
+  border:0 !important;
+  border-radius:8px !important;
+  background:transparent !important;
+  color:#fff !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+
+#superAdminView .app-container > #superAdminSidebar .admin-card:hover,
+#teacherView .app-container > #teacherSidebar .admin-card:hover{
+  background:rgba(255,255,255,.10) !important;
+}
+
+#superAdminView .app-container > #superAdminSidebar .dashboard-nav-card,
+#teacherView .app-container > #teacherSidebar .dashboard-nav-card{
+  background:linear-gradient(90deg,#147ff4,#1269d9) !important;
+  box-shadow:0 4px 13px rgba(0,83,190,.22) !important;
+}
+
+#superAdminView .app-container > #superAdminSidebar .icon,
+#teacherView .app-container > #teacherSidebar .icon{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:28px !important;
+  min-width:28px !important;
+  height:28px !important;
+  margin:0 !important;
+  font-size:20px !important;
+}
+
+#superAdminView .app-container > #superAdminSidebar .title,
+#teacherView .app-container > #teacherSidebar .title{
+  display:block !important;
+  flex:1 !important;
+  min-width:0 !important;
+  color:#fff !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+  line-height:1.2 !important;
+}
+
+#superAdminView .app-container > #superAdminSidebar .sidebar-logout-card,
+#teacherView .app-container > #teacherSidebar .sidebar-logout-card{
+  margin-top:auto !important;
+}
+
+/* Backdrop only while drawer is open. */
+#superAdminView.portal-sidebar-open::after,
+#teacherView.portal-sidebar-open::after{
+  content:"" !important;
+  position:fixed !important;
+  inset:0 !important;
+  z-index:99980 !important;
+  background:rgba(2,31,74,.28) !important;
+  pointer-events:auto !important;
+}
+
+/* Hamburger above drawer/backdrop. */
+#superAdminView .header,
+#teacherView .header{
+  position:relative !important;
+  z-index:100001 !important;
+}
+#superAdminSidebarToggle,
+#teacherSidebarToggle{
+  position:relative !important;
+  z-index:100002 !important;
+}
+
+/* Main dashboard has no blue-menu styling or reserved sidebar width. */
+#superAdminView .app-container,
+#teacherView .app-container{
+  padding-left:22px !important;
+  padding-right:22px !important;
+}
+
+@media(max-width:900px){
+  #superAdminView .app-container > #superAdminMainMenu,
+  #teacherView .app-container > #teacherMainMenu{
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    padding:20px 14px !important;
+  }
+}
+
+@media(max-width:560px){
+  #superAdminView .app-container > #superAdminMainMenu,
+  #teacherView .app-container > #teacherMainMenu{
+    grid-template-columns:1fr !important;
+    padding:20px 12px !important;
+  }
+}
+
+
+
+/* V12 — Dashboard Quick Action opens its section full-screen */
+.portal-section-fullscreen{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:9000 !important;
+  width:100vw !important;
+  min-height:100vh !important;
+  height:100vh !important;
+  margin:0 !important;
+  padding:20px !important;
+  overflow-y:auto !important;
+  background:#f5f9fd !important;
+  box-sizing:border-box !important;
+}
+
+.portal-dashboard-hidden{
+  display:none !important;
+}
+
+.portal-section-fullscreen .section-card,
+.portal-section-fullscreen .content-card{
+  max-width:1200px !important;
+  margin-left:auto !important;
+  margin-right:auto !important;
+}
+
+
+
+/* V13 — Opened dashboard tabs replace the dashboard, full-screen. */
+#superAdminView #superAdminMainMenu.portal-dashboard-hidden,
+#teacherView #teacherMainMenu.portal-dashboard-hidden,
+#adminView #adminMainMenu.portal-dashboard-hidden{
+  display:none !important;
+}
+
+#superAdminView #superAdminSectionsContainer.portal-section-fullscreen,
+#teacherView #teacherSectionsContainer.portal-section-fullscreen,
+#adminView #adminSectionsContainer.portal-section-fullscreen{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:9000 !important;
+  display:block !important;
+  width:100vw !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  margin:0 !important;
+  padding:20px !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  box-sizing:border-box !important;
+  background:#f5f9fd !important;
+}
+
+/* Only the selected tab is visible inside the full-screen section. */
+#superAdminView #superAdminSectionsContainer .tab-pane,
+#teacherView #teacherSectionsContainer .tab-pane,
+#adminView #adminSectionsContainer .tab-pane{
+  display:none !important;
+}
+#superAdminView #superAdminSectionsContainer .tab-pane.active,
+#teacherView #teacherSectionsContainer .tab-pane.active,
+#adminView #adminSectionsContainer .tab-pane.active{
+  display:block !important;
+  width:100% !important;
+  max-width:1200px !important;
+  margin:0 auto !important;
+}
+
+/* Back button remains at the top of the full-screen section. */
+#superAdminView #superAdminSectionsContainer > .btn-secondary,
+#teacherView #teacherSectionsContainer > .btn-secondary,
+#adminView #adminSectionsContainer > .btn-secondary{
+  display:inline-flex !important;
+  position:relative !important;
+  z-index:2 !important;
+  margin:0 0 14px !important;
+}
+
+
+
+/* ============================================================
+   V14 — DEFINITIVE SECTION SWITCH
+   Existing JS sets:
+      dashboard menu       -> display:none
+      sections container   -> display:block
+   These selectors intentionally override ALL older portal CSS.
+   ============================================================ */
+
+/* OPEN SECTION: the dashboard cannot remain visible. */
+#superAdminView #superAdminMainMenu[style*="display: none"],
+#teacherView #teacherMainMenu[style*="display: none"],
+#adminView #adminMainMenu[style*="display: none"]{
+  display:none !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+  position:absolute !important;
+  width:0 !important;
+  height:0 !important;
+  overflow:hidden !important;
+}
+
+/* OPEN SECTION: make the sections container the entire viewport. */
+#superAdminView #superAdminSectionsContainer[style*="display: block"],
+#teacherView #teacherSectionsContainer[style*="display: block"],
+#adminView #adminSectionsContainer[style*="display: block"]{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:9990 !important;
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  width:100vw !important;
+  max-width:none !important;
+  min-width:0 !important;
+  height:100vh !important;
+  min-height:100vh !important;
+  margin:0 !important;
+  padding:18px !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  box-sizing:border-box !important;
+  background:#f5f9fd !important;
+}
+
+/* Do not leave any inactive tab content visible. */
+#superAdminView #superAdminSectionsContainer .tab-pane,
+#teacherView #teacherSectionsContainer .tab-pane,
+#adminView #adminSectionsContainer .tab-pane{
+  display:none !important;
+}
+#superAdminView #superAdminSectionsContainer .tab-pane.active,
+#teacherView #teacherSectionsContainer .tab-pane.active,
+#adminView #adminSectionsContainer .tab-pane.active{
+  display:block !important;
+  width:100% !important;
+  max-width:1200px !important;
+  margin:0 auto !important;
+}
+
+/* When Dashboard is selected, restore the normal dashboard and remove
+   full-screen section state. */
+#superAdminView #superAdminMainMenu:not([style*="display: none"]),
+#teacherView #teacherMainMenu:not([style*="display: none"]),
+#adminView #adminMainMenu:not([style*="display: none"]){
+  visibility:visible;
+}
+
+/* Header stays above the full-screen content so the menu/dashboard control
+   remains usable. */
+#superAdminView .header,
+#teacherView .header,
+#adminView .header{
+  position:relative !important;
+  z-index:10000 !important;
+}
+
+
+
+/* V15 — opened portal section is a true screen takeover */
+html.portal-fullscreen-active,
+body.portal-fullscreen-active{
+  width:100% !important;
+  min-width:100% !important;
+  height:100% !important;
+  min-height:100% !important;
+  overflow:hidden !important;
+}
+
+body.portal-fullscreen-active{
+  margin:0 !important;
+  padding:0 !important;
+  background:#f5f9fd !important;
+}
+
+body > #superAdminSectionsContainer.portal-section-fullscreen,
+body > #teacherSectionsContainer.portal-section-fullscreen,
+body > #adminSectionsContainer.portal-section-fullscreen{
+  position:fixed !important;
+  inset:0 !important;
+  z-index:2147483000 !important;
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100vh !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:16px !important;
+  box-sizing:border-box !important;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  background:#f5f9fd !important;
+}
+
+body > #superAdminSectionsContainer.portal-section-fullscreen > .btn-secondary,
+body > #teacherSectionsContainer.portal-section-fullscreen > .btn-secondary,
+body > #adminSectionsContainer.portal-section-fullscreen > .btn-secondary{
+  display:inline-flex !important;
+  position:relative !important;
+  z-index:2 !important;
+  margin-bottom:16px !important;
+}
+
+body > #superAdminSectionsContainer.portal-section-fullscreen .tab-pane,
+body > #teacherSectionsContainer.portal-section-fullscreen .tab-pane,
+body > #adminSectionsContainer.portal-section-fullscreen .tab-pane{
+  width:100% !important;
+  max-width:1200px !important;
+  margin:0 auto !important;
+  box-sizing:border-box !important;
+}
+
+
+
+/* V16: section is detached from dashboard and fills the viewport. */
+body > #superAdminSectionsContainer.portal-section-fullscreen,
+body > #teacherSectionsContainer.portal-section-fullscreen,
+body > #adminSectionsContainer.portal-section-fullscreen {
+  position:fixed !important;
+  inset:0 !important;
+  z-index:2147483647 !important;
+  display:block !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100vh !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:16px !important;
+  box-sizing:border-box !important;
+  overflow:auto !important;
+  background:#f5f9fd !important;
+}
+
+</style></head><body>${report.outerHTML}</body></html>`;
         }
 
         function printStudentReport() {
@@ -3783,11 +6789,17 @@
         async function listenToMarksControl() {
             db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
                 if (doc.exists) {
-                    const data = doc.data();
+                    const data = doc.data() || {};
                     const lockToggle = document.getElementById("teacherMarksToggle");
                     const publishToggle = document.getElementById("publishResultsToggle");
-                    if (lockToggle) lockToggle.checked = data.teachersCanEnter !== false;
+                    const canEnter = data.teachersCanEnter !== false;
+                    if (lockToggle) lockToggle.checked = canEnter;
                     if (publishToggle) publishToggle.checked = data.resultsPublished === true;
+                    const lockBadge = document.getElementById("lockStatusBadge");
+                    if (lockBadge) {
+                        lockBadge.className = canEnter ? "badge badge-success" : "badge badge-danger";
+                        lockBadge.textContent = canEnter ? "Enabled" : "Disabled";
+                    }
                     const publishBadge=document.getElementById("publishStatusBadge");
                     if(publishBadge){ const published=data.resultsPublished===true; publishBadge.className=published?"badge badge-success":"badge badge-danger"; publishBadge.textContent=published?"Published":"Unpublished"; }
                 }
@@ -3796,7 +6808,9 @@
 
         async function toggleMarksEntryControl(val) {
             try {
-                await db.collection("marksControls").doc(currentSchoolId).set({ teachersCanEnter: val }, { merge: true });
+                await db.collection("marksControls").doc(currentSchoolId).set({
+                    teachersCanEnter: val
+                }, { merge: true });
             } catch (e) {
                 alert("Error updating entry status.");
             }
@@ -3816,7 +6830,11 @@
             const deadlineDate = new Date();
             deadlineDate.setDate(deadlineDate.getDate() + Number(days));
             try {
-                await db.collection("marksControls").doc(currentSchoolId).set({ deadline: firebase.firestore.Timestamp.fromDate(deadlineDate) }, { merge: true });
+                await db.collection("marksControls").doc(currentSchoolId).set({
+                    deadline: firebase.firestore.Timestamp.fromDate(deadlineDate),
+                    deadlineExpired: false,
+                    teachersCanEnter: true
+                }, { merge: true });
                 alert("Marks entry deadline saved successfully!");
             } catch (e) {
                 alert("Error saving deadline.");
@@ -3856,12 +6874,41 @@
             }
         }
 
-        function openTeacherMarksEntry(className, subjectName) {
+        async function openTeacherMarksEntry(className, subjectName) {
             selectedTeacherClass = className;
             selectedTeacherSubject = subjectName;
             document.getElementById("selectedClassNameHeading").textContent = `Class: ${className} | Subject: ${subjectName}`;
             openTeacherSection('tTabClassActions');
-            loadTeacherExamDropdown();
+            await loadTeacherExamDropdown();
+            try {
+                const controlSnap = await db.collection('marksControls').doc(currentSchoolId).get();
+                const data = controlSnap.exists ? (controlSnap.data() || {}) : {};
+                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
+                const expired = deadline && new Date() >= deadline;
+                const allowed = data.teachersCanEnter !== false;
+                if (expired && data.deadlineExpired !== true && allowed) {
+                    await db.collection('marksControls').doc(currentSchoolId).set({ teachersCanEnter: false, deadlineExpired: true }, { merge: true });
+                    showTeacherMarksLocked('Marks Entry Deadline Passed');
+                    return;
+                }
+                if (expired && !allowed) {
+                    showTeacherMarksLocked('Marks Entry Deadline Passed');
+                } else if (!allowed) {
+                    showTeacherMarksLocked('Marks entry is currently disabled by the Headteacher');
+                }
+            } catch (e) {
+                console.error('Marks control check error:', e);
+            }
+        }
+
+        function showTeacherMarksLocked(message) {
+            const promptBox = document.getElementById('examPromptBox');
+            const formSection = document.getElementById('teacherMarksFormSection');
+            if (promptBox) {
+                promptBox.style.display = 'block';
+                promptBox.innerHTML = `<strong style="color:#b91c1c;">${message}</strong><br>Marks entry is not available until the Headteacher enables it again.`;
+            }
+            if (formSection) formSection.style.display = 'none';
         }
 
         async function loadTeacherExamDropdown() {
@@ -3884,6 +6931,24 @@
                 promptBox.style.display = "block";
                 formSection.style.display = "none";
                 return;
+            }
+            try {
+                const controlSnap = await db.collection('marksControls').doc(currentSchoolId).get();
+                const data = controlSnap.exists ? (controlSnap.data() || {}) : {};
+                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
+                const expired = deadline && new Date() >= deadline;
+                const allowed = data.teachersCanEnter !== false;
+                if (expired && allowed) {
+                    await db.collection('marksControls').doc(currentSchoolId).set({ teachersCanEnter: false, deadlineExpired: true }, { merge: true });
+                    showTeacherMarksLocked('Marks Entry Deadline Passed');
+                    return;
+                }
+                if (!allowed) {
+                    showTeacherMarksLocked(expired ? 'Marks Entry Deadline Passed' : 'Marks entry is currently disabled by the Headteacher');
+                    return;
+                }
+            } catch (e) {
+                console.error('Marks control check error:', e);
             }
             promptBox.style.display = "none";
             formSection.style.display = "block";
@@ -3932,6 +6997,23 @@
         async function saveTeacherMarks() {
             const examName = document.getElementById("examSelect").value;
             if (!examName) return;
+            try {
+                const controlSnap = await db.collection('marksControls').doc(currentSchoolId).get();
+                const data = controlSnap.exists ? (controlSnap.data() || {}) : {};
+                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
+                if (deadline && new Date() >= deadline && data.teachersCanEnter !== true) {
+                    await db.collection('marksControls').doc(currentSchoolId).set({ teachersCanEnter: false, deadlineExpired: true }, { merge: true });
+                    showTeacherMarksLocked('Marks Entry Deadline Passed');
+                    return;
+                }
+                if (data.teachersCanEnter === false) {
+                    showTeacherMarksLocked('Marks entry is currently disabled by the Headteacher');
+                    return;
+                }
+            } catch (e) {
+                alert('Could not verify marks-entry status: ' + e.message);
+                return;
+            }
             const inputs = document.querySelectorAll(".teacher-score-input");
             
             try {
@@ -3963,29 +7045,43 @@
         }
 
         async function listenToTeacherDeadline() {
-            db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
-                if (doc.exists && doc.data().deadline) {
-                    const deadline = doc.data().deadline.toDate();
-                    const banner = document.getElementById("teacherDeadlineBanner");
-                    const countdown = document.getElementById("teacherDeadlineCountdown");
-                    banner.style.display = "flex";
-                    
-                    if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-                    countdownTimerInterval = setInterval(() => {
-                        const now = new Date();
-                        const diff = deadline - now;
-                        if (diff <= 0) {
-                            countdown.textContent = "Marks Entry Deadline Passed";
-                            clearInterval(countdownTimerInterval);
-                        } else {
-                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                            countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
+            db.collection("marksControls").doc(currentSchoolId).onSnapshot(async doc => {
+                if (!doc.exists) return;
+                const data = doc.data() || {};
+                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
+                if (!deadline) return;
+                const banner = document.getElementById("teacherDeadlineBanner");
+                const countdown = document.getElementById("teacherDeadlineCountdown");
+                banner.style.display = "flex";
+                if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+
+                const updateDeadlineState = async () => {
+                    const now = new Date();
+                    const diff = deadline - now;
+                    if (diff <= 0) {
+                        countdown.textContent = "Marks Entry Deadline Passed";
+                        clearInterval(countdownTimerInterval);
+                        if (data.deadlineExpired !== true && data.teachersCanEnter !== false) {
+                            try {
+                                await db.collection("marksControls").doc(currentSchoolId).set({
+                                    teachersCanEnter: false,
+                                    deadlineExpired: true
+                                }, { merge: true });
+                            } catch (e) { console.error('Deadline lock error:', e); }
                         }
-                    }, 1000);
-                }
+                        if (data.teachersCanEnter === false || data.deadlineExpired === true) {
+                            showTeacherMarksLocked('Marks Entry Deadline Passed');
+                        }
+                    } else {
+                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                        countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
+                    }
+                };
+                await updateDeadlineState();
+                if (deadline > new Date()) countdownTimerInterval = setInterval(updateDeadlineState, 1000);
             });
         }
 
@@ -4598,7 +7694,203 @@
 
             setTimeout(check, 3000);
         }
-    </script>
+    
+
+/* ============================================================
+   PICTURE-STYLE DASHBOARD BEHAVIOR
+   ============================================================ */
+(function(){
+    const originalOpenAdminSection = window.openAdminSection;
+    const originalCloseAdminSection = window.closeAdminSection;
+
+    function setPictureDashboardVisible(show){
+        const dash = document.getElementById("pictureAdminDashboard");
+        const sections = document.getElementById("adminSectionsContainer");
+        if(dash) dash.classList.toggle("is-hidden", !show);
+        if(sections) sections.classList.toggle("picture-section-open", !show);
+    }
+
+    window.showAdminDashboard = function(){
+        setPictureDashboardVisible(true);
+        const app = document.querySelector("#adminView .app-container");
+        if(app && window.innerWidth <= 900){
+            app.classList.remove("picture-sidebar-open");
+        }
+        const sections = document.getElementById("adminSectionsContainer");
+        const menu = document.getElementById("adminMainMenu");
+        if(sections){
+            sections.style.display = "none";
+            sections.classList.remove("picture-section-open");
+            sections.querySelectorAll(".tab-pane").forEach(el=>el.classList.remove("active"));
+        }
+        if(menu) menu.style.display = "flex";
+        refreshPictureDashboardStats();
+    };
+
+    window.openAdminSection = function(tabId){
+        setPictureDashboardVisible(false);
+
+        const app = document.querySelector("#adminView .app-container");
+        if(app && window.innerWidth <= 900){
+            app.classList.remove("picture-sidebar-open");
+        }
+
+        const menu = document.getElementById("adminMainMenu");
+        const sections = document.getElementById("adminSectionsContainer");
+        if(menu) menu.style.display = "flex";
+        if(sections){ sections.style.display = "block"; sections.classList.add("picture-section-open"); }
+
+        if(sections){
+            sections.querySelectorAll(".tab-pane").forEach(el=>el.classList.remove("active"));
+            const target = document.getElementById(tabId);
+            if(target) target.classList.add("active");
+        }
+
+        /* Keep every original section-specific loader working. */
+        if(tabId === "tabLogo" && typeof loadSchoolLogoPreview === "function") loadSchoolLogoPreview();
+        if(tabId === "tabManuals" && typeof loadManuals === "function") loadManuals("adminManualsContainer");
+        if(tabId === "tabAnnouncements" && typeof loadAnnouncements === "function") loadAnnouncements("adminAnnouncementsContainer");
+    };
+
+    window.closeAdminSection = function(){
+        window.showAdminDashboard();
+    };
+
+    window.togglePictureSidebar = function(){
+        const app = document.querySelector("#adminView .app-container");
+        if(!app) return;
+        if(window.innerWidth <= 900){
+            app.classList.toggle("picture-sidebar-open");
+        } else {
+            app.classList.toggle("picture-sidebar-hidden");
+        }
+    };
+
+    async function refreshPictureDashboardStats(){
+        const schoolNameEl = document.getElementById("pictureSchoolName");
+        const welcomeNameEl = document.getElementById("pictureAdminWelcomeName");
+        const schoolTitle = document.getElementById("adminSchoolTitle");
+        const adminName = document.getElementById("adminNameDisplay");
+
+        if(schoolNameEl) schoolNameEl.textContent = window.currentSchoolName || (schoolTitle && schoolTitle.textContent) || "School";
+        if(welcomeNameEl){
+            const n = adminName && adminName.textContent ? adminName.textContent : "Admin";
+            welcomeNameEl.textContent = n.replace(/^Administrator$/i,"Admin");
+        }
+
+        const countdownSource = document.getElementById("paymentTimerCountdown");
+        const countdownTarget = document.getElementById("pictureDeadlineCountdown");
+
+        const syncCountdown = ()=>{
+            if(countdownTarget && countdownSource){
+                const text = (countdownSource.textContent || "").trim();
+                countdownTarget.textContent = text || "Deadline active";
+            }
+        };
+        syncCountdown();
+        if(countdownSource && !countdownSource.__pictureObserver){
+            const obs = new MutationObserver(syncCountdown);
+            obs.observe(countdownSource,{childList:true,subtree:true,characterData:true});
+            countdownSource.__pictureObserver = obs;
+        }
+
+        const schoolCount = document.getElementById("pictureSchoolCount");
+        const teacherCount = document.getElementById("pictureTeacherCount");
+        const studentCount = document.getElementById("pictureStudentCount");
+        const classCount = document.getElementById("pictureClassCount");
+
+        if(schoolCount) schoolCount.textContent = currentSchoolId ? "1" : "0";
+        if(!currentSchoolId || typeof db === "undefined") return;
+
+        try{
+            const results = await Promise.all([
+                db.collection("users").where("schoolId","==",currentSchoolId).where("role","==","teacher").get(),
+                db.collection("students").where("schoolId","==",currentSchoolId).get(),
+                db.collection("classes").where("schoolId","==",currentSchoolId).get()
+            ]);
+
+            if(teacherCount) teacherCount.textContent = results[0].size;
+            if(studentCount) studentCount.textContent = results[1].size;
+            if(classCount) classCount.textContent = results[2].size;
+
+            const recent = document.getElementById("pictureRecentActivityList");
+            if(recent){
+                const teacherN = results[0].size;
+                const studentN = results[1].size;
+                const classN = results[2].size;
+                recent.innerHTML = `
+                    <div class="picture-activity-item">
+                      <span class="activity-dot green">+</span>
+                      <div><strong>${teacherN} Registered Teacher${teacherN===1?"":"s"}</strong><small>Teachers in this school</small></div>
+                    </div>
+                    <div class="picture-activity-item">
+                      <span class="activity-dot blue">●</span>
+                      <div><strong>${studentN} Registered Student${studentN===1?"":"s"}</strong><small>Students in this school</small></div>
+                    </div>
+                    <div class="picture-activity-item">
+                      <span class="activity-dot purple">▤</span>
+                      <div><strong>${classN} Class${classN===1?"":"es"}</strong><small>Classes currently registered</small></div>
+                    </div>`;
+            }
+        }catch(e){
+            console.warn("Picture dashboard statistics could not be loaded:", e);
+        }
+    }
+
+    window.refreshPictureDashboardStats = refreshPictureDashboardStats;
+
+    /* Re-sync whenever the existing app displays the admin view. */
+    const oldShowView = window.showView;
+    if(typeof oldShowView === "function"){
+        window.showView = function(viewId){
+            const result = oldShowView.apply(this,arguments);
+            if(viewId === "adminView"){
+                setTimeout(()=>{
+                    const dash = document.getElementById("pictureAdminDashboard");
+                    const sections = document.getElementById("adminSectionsContainer");
+                    if(dash && (!sections || sections.style.display === "none")) dash.classList.remove("is-hidden");
+                    refreshPictureDashboardStats();
+                },120);
+            }
+            return result;
+        };
+    }
+})();
+
+
+/* FINAL UPDATE: MIRROR EVERY ADMIN TAB INTO QUICK ACTIONS */
+(function(){
+  function populatePictureAllTabs(){
+    const target=document.getElementById('pictureAllTabs');
+    const menu=document.getElementById('adminMainMenu');
+    if(!target || !menu) return;
+    target.innerHTML='';
+    const cards=menu.querySelectorAll('.admin-card[onclick]');
+    cards.forEach((card,i)=>{
+      const raw=card.getAttribute('onclick')||'';
+      const m=raw.match(/openAdminSection\(['"]([^'"]+)['"]\)/);
+      if(!m) return;
+      const b=document.createElement('button');
+      b.type='button'; b.className='picture-action';
+      const icon=document.createElement('span');
+      icon.className='picture-action-icon '+(['blue','green','purple','orange','cyan','red'][i%6]);
+      const src=card.querySelector('.icon'); icon.textContent=src?src.textContent.trim():'▣';
+      const title=document.createElement('span'); title.className='picture-action-title';
+      const srcTitle=card.querySelector('.title'); title.textContent=srcTitle?srcTitle.textContent.replace(/\s+/g,' ').trim():m[1];
+      const arrow=document.createElement('b'); arrow.textContent='›';
+      b.append(icon,title,arrow);
+      b.addEventListener('click',()=>{ if(typeof window.openAdminSection==='function') window.openAdminSection(m[1]); });
+      target.appendChild(b);
+    });
+  }
+  window.populatePictureAllTabs=populatePictureAllTabs;
+  document.addEventListener('DOMContentLoaded',()=>{setTimeout(populatePictureAllTabs,100);setTimeout(populatePictureAllTabs,700);});
+  setTimeout(populatePictureAllTabs,300);
+  const oldShow=window.showAdminDashboard;
+  if(typeof oldShow==='function') window.showAdminDashboard=function(){const r=oldShow.apply(this,arguments);setTimeout(populatePictureAllTabs,50);return r;};
+})();
+
+</script>
     <div id="portalNotificationOverlay" class="portal-notification-overlay">
         <div class="portal-notification-box">
             <div id="portalNotificationIcon" style="font-size:42px; margin-bottom:8px;">🔔</div>
@@ -4610,5 +7902,9 @@
             </div>
         </div>
     </div>
+
+
+
+
 </body>
 </html>
