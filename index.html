@@ -2199,43 +2199,28 @@ body{
   }
 }
 
-</style>
 
-<style id="requested-card-only-fixes">
-/* ONLY REQUESTED FIXES: restore 2-column cards + larger/bolder card names in all 3 portals. */
-#adminView #pictureAllTabs,
-#teacherView #teacherMainMenu,
-#superAdminView #superAdminMainMenu {
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
+
+/* Fix: keep Logout clearly visible in Teacher and Super Admin sidebars. */
+#teacherView #teacherSidebar .sidebar-logout-card,
+#superAdminView #superAdminSidebar .sidebar-logout-card{
+  display:flex !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  flex:0 0 auto !important;
+  width:100% !important;
+  min-height:48px !important;
+  margin-top:auto !important;
+  color:#fff !important;
+  cursor:pointer !important;
+  background:rgba(255,255,255,.08) !important;
+}
+#teacherView #teacherSidebar .sidebar-logout-card .title,
+#superAdminView #superAdminSidebar .sidebar-logout-card .title{
+  display:block !important; color:#fff !important; font-weight:700 !important;
 }
 
-#adminView #pictureAllTabs .picture-action,
-#teacherView #teacherMainMenu .picture-action,
-#superAdminView #superAdminMainMenu .picture-action {
-  min-width:0 !important;
-}
-
-#adminView #pictureAllTabs .picture-action-title,
-#teacherView #teacherMainMenu .picture-action-title,
-#superAdminView #superAdminMainMenu .picture-action-title {
-  font-weight:800 !important;
-  font-size:15px !important;
-}
-
-/* Headteacher sidebar had two Logout cards; keep one only. */
-#adminView #adminMainMenu .sidebar-logout-card {
-  display:none !important;
-}
-
-@media (max-width:560px){
-  #adminView #pictureAllTabs,
-  #teacherView #teacherMainMenu,
-  #superAdminView #superAdminMainMenu {
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  }
-}
 </style>
 </head>
 <body>
@@ -3972,18 +3957,6 @@ body{
             }
         }
 
-        async function deleteAnnouncement(announcementId) {
-            if (!announcementId) return;
-            if (!confirm('Delete this announcement/update?')) return;
-            try {
-                await db.collection('announcements').doc(announcementId).delete();
-                await loadAnnouncements('superAdminAnnouncementsContainer', true);
-                updateAnnouncementBadges();
-            } catch (err) {
-                alert('Could not delete the announcement: ' + err.message);
-            }
-        }
-
         function announcementLabel(type) {
             return String(type || '').toLowerCase() === 'update' ? 'New Update' : 'Portal Announcement';
         }
@@ -4020,7 +3993,6 @@ body{
                         `<h4>${announcementIcon(type)} ${esc(announcementLabel(type))}: ${esc(d.title || '')}</h4>` +
                         `<div class="announcement-meta">${esc(formatAnnouncementDate(d.createdAt))}</div>` +
                         `<div style="white-space:pre-wrap; color:#334155; line-height:1.6;">${esc(d.message || '')}</div>` +
-                        (includeAllForSuperAdmin ? `<button type="button" class="btn-danger" style="margin-top:12px;" onclick="deleteAnnouncement('${doc.id}')">Delete</button>` : '') +
                         `</div>`;
                 });
                 container.innerHTML = html;
@@ -5307,7 +5279,43 @@ body > #adminSectionsContainer.portal-section-fullscreen {
   background:#f5f9fd !important;
 }
 
-</style></head><body>${report.outerHTML}</body></html>`;
+</style></head><body>${report.outerHTML}
+
+<style id="restore-card-title-and-two-column-layout">
+/* Restore the requested card typography and two-column dashboard layout. */
+#adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
+#adminMainMenu.portal-dashboard-quick-actions,
+#teacherMainMenu.portal-dashboard-quick-actions,
+#superAdminMainMenu.portal-dashboard-quick-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+#adminMainMenu .picture-action-title,
+#teacherMainMenu .picture-action-title,
+#superAdminMainMenu .picture-action-title,
+#pictureAllTabs .picture-action-title {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+#adminMainMenu .admin-card .title,
+#teacherMainMenu .admin-card .title,
+#superAdminMainMenu .admin-card .title {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
+@media (max-width: 560px) {
+  #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
+  #adminMainMenu.portal-dashboard-quick-actions,
+  #teacherMainMenu.portal-dashboard-quick-actions,
+  #superAdminMainMenu.portal-dashboard-quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+</style>
+
+</body></html>`;
         }
 
         function printStudentReport() {
@@ -6789,17 +6797,11 @@ body > #adminSectionsContainer.portal-section-fullscreen {
         async function listenToMarksControl() {
             db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
                 if (doc.exists) {
-                    const data = doc.data() || {};
+                    const data = doc.data();
                     const lockToggle = document.getElementById("teacherMarksToggle");
                     const publishToggle = document.getElementById("publishResultsToggle");
-                    const canEnter = data.teachersCanEnter !== false;
-                    if (lockToggle) lockToggle.checked = canEnter;
+                    if (lockToggle) lockToggle.checked = data.teachersCanEnter !== false;
                     if (publishToggle) publishToggle.checked = data.resultsPublished === true;
-                    const lockBadge = document.getElementById("lockStatusBadge");
-                    if (lockBadge) {
-                        lockBadge.className = canEnter ? "badge badge-success" : "badge badge-danger";
-                        lockBadge.textContent = canEnter ? "Enabled" : "Disabled";
-                    }
                     const publishBadge=document.getElementById("publishStatusBadge");
                     if(publishBadge){ const published=data.resultsPublished===true; publishBadge.className=published?"badge badge-success":"badge badge-danger"; publishBadge.textContent=published?"Published":"Unpublished"; }
                 }
@@ -6808,9 +6810,7 @@ body > #adminSectionsContainer.portal-section-fullscreen {
 
         async function toggleMarksEntryControl(val) {
             try {
-                await db.collection("marksControls").doc(currentSchoolId).set({
-                    teachersCanEnter: val
-                }, { merge: true });
+                await db.collection("marksControls").doc(currentSchoolId).set({ teachersCanEnter: val }, { merge: true });
             } catch (e) {
                 alert("Error updating entry status.");
             }
@@ -6830,11 +6830,7 @@ body > #adminSectionsContainer.portal-section-fullscreen {
             const deadlineDate = new Date();
             deadlineDate.setDate(deadlineDate.getDate() + Number(days));
             try {
-                await db.collection("marksControls").doc(currentSchoolId).set({
-                    deadline: firebase.firestore.Timestamp.fromDate(deadlineDate),
-                    deadlineExpired: false,
-                    teachersCanEnter: true
-                }, { merge: true });
+                await db.collection("marksControls").doc(currentSchoolId).set({ deadline: firebase.firestore.Timestamp.fromDate(deadlineDate) }, { merge: true });
                 alert("Marks entry deadline saved successfully!");
             } catch (e) {
                 alert("Error saving deadline.");
@@ -6874,41 +6870,12 @@ body > #adminSectionsContainer.portal-section-fullscreen {
             }
         }
 
-        async function openTeacherMarksEntry(className, subjectName) {
+        function openTeacherMarksEntry(className, subjectName) {
             selectedTeacherClass = className;
             selectedTeacherSubject = subjectName;
             document.getElementById("selectedClassNameHeading").textContent = `Class: ${className} | Subject: ${subjectName}`;
             openTeacherSection('tTabClassActions');
-            await loadTeacherExamDropdown();
-            try {
-                const controlSnap = await db.collection('marksControls').doc(currentSchoolId).get();
-                const data = controlSnap.exists ? (controlSnap.data() || {}) : {};
-                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
-                const expired = deadline && new Date() >= deadline;
-                const allowed = data.teachersCanEnter !== false;
-                if (expired && data.deadlineExpired !== true && allowed) {
-                    await db.collection('marksControls').doc(currentSchoolId).set({ teachersCanEnter: false, deadlineExpired: true }, { merge: true });
-                    showTeacherMarksLocked('Marks Entry Deadline Passed');
-                    return;
-                }
-                if (expired && !allowed) {
-                    showTeacherMarksLocked('Marks Entry Deadline Passed');
-                } else if (!allowed) {
-                    showTeacherMarksLocked('Marks entry is currently disabled by the Headteacher');
-                }
-            } catch (e) {
-                console.error('Marks control check error:', e);
-            }
-        }
-
-        function showTeacherMarksLocked(message) {
-            const promptBox = document.getElementById('examPromptBox');
-            const formSection = document.getElementById('teacherMarksFormSection');
-            if (promptBox) {
-                promptBox.style.display = 'block';
-                promptBox.innerHTML = `<strong style="color:#b91c1c;">${message}</strong><br>Marks entry is not available until the Headteacher enables it again.`;
-            }
-            if (formSection) formSection.style.display = 'none';
+            loadTeacherExamDropdown();
         }
 
         async function loadTeacherExamDropdown() {
@@ -6931,24 +6898,6 @@ body > #adminSectionsContainer.portal-section-fullscreen {
                 promptBox.style.display = "block";
                 formSection.style.display = "none";
                 return;
-            }
-            try {
-                const controlSnap = await db.collection('marksControls').doc(currentSchoolId).get();
-                const data = controlSnap.exists ? (controlSnap.data() || {}) : {};
-                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
-                const expired = deadline && new Date() >= deadline;
-                const allowed = data.teachersCanEnter !== false;
-                if (expired && allowed) {
-                    await db.collection('marksControls').doc(currentSchoolId).set({ teachersCanEnter: false, deadlineExpired: true }, { merge: true });
-                    showTeacherMarksLocked('Marks Entry Deadline Passed');
-                    return;
-                }
-                if (!allowed) {
-                    showTeacherMarksLocked(expired ? 'Marks Entry Deadline Passed' : 'Marks entry is currently disabled by the Headteacher');
-                    return;
-                }
-            } catch (e) {
-                console.error('Marks control check error:', e);
             }
             promptBox.style.display = "none";
             formSection.style.display = "block";
@@ -6997,23 +6946,6 @@ body > #adminSectionsContainer.portal-section-fullscreen {
         async function saveTeacherMarks() {
             const examName = document.getElementById("examSelect").value;
             if (!examName) return;
-            try {
-                const controlSnap = await db.collection('marksControls').doc(currentSchoolId).get();
-                const data = controlSnap.exists ? (controlSnap.data() || {}) : {};
-                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
-                if (deadline && new Date() >= deadline && data.teachersCanEnter !== true) {
-                    await db.collection('marksControls').doc(currentSchoolId).set({ teachersCanEnter: false, deadlineExpired: true }, { merge: true });
-                    showTeacherMarksLocked('Marks Entry Deadline Passed');
-                    return;
-                }
-                if (data.teachersCanEnter === false) {
-                    showTeacherMarksLocked('Marks entry is currently disabled by the Headteacher');
-                    return;
-                }
-            } catch (e) {
-                alert('Could not verify marks-entry status: ' + e.message);
-                return;
-            }
             const inputs = document.querySelectorAll(".teacher-score-input");
             
             try {
@@ -7045,43 +6977,29 @@ body > #adminSectionsContainer.portal-section-fullscreen {
         }
 
         async function listenToTeacherDeadline() {
-            db.collection("marksControls").doc(currentSchoolId).onSnapshot(async doc => {
-                if (!doc.exists) return;
-                const data = doc.data() || {};
-                const deadline = data.deadline && data.deadline.toDate ? data.deadline.toDate() : null;
-                if (!deadline) return;
-                const banner = document.getElementById("teacherDeadlineBanner");
-                const countdown = document.getElementById("teacherDeadlineCountdown");
-                banner.style.display = "flex";
-                if (countdownTimerInterval) clearInterval(countdownTimerInterval);
-
-                const updateDeadlineState = async () => {
-                    const now = new Date();
-                    const diff = deadline - now;
-                    if (diff <= 0) {
-                        countdown.textContent = "Marks Entry Deadline Passed";
-                        clearInterval(countdownTimerInterval);
-                        if (data.deadlineExpired !== true && data.teachersCanEnter !== false) {
-                            try {
-                                await db.collection("marksControls").doc(currentSchoolId).set({
-                                    teachersCanEnter: false,
-                                    deadlineExpired: true
-                                }, { merge: true });
-                            } catch (e) { console.error('Deadline lock error:', e); }
+            db.collection("marksControls").doc(currentSchoolId).onSnapshot(doc => {
+                if (doc.exists && doc.data().deadline) {
+                    const deadline = doc.data().deadline.toDate();
+                    const banner = document.getElementById("teacherDeadlineBanner");
+                    const countdown = document.getElementById("teacherDeadlineCountdown");
+                    banner.style.display = "flex";
+                    
+                    if (countdownTimerInterval) clearInterval(countdownTimerInterval);
+                    countdownTimerInterval = setInterval(() => {
+                        const now = new Date();
+                        const diff = deadline - now;
+                        if (diff <= 0) {
+                            countdown.textContent = "Marks Entry Deadline Passed";
+                            clearInterval(countdownTimerInterval);
+                        } else {
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                            countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
                         }
-                        if (data.teachersCanEnter === false || data.deadlineExpired === true) {
-                            showTeacherMarksLocked('Marks Entry Deadline Passed');
-                        }
-                    } else {
-                        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                        countdown.textContent = `Marks Entry Closes in: ${days}d ${hours}hrs ${minutes}min ${seconds}sec`;
-                    }
-                };
-                await updateDeadlineState();
-                if (deadline > new Date()) countdownTimerInterval = setInterval(updateDeadlineState, 1000);
+                    }, 1000);
+                }
             });
         }
 
@@ -7905,6 +7823,42 @@ body > #adminSectionsContainer.portal-section-fullscreen {
 
 
 
+
+
+
+<style id="restore-card-title-and-two-column-layout">
+/* Restore the requested card typography and two-column dashboard layout. */
+#adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
+#adminMainMenu.portal-dashboard-quick-actions,
+#teacherMainMenu.portal-dashboard-quick-actions,
+#superAdminMainMenu.portal-dashboard-quick-actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+}
+#adminMainMenu .picture-action-title,
+#teacherMainMenu .picture-action-title,
+#superAdminMainMenu .picture-action-title,
+#pictureAllTabs .picture-action-title {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  line-height: 1.25 !important;
+}
+#adminMainMenu .admin-card .title,
+#teacherMainMenu .admin-card .title,
+#superAdminMainMenu .admin-card .title {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+}
+@media (max-width: 560px) {
+  #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
+  #adminMainMenu.portal-dashboard-quick-actions,
+  #teacherMainMenu.portal-dashboard-quick-actions,
+  #superAdminMainMenu.portal-dashboard-quick-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+</style>
 
 </body>
 </html>
