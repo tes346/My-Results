@@ -2333,6 +2333,34 @@ body{
 }
 </style>
 
+
+
+<style id="myrezultz-pending-verification-and-navigation-fix">
+/* Pending school accounts must see only the verification notice. */
+#adminView.school-pending-verification #pendingVerificationNotice {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99998 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  margin: 0 !important;
+  padding: 28px !important;
+  box-sizing: border-box !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: #f4f7fb !important;
+}
+#schoolDetailsModal {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+}
+</style>
 </head>
 <body>
 
@@ -3579,11 +3607,45 @@ body{
             authMsg.textContent = msg;
         }
 
+        let myRezultzHandlingPopState = false;
         function showView(viewId) {
             document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active'));
             const activeView = document.getElementById(viewId);
             if (activeView) activeView.classList.add('active');
+            if (!myRezultzHandlingPopState && viewId && history.state?.myRezultzView !== viewId) {
+                history.pushState({ ...(history.state || {}), myRezultzView: viewId, myRezultzSection: false }, "", location.href);
+            }
         }
+
+        function myRezultzPushSectionState(viewId, tabId) {
+            if (!myRezultzHandlingPopState) {
+                history.pushState({ ...(history.state || {}), myRezultzView: viewId, myRezultzSection: tabId }, "", location.href);
+            }
+        }
+
+        window.addEventListener("popstate", function () {
+            myRezultzHandlingPopState = true;
+            try {
+                const activeView = document.querySelector(".view-screen.active");
+                if (!activeView) return;
+                const id = activeView.id;
+                const sectionContainer = id === "adminView" ? document.getElementById("adminSectionsContainer")
+                    : id === "teacherView" ? document.getElementById("teacherSectionsContainer")
+                    : id === "superAdminView" ? document.getElementById("superAdminSectionsContainer") : null;
+                const sectionOpen = sectionContainer && sectionContainer.querySelector(".tab-pane.active");
+                if (sectionOpen) {
+                    if (id === "adminView" && typeof closeAdminSection === "function") closeAdminSection();
+                    else if (id === "teacherView" && typeof closeTeacherSection === "function") closeTeacherSection();
+                    else if (id === "superAdminView" && typeof closeSuperAdminSection === "function") closeSuperAdminSection();
+                    history.replaceState({ ...(history.state || {}), myRezultzView: id, myRezultzSection: false }, "", location.href);
+                } else if (id !== "authView") {
+                    showView("authView");
+                    history.replaceState({ ...(history.state || {}), myRezultzView: "authView", myRezultzSection: false }, "", location.href);
+                }
+            } finally {
+                myRezultzHandlingPopState = false;
+            }
+        });
 
         function setAuthMode(mode) {
             currentAuthMode = mode;
@@ -3705,6 +3767,7 @@ body{
             const target = document.getElementById(tabId);
 
             if (!view || !sections || !target) return;
+            myRezultzPushSectionState("adminView", tabId);
 
             /* Remember the original location once. */
             if (!sections.__portalPlaceholder) {
@@ -3820,6 +3883,7 @@ body{
             const target = document.getElementById(tabId);
 
             if (!view || !sections || !target) return;
+            myRezultzPushSectionState("teacherView", tabId);
 
             /* Remember the original location once. */
             if (!sections.__portalPlaceholder) {
@@ -3934,6 +3998,7 @@ body{
             const target = document.getElementById(tabId);
 
             if (!view || !sections || !target) return;
+            myRezultzPushSectionState("superAdminView", tabId);
 
             /* Remember the original location once. */
             if (!sections.__portalPlaceholder) {
@@ -4275,10 +4340,14 @@ body{
                                     currentOpeningDate = schoolData.openingDate || "N/A";
                                     document.getElementById("adminSchoolTitle").textContent = currentSchoolName;
                                     
-                                    if(!schoolData.verified) {
+                                    const adminViewEl = document.getElementById("adminView");
+                                    if (!schoolData.verified) {
+                                        adminViewEl.classList.add("school-pending-verification");
                                         document.getElementById("adminMainMenu").style.display = "none";
                                         document.getElementById("pendingVerificationNotice").style.display = "block";
+                                        // Keep pending schools out of every dashboard feature until Super Admin approval.
                                     } else {
+                                        adminViewEl.classList.remove("school-pending-verification");
                                         document.getElementById("pendingVerificationNotice").style.display = "none";
                                         document.getElementById("adminMainMenu").style.display = "grid";
                                     }
@@ -4289,16 +4358,23 @@ body{
                                         logoImg.style.display = "block";
                                     }
                                 }
-                                loadGradingSystem();
+                                if (schoolDoc.exists && schoolDoc.data().verified === true) {
+                                    loadGradingSystem();
+                                    fetchSchoolPaymentStatus();
+                                    populateAllDropdowns();
+                                    loadTermsYearList();
+                                    loadExamTypesList();
+                                    listenToMarksControl();
+                                }
                             }
-                            fetchSchoolPaymentStatus();
-                            populateAllDropdowns();
-                            loadTermsYearList();
-                            loadExamTypesList();
-                            listenToMarksControl();
                             showView("adminView");
-                            setTimeout(() => { if (typeof showAdminDashboard === "function") showAdminDashboard(); }, 150);
-                            initializePortalAnnouncements();
+                            setTimeout(() => {
+                                const schoolPending = document.getElementById("adminView")?.classList.contains("school-pending-verification");
+                                if (!schoolPending && typeof showAdminDashboard === "function") showAdminDashboard();
+                            }, 150);
+                            if (!document.getElementById("adminView")?.classList.contains("school-pending-verification")) {
+                                initializePortalAnnouncements();
+                            }
                         } else if (userData.role === "teacher") {
                             document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
                             currentSchoolId = userData.schoolId || "";
@@ -6824,6 +6900,12 @@ body > #adminSectionsContainer.portal-section-fullscreen {
         }
 
         async function viewSchoolDetails(schoolId) {
+            const detailsModal = document.getElementById("schoolDetailsModal");
+            if (detailsModal) {
+                detailsModal.style.setProperty("display", "flex", "important");
+                detailsModal.style.setProperty("position", "fixed", "important");
+                detailsModal.style.setProperty("z-index", "99999", "important");
+            }
             try {
                 const doc = await db.collection("schools").doc(schoolId).get();
                 if (!doc.exists) return;
@@ -6882,7 +6964,8 @@ body > #adminSectionsContainer.portal-section-fullscreen {
                         alert("Error removing school: " + (err.message || "Please check your connection and permissions."));
                     }
                 };
-                document.getElementById("schoolDetailsModal").style.display = "flex";
+                document.getElementById("schoolDetailsModal").style.setProperty("display", "flex", "important");
+                document.getElementById("schoolDetailsModal").style.setProperty("z-index", "99999", "important");
             } catch (e) {
                 alert("Error loading school details.");
             }
