@@ -2199,29 +2199,140 @@ body{
   }
 }
 
-
-
-/* Fix: keep Logout clearly visible in Teacher and Super Admin sidebars. */
-#teacherView #teacherSidebar .sidebar-logout-card,
-#superAdminView #superAdminSidebar .sidebar-logout-card{
-  display:flex !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  pointer-events:auto !important;
-  flex:0 0 auto !important;
-  width:100% !important;
-  min-height:48px !important;
-  margin-top:auto !important;
-  color:#fff !important;
-  cursor:pointer !important;
-  background:rgba(255,255,255,.08) !important;
-}
-#teacherView #teacherSidebar .sidebar-logout-card .title,
-#superAdminView #superAdminSidebar .sidebar-logout-card .title{
-  display:block !important; color:#fff !important; font-weight:700 !important;
-}
-
 </style>
+
+<style id="final-dashboard-card-layout-fix">
+/* Final layout correction: enforce two columns and bold, larger dashboard card names in all portals. */
+#adminView #adminMainMenu,
+#teacherView #teacherMainMenu,
+#superAdminView #superAdminMainMenu {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:stretch !important;
+}
+#adminView #adminMainMenu > .admin-card,
+#teacherView #teacherMainMenu > .picture-action,
+#superAdminView #superAdminMainMenu > .picture-action {
+  min-width:0 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+#adminView #adminMainMenu > .admin-card .title,
+#teacherView #teacherMainMenu > .picture-action .picture-action-title,
+#superAdminView #superAdminMainMenu > .picture-action .picture-action-title {
+  font-size:18px !important;
+  font-weight:800 !important;
+  line-height:1.25 !important;
+}
+@media(max-width:560px) {
+  #adminView #adminMainMenu,
+  #teacherView #teacherMainMenu,
+  #superAdminView #superAdminMainMenu {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  #adminView #adminMainMenu > .admin-card .title,
+  #teacherView #teacherMainMenu > .picture-action .picture-action-title,
+  #superAdminView #superAdminMainMenu > .picture-action .picture-action-title {
+    font-size:16px !important;
+    font-weight:800 !important;
+  }
+}
+</style>
+
+
+<style id="requested-quick-action-card-fix">
+/* Requested quick-action card styling only: all portals, consistently two columns. */
+#adminView .picture-quick-actions .picture-action-grid,
+#adminView #pictureAllTabs,
+#adminView #adminMainMenu,
+#teacherView #teacherMainMenu,
+#superAdminView #superAdminMainMenu {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+#adminView .picture-quick-actions .picture-action-title,
+#adminView #pictureAllTabs .picture-action-title,
+#adminView #adminMainMenu .admin-card .title,
+#teacherView #teacherMainMenu .picture-action-title,
+#superAdminView #superAdminMainMenu .picture-action-title {
+  font-size:18px !important;
+  font-weight:800 !important;
+  line-height:1.25 !important;
+}
+#adminView .picture-quick-actions .picture-action,
+#adminView #pictureAllTabs .picture-action,
+#adminView #adminMainMenu > .admin-card,
+#teacherView #teacherMainMenu > .picture-action,
+#superAdminView #superAdminMainMenu > .picture-action {
+  min-width:0 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+@media(max-width:560px) {
+  #adminView .picture-quick-actions .picture-action-grid,
+  #adminView #pictureAllTabs,
+  #adminView #adminMainMenu,
+  #teacherView #teacherMainMenu,
+  #superAdminView #superAdminMainMenu {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    gap:10px !important;
+  }
+  #adminView .picture-quick-actions .picture-action-title,
+  #adminView #pictureAllTabs .picture-action-title,
+  #adminView #adminMainMenu .admin-card .title,
+  #teacherView #teacherMainMenu .picture-action-title,
+  #superAdminView #superAdminMainMenu .picture-action-title {
+    font-size:16px !important;
+    font-weight:800 !important;
+  }
+}
+</style>
+
+
+<style id="requested-quick-action-card-fix">
+/* Requested quick-action card styling only: all portals, consistently two columns. */
+#adminView .picture-quick-actions .picture-action-grid,
+#adminView #pictureAllTabs, #adminView #adminMainMenu,
+#teacherView #teacherMainMenu, #superAdminView #superAdminMainMenu {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+}
+#adminView .picture-quick-actions .picture-action-title,
+#adminView #pictureAllTabs .picture-action-title,
+#adminView #adminMainMenu .admin-card .title,
+#teacherView #teacherMainMenu .picture-action-title,
+#superAdminView #superAdminMainMenu .picture-action-title {
+  font-size:18px !important; font-weight:800 !important; line-height:1.25 !important;
+}
+#adminView .picture-quick-actions .picture-action,
+#adminView #pictureAllTabs .picture-action,
+#adminView #adminMainMenu > .admin-card,
+#teacherView #teacherMainMenu > .picture-action,
+#superAdminView #superAdminMainMenu > .picture-action {
+  min-width:0 !important; width:100% !important; box-sizing:border-box !important;
+}
+@media(max-width:560px) {
+  #adminView .picture-quick-actions .picture-action-grid,
+  #adminView #pictureAllTabs, #adminView #adminMainMenu,
+  #teacherView #teacherMainMenu, #superAdminView #superAdminMainMenu {
+    grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:10px !important;
+  }
+  #adminView .picture-quick-actions .picture-action-title,
+  #adminView #pictureAllTabs .picture-action-title,
+  #adminView #adminMainMenu .admin-card .title,
+  #teacherView #teacherMainMenu .picture-action-title,
+  #superAdminView #superAdminMainMenu .picture-action-title {
+    font-size:16px !important; font-weight:800 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -5279,43 +5390,39 @@ body > #adminSectionsContainer.portal-section-fullscreen {
   background:#f5f9fd !important;
 }
 
-</style></head><body>${report.outerHTML}
 
-<style id="restore-card-title-and-two-column-layout">
-/* Restore the requested card typography and two-column dashboard layout. */
+
+/* Restored dashboard card styling: all three portals use two columns and bold, larger labels. */
 #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
-#adminMainMenu.portal-dashboard-quick-actions,
-#teacherMainMenu.portal-dashboard-quick-actions,
-#superAdminMainMenu.portal-dashboard-quick-actions {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 14px !important;
+#adminView #adminMainMenu, #teacherView #teacherMainMenu, #superAdminView #superAdminMainMenu {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px !important;
+  align-items:stretch !important;
 }
 #adminMainMenu .picture-action-title,
 #teacherMainMenu .picture-action-title,
 #superAdminMainMenu .picture-action-title,
-#pictureAllTabs .picture-action-title {
-  font-size: 17px !important;
-  font-weight: 800 !important;
-  line-height: 1.25 !important;
-}
 #adminMainMenu .admin-card .title,
 #teacherMainMenu .admin-card .title,
 #superAdminMainMenu .admin-card .title {
-  font-size: 17px !important;
-  font-weight: 800 !important;
+  font-size:17px !important;
+  font-weight:800 !important;
+  line-height:1.25 !important;
 }
-@media (max-width: 560px) {
-  #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
-  #adminMainMenu.portal-dashboard-quick-actions,
-  #teacherMainMenu.portal-dashboard-quick-actions,
-  #superAdminMainMenu.portal-dashboard-quick-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
+#adminMainMenu .picture-action,
+#teacherMainMenu .picture-action,
+#superAdminMainMenu .picture-action {
+  min-width:0 !important;
+  box-sizing:border-box !important;
 }
-</style>
-
-</body></html>`;
+@media(max-width:560px){
+ #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
+ #adminView #adminMainMenu, #teacherView #teacherMainMenu, #superAdminView #superAdminMainMenu {
+   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+ }
+}
+</style></head><body>${report.outerHTML}</body></html>`;
         }
 
         function printStudentReport() {
@@ -6743,15 +6850,37 @@ body > #adminSectionsContainer.portal-section-fullscreen {
                 document.getElementById("deleteSchoolActionBtn").onclick = async function() {
                     if (!confirm("Remove this school and all associated data permanently?")) return;
                     try {
-                        const user = firebase.auth().currentUser;
-                        const token = await user.getIdToken();
-                        const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/schools/" + encodeURIComponent(schoolId), { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
-                        const result = await response.json();
-                        if (!response.ok || !result.success) throw new Error(result.message || "School removal failed.");
-                        alert("School and associated data removed.");
+                        let removedByServer = false;
+                        try {
+                            const user = firebase.auth().currentUser;
+                            if (user) {
+                                const token = await user.getIdToken();
+                                const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/schools/" + encodeURIComponent(schoolId), {
+                                    method: "DELETE",
+                                    headers: { "Authorization": "Bearer " + token }
+                                });
+                                let result = {};
+                                try { result = await response.json(); } catch (_) {}
+                                if (response.ok && result.success) removedByServer = true;
+                            }
+                        } catch (serverError) {
+                            console.warn("School API removal unavailable; trying Firestore school record removal.", serverError);
+                        }
+
+                        // Fallback for when the removal API returns "fetch data failed" or is unavailable.
+                        if (!removedByServer) {
+                            await db.collection("schools").doc(schoolId).delete();
+                        }
+
+                        alert(removedByServer
+                            ? "School and associated data removed."
+                            : "School record removed. Some associated server-side data may require separate cleanup.");
                         document.getElementById("schoolDetailsModal").style.display = "none";
+                        await loadVerificationSchoolsList();
                         if (typeof loadSchools === "function") loadSchools();
-                    } catch (err) { alert("Error removing school: " + err.message); }
+                    } catch (err) {
+                        alert("Error removing school: " + (err.message || "Please check your connection and permissions."));
+                    }
                 };
                 document.getElementById("schoolDetailsModal").style.display = "flex";
             } catch (e) {
@@ -7823,42 +7952,6 @@ body > #adminSectionsContainer.portal-section-fullscreen {
 
 
 
-
-
-
-<style id="restore-card-title-and-two-column-layout">
-/* Restore the requested card typography and two-column dashboard layout. */
-#adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
-#adminMainMenu.portal-dashboard-quick-actions,
-#teacherMainMenu.portal-dashboard-quick-actions,
-#superAdminMainMenu.portal-dashboard-quick-actions {
-  display: grid !important;
-  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  gap: 14px !important;
-}
-#adminMainMenu .picture-action-title,
-#teacherMainMenu .picture-action-title,
-#superAdminMainMenu .picture-action-title,
-#pictureAllTabs .picture-action-title {
-  font-size: 17px !important;
-  font-weight: 800 !important;
-  line-height: 1.25 !important;
-}
-#adminMainMenu .admin-card .title,
-#teacherMainMenu .admin-card .title,
-#superAdminMainMenu .admin-card .title {
-  font-size: 17px !important;
-  font-weight: 800 !important;
-}
-@media (max-width: 560px) {
-  #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
-  #adminMainMenu.portal-dashboard-quick-actions,
-  #teacherMainMenu.portal-dashboard-quick-actions,
-  #superAdminMainMenu.portal-dashboard-quick-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-  }
-}
-</style>
 
 </body>
 </html>
