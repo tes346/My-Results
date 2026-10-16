@@ -2361,6 +2361,137 @@ body{
   z-index: 99999 !important;
 }
 </style>
+
+
+<style id="pending-verification-layout-image-two">
+/* Match the requested pending-verification layout: compact school header above a yellow notice card. */
+#adminView.school-pending-verification {
+  min-height: 100vh !important;
+  background: #f8fafc !important;
+}
+#adminView.school-pending-verification .app-container {
+  max-width: 1000px !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  margin: 0 auto !important;
+  padding: 26px !important;
+  background: #f8fafc !important;
+}
+#adminView.school-pending-verification .header {
+  position: static !important;
+  display: flex !important;
+  width: 100% !important;
+  min-height: 0 !important;
+  margin: 0 0 26px 0 !important;
+  padding: 24px 26px !important;
+  gap: 12px !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  flex-wrap: wrap !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: 0 3px 12px rgba(0,0,0,.05) !important;
+}
+#adminView.school-pending-verification .header .picture-top-brand,
+#adminView.school-pending-verification .header .picture-sidebar-toggle,
+#adminView.school-pending-verification .header .picture-system-title,
+#adminView.school-pending-verification #adminLogoDisplay {
+  display: none !important;
+}
+#adminView.school-pending-verification .header > div[style*="margin-left:auto"] {
+  order: 0 !important;
+  margin-left: 0 !important;
+  flex: 1 1 220px !important;
+}
+#adminView.school-pending-verification #adminSchoolTitle {
+  color: #111827 !important;
+  font-size: 20px !important;
+  font-weight: 750 !important;
+  margin: 0 !important;
+}
+#adminView.school-pending-verification #adminNameDisplay {
+  color: #64748b !important;
+  font-size: 14px !important;
+}
+#adminView.school-pending-verification #schoolPaymentTimer {
+  display: flex !important;
+  order: 1 !important;
+  flex: 0 1 auto !important;
+}
+#adminView.school-pending-verification #pendingAdminLogout {
+  display: inline-block !important;
+  order: 2 !important;
+  padding: 10px 18px !important;
+  border-radius: 9px !important;
+  font-size: 14px !important;
+  background: #ef4444 !important;
+  color: white !important;
+}
+#adminView.school-pending-verification #pendingVerificationNotice {
+  display: flex !important;
+  position: static !important;
+  inset: auto !important;
+  z-index: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 370px !important;
+  margin: 0 !important;
+  padding: 42px 24px !important;
+  box-sizing: border-box !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  border: 1px solid #ffe082 !important;
+  border-radius: 20px !important;
+  background: #fff8e6 !important;
+  box-shadow: 0 3px 12px rgba(0,0,0,.025) !important;
+}
+#adminView.school-pending-verification #pendingVerificationNotice > div {
+  font-size: 72px !important;
+  margin-bottom: 22px !important;
+}
+#adminView.school-pending-verification #pendingVerificationNotice h2 {
+  color: #b78103 !important;
+  font-size: 28px !important;
+  line-height: 1.25 !important;
+  margin: 0 0 14px !important;
+}
+#adminView.school-pending-verification #pendingVerificationNotice p {
+  color: #5d4037 !important;
+  max-width: 620px !important;
+  font-size: 17px !important;
+  line-height: 1.45 !important;
+  margin: 0 auto !important;
+}
+#adminView.school-pending-verification #adminMainMenu,
+#adminView.school-pending-verification #adminSectionsContainer,
+#adminView.school-pending-verification #pictureAdminDashboard {
+  display: none !important;
+}
+@media (max-width: 600px) {
+  #adminView.school-pending-verification .app-container { padding: 14px !important; }
+  #adminView.school-pending-verification .header {
+    padding: 20px !important;
+    margin-bottom: 16px !important;
+  }
+  #adminView.school-pending-verification #schoolPaymentTimer {
+    flex-basis: 100% !important;
+    order: 1 !important;
+  }
+  #adminView.school-pending-verification #pendingAdminLogout {
+    order: 2 !important;
+  }
+  #adminView.school-pending-verification #pendingVerificationNotice {
+    min-height: 330px !important;
+    padding: 30px 18px !important;
+  }
+  #adminView.school-pending-verification #pendingVerificationNotice h2 { font-size: 23px !important; }
+  #adminView.school-pending-verification #pendingVerificationNotice p { font-size: 15px !important; }
+}
+</style>
+
 </head>
 <body>
 
@@ -2620,6 +2751,7 @@ body{
                 <div id="schoolPaymentTimer" class="timer-banner" style="display:none;">
                     ⏱️ <span id="paymentTimerCountdown">Loading status...</span>
                 </div>
+                <button type="button" id="pendingAdminLogout" class="btn-danger" onclick="logout()" style="display:none;">Logout</button>
             </div>
 
             <div id="pendingVerificationNotice" class="dashboard-card" style="display: none; text-align: center; padding: 40px 20px; background: #fff8e6; border: 1px solid #ffe082;">
@@ -4365,6 +4497,9 @@ body{
                                     loadTermsYearList();
                                     loadExamTypesList();
                                     listenToMarksControl();
+                                } else if (schoolDoc.exists) {
+                                    // Pending schools still see their subscription status in the header.
+                                    fetchSchoolPaymentStatus();
                                 }
                             }
                             showView("adminView");
