@@ -4246,22 +4246,29 @@ body{
             const type = document.getElementById('announcementType')?.value || '';
             const title = document.getElementById('announcementTitle')?.value.trim() || '';
             const message = document.getElementById('announcementMessage')?.value.trim() || '';
+            const form = document.getElementById('announcementForm');
+            const button = form?.querySelector('button[type="submit"]');
             if (!type || !title || !message) { alert('Please complete the type, topic/headline and message.'); return; }
+            if (!auth.currentUser) { alert('Please sign in as Super Admin before publishing.'); return; }
+            if (button) { button.disabled = true; button.textContent = 'Publishing and sending emails...'; }
             try {
-                await db.collection('announcements').add({
-                    type,
-                    title,
-                    message,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    createdBy: currentUserId,
-                    active: true
+                const token = await auth.currentUser.getIdToken();
+                const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, '') + '/api/announcements/dispatch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ type, title, message })
                 });
-                document.getElementById('announcementForm').reset();
-                alert(type === 'update' ? 'Update published successfully!' : 'Portal announcement published successfully!');
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.success) throw new Error(result.message || 'Announcement dispatch failed.');
+                form.reset();
+                const d = result.emailDispatch || {};
+                alert((type === 'update' ? 'Update' : 'Portal announcement') + ' published.\n\nEmail results for verified schools:\nSent: ' + (d.sent || 0) + '\nFailed: ' + (d.failed || 0) + '\nSkipped (no valid headteacher email): ' + (d.skipped || 0) + (d.failed ? '\n\nSome emails failed. Check server logs/Resend for details.' : ''));
                 await loadAnnouncements('superAdminAnnouncementsContainer', true);
                 updateAnnouncementBadges();
             } catch (err) {
-                alert('Could not publish: ' + err.message);
+                alert('Could not publish announcement: ' + (err.message || err));
+            } finally {
+                if (button) { button.disabled = false; button.textContent = 'Publish'; }
             }
         }
 
@@ -4458,8 +4465,20 @@ body{
                             initializePortalAnnouncements();
                         } else if (userData.role === "admin") {
                             document.getElementById("adminNameDisplay").textContent = userData.name || "Administrator";
+                            if (!currentSchoolId) {
+                                await auth.signOut();
+                                showView("authView");
+                                displayMsg("This administrator account is not linked to an active school.");
+                                return;
+                            }
                             if (currentSchoolId) {
                                 const schoolDoc = await db.collection("schools").doc(currentSchoolId).get();
+                                if (!schoolDoc.exists) {
+                                    await auth.signOut();
+                                    showView("authView");
+                                    displayMsg("This school account no longer exists. Please contact the Super Admin.");
+                                    return;
+                                }
                                 if (schoolDoc.exists) {
                                     const schoolData = schoolDoc.data();
                                     currentSchoolName = schoolData.name || "School";
@@ -4511,8 +4530,21 @@ body{
                                 initializePortalAnnouncements();
                             }
                         } else if (userData.role === "teacher") {
-                            document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
                             currentSchoolId = userData.schoolId || "";
+                            if (!currentSchoolId) {
+                                await auth.signOut();
+                                showView("authView");
+                                displayMsg("This teacher account is not linked to an active school.");
+                                return;
+                            }
+                            const teacherSchoolSnap = await db.collection("schools").doc(currentSchoolId).get();
+                            if (!teacherSchoolSnap.exists) {
+                                await auth.signOut();
+                                showView("authView");
+                                displayMsg("This school account no longer exists. Please contact the Super Admin.");
+                                return;
+                            }
+                            document.getElementById("teacherNameDisplay").textContent = userData.name || "Teacher";
                             populateAllDropdowns();
                             loadTeacherAllocations(user.uid);
                             listenToTeacherDeadline();
@@ -4523,9 +4555,20 @@ body{
                         const studentSnap = await db.collection("students").doc(user.uid).get();
                         if (studentSnap.exists) {
                             const studentData = studentSnap.data();
+                            const studentSchoolId = studentData.schoolId || "";
+                            if (!studentSchoolId || !(await db.collection("schools").doc(studentSchoolId).get()).exists) {
+                                await auth.signOut();
+                                showView("authView");
+                                displayMsg("This account is not linked to an active school.");
+                                return;
+                            }
                             document.getElementById("studentNameDisplay").textContent = studentData.name || "Student";
                             renderStudentPortal(studentData);
                             showView("studentView");
+                        } else {
+                            await auth.signOut();
+                            showView("authView");
+                            displayMsg("This account no longer has an active portal profile. Please contact the Super Admin.");
                         }
                     }
                 } catch (e) {
