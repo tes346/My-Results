@@ -4262,7 +4262,8 @@ body{
                 if (!response.ok || !result.success) throw new Error(result.message || 'Announcement dispatch failed.');
                 form.reset();
                 const d = result.emailDispatch || {};
-                alert((type === 'update' ? 'Update' : 'Portal announcement') + ' published.\n\nEmail results for verified schools:\nSent: ' + (d.sent || 0) + '\nFailed: ' + (d.failed || 0) + '\nSkipped (no valid headteacher email): ' + (d.skipped || 0) + (d.failed ? '\n\nSome emails failed. Check server logs/Resend for details.' : ''));
+                const failedDetails = Array.isArray(d.results) ? d.results.filter(item => item.status === 'failed').slice(0, 5).map(item => '\n- ' + (item.schoolName || item.schoolId || 'School') + ': ' + (item.error || 'Email failed') + (item.providerStatus ? ' (HTTP ' + item.providerStatus + ')' : '')).join('') : '';
+                alert((type === 'update' ? 'Update' : 'Portal announcement') + ' published.\n\nEmail results for verified schools:\nSent: ' + (d.sent || 0) + '\nFailed: ' + (d.failed || 0) + '\nSkipped (no valid headteacher email): ' + (d.skipped || 0) + (d.failed ? '\n\nFailure details (up to 5):' + failedDetails : ''));
                 await loadAnnouncements('superAdminAnnouncementsContainer', true);
                 updateAnnouncementBadges();
             } catch (err) {
