@@ -2492,6 +2492,19 @@ body{
 }
 </style>
 
+<style id="myrezultz-learning-materials-tab-wallpapers">
+#adminSectionsContainer .tab-pane,#teacherSectionsContainer .tab-pane{position:relative;isolation:isolate;padding:clamp(16px,3vw,30px);border-radius:16px;background-size:cover;background-position:center;background-attachment:fixed}
+#adminSectionsContainer .tab-pane::before,#teacherSectionsContainer .tab-pane::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(135deg,rgba(232,246,235,.96),rgba(220,238,249,.93)),radial-gradient(ellipse at 80% 20%,rgba(50,120,65,.18),transparent 45%)}
+#adminSectionsContainer .tab-pane:nth-of-type(3n+2)::before,#teacherSectionsContainer .tab-pane:nth-of-type(3n+2)::before{background:linear-gradient(135deg,rgba(250,242,220,.96),rgba(224,240,232,.93)),radial-gradient(ellipse at 80% 10%,rgba(72,120,78,.2),transparent 42%)}
+#adminSectionsContainer .tab-pane:nth-of-type(3n)::before,#teacherSectionsContainer .tab-pane:nth-of-type(3n)::before{background:linear-gradient(135deg,rgba(229,240,252,.96),rgba(237,231,250,.93)),radial-gradient(ellipse at 10% 15%,rgba(52,100,160,.16),transparent 42%)}
+.lm-intro{color:#526174;margin:8px 0 16px}.lm-video-feature{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:22px;margin:14px 0;border-radius:16px;color:white;background:linear-gradient(120deg,#123f35,#23734e 58%,#6a9d62);box-shadow:0 8px 22px rgba(20,70,50,.18)}.lm-video-feature h4{margin:7px 0;font-size:20px;color:white}.lm-video-feature p{margin:0;color:#edf8ee}.lm-eyebrow{font-size:11px;letter-spacing:1.5px;font-weight:800}.lm-video-icon{display:flex;align-items:center;justify-content:center;width:56px;height:56px;flex:0 0 56px;border-radius:50%;background:rgba(255,255,255,.2);font-size:24px}.lm-upload-form{padding:18px;border:1px solid #dce5e1;border-radius:14px;background:rgba(255,255,255,.95)}.lm-upload-form h4{margin:0 0 12px}.lm-form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px}.lm-category-row{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.lm-category-row span,.lm-material-type{display:inline-block;border-radius:999px;padding:6px 10px;background:#e8f3ec;color:#245b3b;font-size:12px;font-weight:700}.lm-student-category{margin:22px 0}.lm-student-category h4{margin:0 0 12px}.lm-material-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.lm-material-card{padding:16px;border-radius:13px;border:1px solid #dce5e1;background:rgba(255,255,255,.97);box-shadow:0 3px 12px rgba(15,23,42,.05)}.lm-material-card h5{font-size:16px;margin:10px 0 7px;color:#172b3a}.lm-material-card p{color:#526174;margin:6px 0 12px;overflow-wrap:anywhere}.lm-open-link{display:inline-block;margin-top:8px;text-decoration:none}.student-dashboard-welcome{padding:22px;border:1px solid #dbe7e1;border-radius:14px;background:linear-gradient(135deg,#f0f8f3,#eef4fc);color:#203448}.student-dashboard-welcome h3{margin:0 0 8px}.student-dashboard-welcome>p{margin:0;color:#526174;line-height:1.6}.student-dashboard-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}.student-dashboard-shortcuts>div{padding:15px;border:1px solid #dce5e1;border-radius:12px;background:#fff}.student-dashboard-shortcuts strong{display:block;margin-bottom:6px}.student-dashboard-shortcuts p{margin:0;color:#526174;font-size:13px;line-height:1.5}@media(max-width:600px){.student-dashboard-shortcuts{grid-template-columns:1fr}}
+.student-portal-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}#studentMaterialsPanel{background:linear-gradient(135deg,#eef7ef,#eaf2fa);padding:18px;border-radius:14px}@media(max-width:600px){.lm-form-grid{grid-template-columns:1fr}.lm-video-feature{padding:16px}}@media print{#adminSectionsContainer .tab-pane::before,#teacherSectionsContainer .tab-pane::before{display:none!important}#adminSectionsContainer .tab-pane,#teacherSectionsContainer .tab-pane{background:#fff!important}}
+</style>
+
+<style id="myrezultz-communication-styles">
+.communication-layout{display:grid;grid-template-columns:minmax(220px,30%) minmax(0,1fr);gap:16px;align-items:stretch}.communication-threads,.communication-chat{border:1px solid #dbe4ee;border-radius:14px;background:#fff;min-width:0;overflow:hidden}.communication-threads{padding:12px}.communication-threads h4{margin:4px 4px 12px}.communication-thread-button{display:block;width:100%;text-align:left;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:12px;margin:8px 0;cursor:pointer;color:#1e293b}.communication-thread-button.active{border-color:#2563eb;background:#eff6ff}.communication-thread-button strong,.communication-thread-button small{display:block;overflow-wrap:anywhere}.communication-thread-button small{color:#64748b;margin-top:4px}.communication-chat-heading{padding:14px 16px;background:#f1f5f9;font-weight:700;border-bottom:1px solid #e2e8f0}.communication-messages{height:clamp(240px,48vh,520px);overflow-y:auto;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px}.communication-message{max-width:88%;border-radius:12px;padding:10px 12px;overflow-wrap:anywhere;white-space:pre-wrap}.communication-message.from-headteacher{align-self:flex-start;background:#e2e8f0;color:#0f172a}.communication-message.from-superadmin{align-self:flex-end;background:#dbeafe;color:#1e3a8a}.communication-message small{display:block;font-size:11px;opacity:.75;margin-bottom:5px}.communication-compose{display:flex;gap:10px;padding:12px;align-items:flex-end}.communication-compose textarea{flex:1;min-width:0;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:11px;font:inherit}.communication-status{padding:0 12px 12px;color:#475569;font-size:13px;min-height:18px}.communication-headteacher-chat{max-width:100%}@media(max-width:720px){.communication-layout{grid-template-columns:1fr}.communication-threads{max-height:240px;overflow-y:auto}.communication-compose{flex-direction:column;align-items:stretch}.communication-compose button{width:100%}.communication-message{max-width:96%}}
+</style>
+
 </head>
 <body>
 
@@ -2625,6 +2638,7 @@ body{
                 <div class="admin-card" onclick="openSuperAdminSection('saTabPaymentControl')"><div class="icon">💳</div><div class="title">Control Payment</div></div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabManuals')"><div class="icon">📖</div><div class="title">MANUALS</div></div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabAnnouncements')"><div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabCommunication')"><div class="icon">💬</div><div class="title">Communication / Messaging</div></div>
                 <div class="admin-card sidebar-logout-card" onclick="logout()"><div class="icon">🚪</div><div class="title">Logout</div></div>
             </div>
 
@@ -2644,6 +2658,7 @@ body{
                 <div class="picture-action" onclick="openSuperAdminSection('saTabAnnouncements')">
                     <div class="picture-action-icon">📢</div><div class="picture-action-title">UPDATE / ANNOUNCEMENT <span id="saAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabCommunication')"><div class="picture-action-icon">💬</div><div class="picture-action-title">Communication / Messaging <span id="saMessagesBadge" class="notification-badge" style="display:none;">0</span></div></div>
             </div>
 
             <div id="superAdminSectionsContainer" style="display: none;">
@@ -2676,6 +2691,18 @@ body{
                                         <span class="slider"></span>
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="saTabCommunication" class="tab-pane">
+                        <h3>Communication / Messaging</h3>
+                        <p style="color:#64748b;margin:8px 0 16px;">Read and reply to private messages from school headteachers.</p>
+                        <div id="saCommunicationLayout" class="communication-layout">
+                            <div class="communication-threads"><h4>Headteacher Conversations</h4><div id="saConversationList"><p>Loading conversations...</p></div></div>
+                            <div class="communication-chat"><div id="saConversationHeading" class="communication-chat-heading">Select a conversation</div><div id="saConversationMessages" class="communication-messages"><p>Choose a headteacher conversation to view messages.</p></div>
+                                <form id="saReplyForm" class="communication-compose" onsubmit="sendSuperAdminReply(event)"><textarea id="saReplyText" rows="3" placeholder="Write your reply..." required maxlength="5000"></textarea><button class="btn-primary" type="submit">Send Reply</button></form>
+                                <p id="saCommunicationStatus" class="communication-status" aria-live="polite"></p>
                             </div>
                         </div>
                     </div>
@@ -2895,7 +2922,7 @@ body{
                     <div class="icon">📅</div><div class="title">Timetable</div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabResources')">
-                    <div class="icon">📂</div><div class="title">Resources</div>
+                    <div class="icon">📂</div><div class="title">Learning Materials</div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabManuals')">
                     <div class="icon">📖</div><div class="title">MANUALS</div>
@@ -2903,6 +2930,7 @@ body{
                 <div class="admin-card" onclick="openAdminSection('tabAnnouncements')">
                     <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
+                <div class="admin-card" onclick="openAdminSection('tabCommunication')"><div class="icon">💬</div><div class="title">Communication / Messaging</div></div>
                 <div class="admin-card picture-sidebar-logout" onclick="logout()">
                     <div class="icon">⇥</div><div class="title">Logout</div>
                 </div>
@@ -3303,19 +3331,27 @@ body{
                         <div id="timetableDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
 
-                    <div id="tabResources" class="tab-pane">
-                        <h3>Class Resources & Syllabus</h3>
-                        <div class="auth-form-group" style="margin-top:12px;">
-                            <label>Select Class</label>
-                            <select id="resourcesClassSelect" onchange="loadResources(this.value)"></select>
+                    <div id="tabResources" class="tab-pane learning-materials-pane">
+<h3>Learning Materials</h3>
+<p class="lm-intro">Explore learning materials shared by your school. Choose your class to find notes, assignments, past papers and other useful files.</p>
+<div class="lm-video-feature"><div><span class="lm-eyebrow">LEARN ANYWHERE</span><h4>Learning Materials Hub</h4><p>Find class resources, revise topics and keep track of assignment deadlines.</p></div><span class="lm-video-icon">📚</span></div>
+<div class="auth-form-group"><label>Browse Class</label><select id="resourcesClassSelect" onchange="loadResources(this.value)"></select></div>
+<form id="resourceForm" class="lm-upload-form" onsubmit="saveResourceEntry(event)"><h4>Upload Learning Material</h4>
+<div class="lm-form-grid">
+<div class="auth-form-group"><label>Class</label><select id="resUploadClass" required></select></div>
+<div class="auth-form-group"><label>Material Type</label><select id="resCategory" onchange="updateResourceFields('admin')" required><option value="">-- Select Type --</option><option value="assignment">Assignment</option><option value="past-paper">Past Papers</option><option value="note">Notes</option><option value="other">Others</option></select></div>
+</div><div id="resDynamicFields" class="lm-form-grid"></div>
+<button class="btn-primary" type="submit">Upload Learning Material</button></form>
+<div class="lm-category-row"><span>📝 Notes</span><span>📌 Assignments</span><span>📚 Past Papers</span><span>📁 Others</span></div>
+<div id="resourcesDisplayContainer" class="table-responsive" style="margin-top:16px;"></div></div>
+
+                    <div id="tabCommunication" class="tab-pane">
+                        <h3>Communication / Messaging</h3>
+                        <p style="color:#64748b;margin:8px 0 16px;">Send a private message to the MyRezultz Super Admin and view replies here.</p>
+                        <div class="communication-chat communication-headteacher-chat"><div class="communication-chat-heading">Conversation with Super Admin</div><div id="headteacherConversationMessages" class="communication-messages"><p>Loading conversation...</p></div>
+                            <form id="headteacherMessageForm" class="communication-compose" onsubmit="sendHeadteacherMessage(event)"><textarea id="headteacherMessageText" rows="3" placeholder="Write your message to the Super Admin..." required maxlength="5000"></textarea><button class="btn-primary" type="submit">Send Message</button></form>
+                            <p id="headteacherCommunicationStatus" class="communication-status" aria-live="polite"></p>
                         </div>
-                        <form id="resourceForm" style="margin-top:12px;" onsubmit="saveResourceEntry(event)">
-                            <div class="auth-form-group"><label>Resource Title</label><input type="text" id="resTitle" placeholder="e.g. Grade 7 Math Notes" required></div>
-                            <div class="auth-form-group"><label>Resource Link / URL (optional)</label><input type="url" id="resLink" placeholder="https://..."></div>
-                            <div class="auth-form-group"><label>Upload Resource File (optional)</label><input type="file" id="resFile" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg"></div>
-                            <button class="btn-primary" type="submit">Upload Resource</button>
-                        </form>
-                        <div id="resourcesDisplayContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
 
                     <div id="tabAnnouncements" class="tab-pane">
@@ -3354,7 +3390,7 @@ body{
                 <div class="admin-card" onclick="openTeacherSection('tTabClasses')"><div class="icon">🏫</div><div class="title">Classes</div></div>
                 <div class="admin-card" onclick="openTeacherSection('tTabClassList')"><div class="icon">📋</div><div class="title">Class List</div></div>
                 <div class="admin-card" onclick="openTeacherSection('tTabTimetable')"><div class="icon">📅</div><div class="title">Timetable</div></div>
-                <div class="admin-card" onclick="openTeacherSection('tTabResources')"><div class="icon">📂</div><div class="title">Resources</div></div>
+                <div class="admin-card" onclick="openTeacherSection('tTabResources')"><div class="icon">📂</div><div class="title">Learning Materials</div></div>
                 <div class="admin-card" onclick="openTeacherSection('tTabManuals')"><div class="icon">📖</div><div class="title">MANUALS</div></div>
                 <div class="admin-card" onclick="openTeacherSection('tTabAnnouncements')"><div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT</div></div>
                 <div class="admin-card sidebar-logout-card" onclick="logout()"><div class="icon">🚪</div><div class="title">Logout</div></div>
@@ -3371,7 +3407,7 @@ body{
                     <div class="picture-action-icon">📅</div><div class="picture-action-title">Timetable</div>
                 </div>
                 <div class="picture-action" onclick="openTeacherSection('tTabResources')">
-                    <div class="picture-action-icon">📂</div><div class="picture-action-title">Resources</div>
+                    <div class="picture-action-icon">📂</div><div class="picture-action-title">Learning Materials</div>
                 </div>
                 <div class="picture-action" onclick="openTeacherSection('tTabManuals')">
                     <div class="picture-action-icon">📖</div><div class="picture-action-title">MANUALS</div>
@@ -3432,14 +3468,15 @@ body{
                         <div id="tTimetableContainer" class="table-responsive" style="margin-top:16px;"></div>
                     </div>
 
-                    <div id="tTabResources" class="tab-pane">
-                        <h3>Class Resources & Syllabus</h3>
-                        <div class="auth-form-group" style="margin-top:12px;">
-                            <label>Select Class</label>
-                            <select id="tResourcesClassSelect" onchange="loadResources(this.value, 'tResourcesContainer')"></select>
-                        </div>
-                        <div id="tResourcesContainer" class="table-responsive" style="margin-top:16px;"></div>
-                    </div>
+                    <div id="tTabResources" class="tab-pane learning-materials-pane"><h3>Learning Materials</h3>
+<p class="lm-intro">Upload and organize learning materials by class and type. Students can open or download the files you share.</p>
+<div class="lm-video-feature"><div><span class="lm-eyebrow">LEARN ANYWHERE</span><h4>Learning Materials Hub</h4><p>Share notes, assignments, past papers and other useful class files.</p></div><span class="lm-video-icon">📚</span></div>
+<div class="auth-form-group"><label>Browse Class</label><select id="tResourcesClassSelect" onchange="loadResources(this.value, 'tResourcesContainer')"></select></div>
+<form id="teacherResourceForm" class="lm-upload-form" onsubmit="saveResourceEntry(event, 'teacher')"><h4>Upload Learning Material</h4><div class="lm-form-grid">
+<div class="auth-form-group"><label>Class</label><select id="tResUploadClass" required></select></div>
+<div class="auth-form-group"><label>Material Type</label><select id="tResCategory" onchange="updateResourceFields('teacher')" required><option value="">-- Select Type --</option><option value="assignment">Assignment</option><option value="past-paper">Past Papers</option><option value="note">Notes</option><option value="other">Others</option></select></div>
+</div><div id="tResDynamicFields" class="lm-form-grid"></div><button class="btn-primary" type="submit">Upload Learning Material</button></form>
+<div id="tResourcesContainer" class="table-responsive" style="margin-top:16px;"></div></div>
 
                     <div id="tTabAnnouncements" class="tab-pane">
                         <h3>UPDATE / ANNOUNCEMENT <span id="teacherAnnouncementBadgeInside" class="notification-badge" style="display:none;">0</span></h3>
@@ -3954,6 +3991,7 @@ body{
             if (tabId === 'tabLogo') loadSchoolLogoPreview();
             if (tabId === 'tabManuals') loadManuals('adminManualsContainer');
             if (tabId === 'tabAnnouncements') loadAnnouncements('adminAnnouncementsContainer');
+            if (tabId === 'tabCommunication') loadHeadteacherConversation();
         }
 
         function closeAdminSection() {
@@ -4187,6 +4225,7 @@ body{
             if (tabId === 'saTabPaymentControl') loadGlobalPaymentStatus();
             if (tabId === 'saTabManuals') loadManuals('superAdminManualsContainer');
             if (tabId === 'saTabAnnouncements') loadAnnouncements('superAdminAnnouncementsContainer', true);
+            if (tabId === 'saTabCommunication') loadSuperAdminConversations();
         }
 
         function closeSuperAdminSection() {
@@ -4289,6 +4328,130 @@ body{
             } catch (_) { return ''; }
         }
 
+        // Private support messaging: one conversation per school, with individual messages in a subcollection.
+        let activeSuperAdminConversationId = '';
+        let headteacherMessagesUnsubscribe = null;
+        let superAdminMessagesUnsubscribe = null;
+        let superAdminConversationUnsubscribe = null;
+
+        function communicationSafeText(value) {
+            return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+        function communicationDate(value) {
+            try { const d = value && typeof value.toDate === 'function' ? value.toDate() : value ? new Date(value) : null; return d && !isNaN(d.getTime()) ? d.toLocaleString() : 'Just now'; } catch (_) { return 'Just now'; }
+        }
+        function renderCommunicationMessages(container, snapshot) {
+            if (!container) return;
+            if (!snapshot || snapshot.empty) { container.innerHTML = '<p>No messages yet. Start the conversation below.</p>'; return; }
+            const docs = snapshot.docs.slice().sort((a,b) => {
+                const ad = a.data().createdAt, bd = b.data().createdAt;
+                const at = ad && ad.toMillis ? ad.toMillis() : 0, bt = bd && bd.toMillis ? bd.toMillis() : 0;
+                return at - bt;
+            });
+            container.innerHTML = docs.map(doc => {
+                const m = doc.data() || {};
+                const fromSA = m.senderRole === 'superadmin';
+                return `<div class="communication-message ${fromSA ? 'from-superadmin' : 'from-headteacher'}"><small>${communicationSafeText(fromSA ? 'Super Admin' : (m.senderName || 'Headteacher'))} · ${communicationSafeText(communicationDate(m.createdAt))}</small>${communicationSafeText(m.text || '')}</div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+        async function sendCommunicationEmailNotice({schoolName, schoolId, senderEmail, message}) {
+            // This endpoint must be implemented in the Render backend and use the Resend API key server-side.
+            const base = String(PAYMENT_SERVER_URL || '').replace(/\/$/, '');
+            if (!base) throw new Error('Backend URL is not configured.');
+            const response = await fetch(base + '/api/messages/notify', {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({to: SUPER_ADMIN_EMAIL, schoolName, schoolId, senderEmail, message, portalUrl: window.location.origin})
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || data.success === false) throw new Error(data.message || 'Email notification endpoint is not configured.');
+            return true;
+        }
+        async function loadHeadteacherConversation() {
+            const box = document.getElementById('headteacherConversationMessages');
+            const status = document.getElementById('headteacherCommunicationStatus');
+            if (!box || !currentSchoolId || !auth.currentUser) { if (box) box.innerHTML = '<p>School information is not available. Please log in again.</p>'; return; }
+            try {
+                const threadRef = db.collection('supportConversations').doc(String(currentSchoolId));
+                await threadRef.set({schoolId:String(currentSchoolId), schoolName:currentSchoolName || 'School', schoolEmail:currentSchoolEmail || '', updatedAt:firebase.firestore.FieldValue.serverTimestamp()}, {merge:true});
+                if (headteacherMessagesUnsubscribe) headteacherMessagesUnsubscribe();
+                headteacherMessagesUnsubscribe = threadRef.collection('messages').orderBy('createdAt','asc').onSnapshot(snap => renderCommunicationMessages(box,snap), err => { box.innerHTML = '<p>Unable to load messages. Check Firestore security rules.</p>'; if(status) status.textContent = err.message; });
+            } catch (err) { box.innerHTML = '<p>Unable to open conversation. Check Firestore security rules.</p>'; if(status) status.textContent = err.message; }
+        }
+        async function sendHeadteacherMessage(event) {
+            event.preventDefault();
+            const input = document.getElementById('headteacherMessageText');
+            const status = document.getElementById('headteacherCommunicationStatus');
+            const text = String(input?.value || '').trim();
+            if (!text) return;
+            if (!currentSchoolId || !auth.currentUser) { if(status) status.textContent = 'Please log in to send a message.'; return; }
+            const button = document.querySelector('#headteacherMessageForm button[type="submit"]'); if(button) button.disabled = true;
+            if(status) status.textContent = 'Sending message...';
+            try {
+                const threadRef = db.collection('supportConversations').doc(String(currentSchoolId));
+                await threadRef.set({schoolId:String(currentSchoolId),schoolName:currentSchoolName || 'School',schoolEmail:currentSchoolEmail || '',headteacherEmail:auth.currentUser.email || '',updatedAt:firebase.firestore.FieldValue.serverTimestamp(),lastMessage:text,lastSenderRole:'headteacher',unreadForSuperAdmin:true},{merge:true});
+                await threadRef.collection('messages').add({text,senderRole:'headteacher',senderName:currentSchoolName || 'Headteacher',senderEmail:auth.currentUser.email || '',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                input.value = '';
+                try {
+                    await sendCommunicationEmailNotice({schoolName:currentSchoolName || 'School',schoolId:String(currentSchoolId),senderEmail:auth.currentUser.email || '',message:text});
+                    if(status) status.textContent = 'Message sent. Email notification sent to the Super Admin.';
+                } catch(emailErr) {
+                    if(status) status.textContent = 'Message sent and saved in the portal, but email notification is not active yet. The backend needs the /api/messages/notify endpoint and Resend configuration.';
+                }
+            } catch (err) { if(status) status.textContent = 'Message could not be sent: ' + err.message; }
+            finally { if(button) button.disabled = false; }
+        }
+        async function loadSuperAdminConversations() {
+            const list = document.getElementById('saConversationList');
+            if (!list) return;
+            if (superAdminConversationUnsubscribe) superAdminConversationUnsubscribe();
+            list.innerHTML = '<p>Loading conversations...</p>';
+            try {
+                superAdminConversationUnsubscribe = db.collection('supportConversations').onSnapshot(snap => {
+                    if (snap.empty) { list.innerHTML = '<p>No headteacher messages yet.</p>'; return; }
+                    const docs = snap.docs.slice().sort((a,b) => {
+                        const ad = a.data().updatedAt, bd = b.data().updatedAt;
+                        return (bd && bd.toMillis ? bd.toMillis() : 0) - (ad && ad.toMillis ? ad.toMillis() : 0);
+                    });
+                    list.innerHTML = docs.map(doc => { const d = doc.data() || {}; const id = doc.id;
+                        return `<button type="button" class="communication-thread-button ${id === activeSuperAdminConversationId ? 'active' : ''}" onclick="openSuperAdminConversation('${communicationSafeText(id)}')"><strong>${communicationSafeText(d.schoolName || 'School')}</strong><small>${communicationSafeText(d.lastMessage || 'No messages yet')}</small><small>${communicationSafeText(communicationDate(d.updatedAt))}${d.unreadForSuperAdmin ? ' · New message' : ''}</small></button>`;
+                    }).join('');
+                }, err => { list.innerHTML = '<p>Unable to load conversations. Check Firestore security rules.</p>'; });
+            } catch (err) { list.innerHTML = '<p>Unable to load conversations: ' + communicationSafeText(err.message) + '</p>'; }
+        }
+        async function openSuperAdminConversation(conversationId) {
+            activeSuperAdminConversationId = String(conversationId || '');
+            const heading = document.getElementById('saConversationHeading');
+            const box = document.getElementById('saConversationMessages');
+            const status = document.getElementById('saCommunicationStatus');
+            const form = document.getElementById('saReplyForm');
+            if (form) form.style.display = 'flex';
+            if (status) status.textContent = '';
+            try {
+                const ref = db.collection('supportConversations').doc(activeSuperAdminConversationId);
+                const thread = await ref.get(); const data = thread.data() || {};
+                if (heading) heading.textContent = (data.schoolName || 'School') + ' — Headteacher conversation';
+                await ref.set({unreadForSuperAdmin:false},{merge:true});
+                if (superAdminMessagesUnsubscribe) superAdminMessagesUnsubscribe();
+                superAdminMessagesUnsubscribe = ref.collection('messages').orderBy('createdAt','asc').onSnapshot(snap => renderCommunicationMessages(box,snap), err => { if(box) box.innerHTML = '<p>Unable to load messages. Check Firestore security rules.</p>'; });
+                loadSuperAdminConversations();
+            } catch (err) { if(status) status.textContent = 'Unable to open conversation: ' + err.message; }
+        }
+        async function sendSuperAdminReply(event) {
+            event.preventDefault();
+            const input = document.getElementById('saReplyText'); const status = document.getElementById('saCommunicationStatus');
+            const text = String(input?.value || '').trim();
+            if (!text || !activeSuperAdminConversationId) { if(status) status.textContent = 'Select a conversation and enter a reply first.'; return; }
+            const button = document.querySelector('#saReplyForm button[type="submit"]'); if(button) button.disabled = true;
+            try {
+                const ref = db.collection('supportConversations').doc(activeSuperAdminConversationId);
+                await ref.collection('messages').add({text,senderRole:'superadmin',senderName:'Super Admin',senderEmail:auth.currentUser?.email || SUPER_ADMIN_EMAIL,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                await ref.set({updatedAt:firebase.firestore.FieldValue.serverTimestamp(),lastMessage:text,lastSenderRole:'superadmin',unreadForHeadteacher:true},{merge:true});
+                input.value = ''; if(status) status.textContent = 'Reply sent.';
+            } catch (err) { if(status) status.textContent = 'Reply could not be sent: ' + err.message; }
+            finally { if(button) button.disabled = false; }
+        }
+
         async function loadAnnouncements(containerId, includeAllForSuperAdmin = false) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -4309,6 +4472,7 @@ body{
                         `<h4>${announcementIcon(type)} ${esc(announcementLabel(type))}: ${esc(d.title || '')}</h4>` +
                         `<div class="announcement-meta">${esc(formatAnnouncementDate(d.createdAt))}</div>` +
                         `<div style="white-space:pre-wrap; color:#334155; line-height:1.6;">${esc(d.message || '')}</div>` +
+                        (includeAllForSuperAdmin ? `<div style="margin-top:12px;display:flex;justify-content:flex-end;"><button type="button" class="btn-danger" onclick="deleteAnnouncement('${doc.id}')">Delete Message</button></div>` : '') +
                         `</div>`;
                 });
                 container.innerHTML = html;
@@ -4319,6 +4483,23 @@ body{
             } catch (err) {
                 console.error('Announcements load error:', err);
                 container.innerHTML = '<p style="color:red;">Error loading announcements.</p>';
+            }
+        }
+
+        async function deleteAnnouncement(announcementId) {
+            if (!announcementId) { alert('Could not identify this announcement.'); return; }
+            const confirmed = confirm('Delete this update/announcement? It will be removed from the portal for everyone. This cannot be undone.');
+            if (!confirmed) return;
+            if (!auth.currentUser) { alert('Please sign in as Super Admin before deleting a message.'); return; }
+            try {
+                // The Firestore security rules must restrict announcement deletion to the authorized Super Admin.
+                await db.collection('announcements').doc(announcementId).delete();
+                alert('The update/announcement has been deleted.');
+                await loadAnnouncements('superAdminAnnouncementsContainer', true);
+                updateAnnouncementBadges();
+            } catch (err) {
+                console.error('Delete announcement error:', err);
+                alert('Could not delete this message. Check the Firestore security rules and confirm that Super Admin is allowed to delete announcements.');
             }
         }
 
@@ -4582,8 +4763,10 @@ body{
 
         async function renderStudentPortal(studentData) {
             const content = document.getElementById("studentPortalContent");
+            window.activeStudentPortalData = studentData;
             const schoolId = studentData.schoolId || currentSchoolId;
-            content.innerHTML = '<p>Loading report card...</p>';
+            content.innerHTML = '<div class="student-portal-tabs" role="tablist" aria-label="Student dashboard"><button type="button" class="btn-secondary" id="studentResultsTabBtn" role="tab" aria-selected="false" onclick="showStudentPortalTab(\'results\')">Results</button><button type="button" class="btn-secondary" id="studentMaterialsTabBtn" role="tab" aria-selected="false" onclick="showStudentPortalTab(\'materials\')">Learning Materials</button></div><section id="studentDashboardWelcome" class="student-dashboard-welcome"><h3>Welcome to Your Student Dashboard</h3><p>Choose a tab above to view your published results or access learning materials shared by your school.</p><div class="student-dashboard-shortcuts"><div><strong>📊 Results</strong><p>View, print or download your results when you select the Results tab.</p></div><div><strong>📚 Learning Materials</strong><p>Find notes, assignments, past papers and other class materials.</p></div></div></section><section id="studentResultsPanel" style="display:none;"><p>Loading report card...</p></section><section id="studentMaterialsPanel" style="display:none;"></section>';
+            const resultsContent = document.getElementById('studentResultsPanel');
             try {
                 const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap] = await Promise.all([
                     db.collection("schools").doc(schoolId).get(),
@@ -4593,7 +4776,7 @@ body{
                     db.collection("students").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get()
                 ]);
                 if (!controlSnap.exists || controlSnap.data().resultsPublished !== true) {
-                    content.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">Results have not been published by the school yet.</p>';
+                    resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">Results have not been published by the school yet.</p>';
                     return;
                 }
                 const school = schoolSnap.exists ? schoolSnap.data() : {};
@@ -4604,7 +4787,7 @@ body{
                 const subjects = isSeniorSchool && selectedSubjects.length ? allSubjects.filter(s => selectedSubjects.includes(s)) : allSubjects;
                 const marks = marksSnap.docs.map(d => d.data());
                 if (!marks.length) {
-                    content.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">No published marks available yet.</p>';
+                    resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">No published marks available yet.</p>';
                     return;
                 }
                 const examName = studentData.exam || marks.find(m => m.exam)?.exam || (studentData.term ? `${studentData.term} ${studentData.year || ''}`.trim() : 'Results');
@@ -4635,8 +4818,32 @@ body{
                 const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
                 const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
                 currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
-                content.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>Excellent performance. Keep up the good work and consistency.</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
-            } catch(err) { content.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
+                resultsContent.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>Excellent performance. Keep up the good work and consistency.</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
+            } catch(err) { resultsContent.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
+        }
+
+
+        function showStudentPortalTab(tab) {
+            const r=document.getElementById('studentResultsPanel'), m=document.getElementById('studentMaterialsPanel'), welcome=document.getElementById('studentDashboardWelcome'); if(!r||!m)return;
+            const show=tab==='materials';
+            r.style.display=show?'none':'block';
+            m.style.display=show?'block':'none';
+            if(welcome)welcome.style.display='none';
+            const resultsBtn=document.getElementById('studentResultsTabBtn'), materialsBtn=document.getElementById('studentMaterialsTabBtn');
+            if(resultsBtn){resultsBtn.className=show?'btn-secondary':'btn-primary';resultsBtn.setAttribute('aria-selected',String(!show));}
+            if(materialsBtn){materialsBtn.className=show?'btn-primary':'btn-secondary';materialsBtn.setAttribute('aria-selected',String(show));}
+            if(show)loadStudentLearningMaterials();
+        }
+        async function loadStudentLearningMaterials(){
+            const panel=document.getElementById('studentMaterialsPanel'), student=window.activeStudentPortalData;if(!panel||!student)return;
+            const schoolId=student.schoolId||currentSchoolId, className=String(student.class||'').trim();
+            if(!schoolId||!className){panel.innerHTML='<p>School or class details are missing. Please contact your school.</p>';return;}
+            panel.innerHTML='<p>Loading learning materials…</p>';
+            try{const snap=await db.collection('resources').where('schoolId','==',schoolId).where('class','==',className).get();const items=snap.docs.map(doc=>doc.data()||{});
+                const cats=[['note','📝 Notes'],['assignment','📌 Assignments'],['past-paper','📚 Past Papers'],['other','📁 Other Materials']];let html=`<h3>${esc(className)} Learning Materials</h3><p class="lm-intro">Materials for your class, arranged by type and subject.</p>`;
+                for(const [key,label] of cats){const group=items.filter(x=>(x.category||'other')===key);if(!group.length)continue;html+=`<section class="lm-student-category"><h4>${label}</h4><div class="lm-material-grid">`;for(const x of group){const href=x.fileUrl||x.link||'';html+=`<article class="lm-material-card"><span class="lm-material-type">${esc(x.subject||'General')}</span><h5>${esc(x.title||'Untitled')}</h5><p>${esc(x.description||'')}</p>${x.dueDate?`<p><strong>Due:</strong> ${esc(x.dueDate)}</p>`:''}${href?`<a class="btn-secondary lm-open-link" href="${esc(href)}" target="_blank" rel="noopener">${key==='video'?'▶ Watch video':'Open / Download'}</a>`:'<span>No file or link attached</span>'}</article>`;}html+='</div></section>';}
+                panel.innerHTML=html;
+            }catch(err){console.error(err);panel.innerHTML='<p>Could not load learning materials. Please try again.</p>';}
         }
 
         function buildStudentPerformanceGraph(studentMarks, subjects, subjectStats) {
@@ -5906,7 +6113,7 @@ body > #adminSectionsContainer.portal-section-fullscreen {
                 const classSelects = [
                     'sClassSelect', 'mClassSelect', 'classListSelect', 'bulkClassSelect', 
                     'photoClassSelect', 'transferClassSelect', 'massTransferClassSelect', 
-                    'allocClassSelect', 'timetableClassSelect', 'resourcesClassSelect',
+                    'allocClassSelect', 'timetableClassSelect', 'resourcesClassSelect', 'resUploadClass', 'tResUploadClass',
                     'tClassListSelect', 'tTimetableClassSelect', 'tResourcesClassSelect'
                 ];
 
@@ -7619,40 +7826,77 @@ body > #adminSectionsContainer.portal-section-fullscreen {
             }catch(e){container.innerHTML='<p style="color:red;">Error loading timetable.</p>';}
         }
 
-        async function saveResourceEntry(e) {
-            e.preventDefault();
-            const className = document.getElementById("resourcesClassSelect").value;
-            const title = document.getElementById("resTitle").value.trim();
-            const link = document.getElementById("resLink").value.trim();
-            const file = document.getElementById("resFile")?.files?.[0] || null;
-            if (!className) { alert("Select a class."); return; }
-            if (!title) { alert("Enter a resource title."); return; }
-            if (!link && !file) { alert("Provide a URL or select a file."); return; }
-            try {
-                const uploaded = await uploadPortalFile(file, "resources");
-                const fileUrl = uploaded ? uploaded.secureUrl : "";
-                await db.collection("resources").add({
-                    schoolId: currentSchoolId, class: className, title, link: link || "",
-                    fileUrl: fileUrl || "", cloudinaryPublicId: uploaded?.publicId || "", cloudinaryResourceType: uploaded?.resourceType || "", fileName: file ? file.name : "",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                document.getElementById("resourceForm").reset();
-                alert("Resource uploaded successfully!");
-                loadResources(className);
-            } catch (err) { alert("Error saving resource: " + err.message); }
+        async function updateResourceFields(mode = 'admin') {
+            const teacher = mode === 'teacher';
+            const prefix = teacher ? 'tRes' : 'res';
+            const category = document.getElementById(prefix + 'Category')?.value || '';
+            const holder = document.getElementById(prefix + 'DynamicFields');
+            if (!holder) return;
+            holder.innerHTML = '';
+            const subjectField = `<div class="auth-form-group"><label>Subject</label><select id="${prefix}Subject" required><option value="">-- Select Subject --</option></select></div>`;
+            const titleField = `<div class="auth-form-group"><label>Title</label><input id="${prefix}Title" type="text" required placeholder="e.g. Fractions revision notes"></div>`;
+            const fileField = `<div class="auth-form-group"><label>Choose File to Upload</label><input id="${prefix}File" type="file" required accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.png,.jpg,.jpeg"></div>`;
+            if (category === 'assignment') {
+                holder.innerHTML = subjectField + `<div class="auth-form-group"><label>Due Date</label><input id="${prefix}DueDate" type="date" required></div>` + fileField;
+            } else if (category === 'past-paper') {
+                holder.innerHTML = subjectField + fileField;
+            } else if (category === 'note') {
+                holder.innerHTML = subjectField + titleField + fileField;
+            } else if (category === 'other') {
+                holder.innerHTML = `<div class="auth-form-group" style="grid-column:1/-1"><label>Description</label><textarea id="${prefix}Description" rows="3" required placeholder="Describe this material"></textarea></div>` + fileField;
+            }
+            if (category !== 'assignment' && category !== 'past-paper' && category !== 'note' && category !== 'other') return;
+            if (category !== 'other') {
+                try {
+                    const snap = await db.collection('subjects').where('schoolId', '==', currentSchoolId).get();
+                    const names = [...new Set(snap.docs.map(doc => { const d=doc.data()||{}; return String(d.name||d.subjectName||d.title||d.subject||'').trim(); }).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true,sensitivity:'base'}));
+                    const select = document.getElementById(prefix + 'Subject');
+                    if (select) names.forEach(name => select.insertAdjacentHTML('beforeend', `<option value="${esc(name)}">${esc(name)}</option>`));
+                } catch (err) { console.error('Could not load subjects for learning materials', err); }
+            }
         }
 
-        async function loadResources(className, containerId = "resourcesDisplayContainer") {
-            const container = document.getElementById(containerId);
-            if (!className) { if (container) container.innerHTML = ""; return; }
+        async function saveResourceEntry(e, mode = 'admin') {
+            e.preventDefault();
+            const teacher = mode === 'teacher';
+            const prefix = teacher ? 'tRes' : 'res';
+            const get = suffix => document.getElementById(prefix + suffix);
+            const className = get('UploadClass')?.value.trim() || '';
+            const category = get('Category')?.value || '';
+            const subject = get('Subject')?.value.trim() || '';
+            const title = get('Title')?.value.trim() || (category === 'assignment' ? 'Assignment' : category === 'past-paper' ? 'Past Paper' : '');
+            const dueDate = get('DueDate')?.value || '';
+            const description = get('Description')?.value.trim() || '';
+            const file = get('File')?.files?.[0] || null;
+            if (!className || !category) { alert('Please select a class and material type.'); return; }
+            if (category !== 'other' && !subject) { alert('Please select a subject.'); return; }
+            if (category === 'note' && !title) { alert('Please enter a title for the note.'); return; }
+            if (category === 'assignment' && !dueDate) { alert('Please choose the assignment due date.'); return; }
+            if (category === 'other' && !description) { alert('Please enter a description.'); return; }
+            if (!file) { alert('Please choose a file to upload.'); return; }
+            if (file.size > 25 * 1024 * 1024) { alert('File must not exceed 25 MB.'); return; }
             try {
-                const snap = await db.collection("resources").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
-                if (snap.empty) { if (container) container.innerHTML = "<p>No resources uploaded for this class.</p>"; return; }
-                let html = `<table><thead><tr><th>Resource Title</th><th>File / Link</th></tr></thead><tbody>`;
-                snap.forEach(doc => { const d = doc.data(); const href = d.fileUrl || d.link; html += `<tr><td style="text-align:left;">${esc(d.title)}</td><td>${href ? `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(d.fileName || "Open resource")}</a>` : "—"}</td></tr>`; });
-                html += `</tbody></table>`;
-                if (container) container.innerHTML = html;
-            } catch (e) { if (container) container.innerHTML = "<p>Error loading resources.</p>"; }
+                const uploaded = await uploadPortalFile(file, 'resources');
+                await db.collection('resources').add({schoolId:currentSchoolId,class:className,title:title || (category === 'other' ? description.slice(0,100) : category === 'assignment' ? 'Assignment' : 'Past Paper'),subject,category,description,dueDate,link:'',fileUrl:uploaded?.secureUrl||'',cloudinaryPublicId:uploaded?.publicId||'',cloudinaryResourceType:uploaded?.resourceType||'',fileName:file.name,fileType:file.type||'',createdByRole:teacher?'teacher':'headteacher',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                document.getElementById(teacher?'teacherResourceForm':'resourceForm').reset();
+                const holder = document.getElementById(prefix + 'DynamicFields'); if (holder) holder.innerHTML = '';
+                const browse = document.getElementById(teacher?'tResourcesClassSelect':'resourcesClassSelect'); if(browse) browse.value=className;
+                alert('Learning material uploaded successfully.');
+                loadResources(className,teacher?'tResourcesContainer':'resourcesDisplayContainer');
+            } catch(err) { alert('Error saving learning material: '+err.message); }
+        }
+
+        async function loadResources(className, containerId = 'resourcesDisplayContainer') {
+            const container=document.getElementById(containerId); if(!container)return; if(!className){container.innerHTML='';return;}
+            try {
+                const snap=await db.collection('resources').where('schoolId','==',currentSchoolId).where('class','==',className).get();
+                const items=snap.docs.map(doc=>({id:doc.id,...(doc.data()||{})}));
+                if(!items.length){container.innerHTML=`<p>No learning materials uploaded for ${esc(className)} yet.</p>`;return;}
+                const cats=[['note','📝 Notes'],['assignment','📌 Assignments'],['past-paper','📚 Past Papers'],['other','📁 Other Materials']]; let html=`<h4>${esc(className)} Learning Materials</h4>`;
+                for(const [key,label] of cats){const group=items.filter(x=>(x.category||'other')===key);if(!group.length)continue;html+=`<section class="lm-student-category"><h4>${label}</h4><div class="lm-material-grid">`;
+                    for(const x of group){const href=x.fileUrl||x.link||'';html+=`<article class="lm-material-card"><span class="lm-material-type">${esc(x.subject||'General')}</span><h5>${esc(x.title||'Untitled')}</h5><p>${esc(x.description||'')}</p>${x.dueDate?`<p><strong>Due:</strong> ${esc(x.dueDate)}</p>`:''}${href?`<a class="btn-secondary lm-open-link" href="${esc(href)}" target="_blank" rel="noopener">Open / Download</a>`:'<span>No file or link attached</span>'}</article>`;} html+='</div></section>';}
+                container.innerHTML=html;
+            } catch(err){console.error(err);container.innerHTML='<p style="color:#b91c1c;">Error loading learning materials.</p>';}
         }
 
         function esc(value) {
