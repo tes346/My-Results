@@ -2199,7 +2199,9 @@ body{
   }
 }
 
-</style>
+
+        .communication-message-text{white-space:pre-wrap;line-height:1.5;overflow-wrap:anywhere}.communication-message-meta{display:flex;justify-content:flex-end;min-height:16px;margin-top:3px}.communication-ticks{font-size:14px;font-weight:700;color:#64748b;letter-spacing:-3px;padding-right:3px}.communication-ticks.read{color:#1683e8}
+    </style>
 
 <style id="final-dashboard-card-layout-fix">
 /* Final layout correction: enforce two columns and bold, larger dashboard card names in all portals. */
@@ -4328,11 +4330,14 @@ body{
             } catch (_) { return ''; }
         }
 
-        // Private support messaging: one conversation per school, with individual messages in a subcollection.
+        // Private support messaging is handled through authenticated Render API endpoints.
         let activeSuperAdminConversationId = '';
         let headteacherMessagesUnsubscribe = null;
         let superAdminMessagesUnsubscribe = null;
         let superAdminConversationUnsubscribe = null;
+        let headteacherChatPoll = null;
+        let superAdminChatPoll = null;
+        let superAdminPresenceTimer = null;
 
         function communicationSafeText(value) {
             return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
@@ -4340,83 +4345,78 @@ body{
         function communicationDate(value) {
             try { const d = value && typeof value.toDate === 'function' ? value.toDate() : value ? new Date(value) : null; return d && !isNaN(d.getTime()) ? d.toLocaleString() : 'Just now'; } catch (_) { return 'Just now'; }
         }
-        function renderCommunicationMessages(container, snapshot) {
-            if (!container) return;
-            if (!snapshot || snapshot.empty) { container.innerHTML = '<p>No messages yet. Start the conversation below.</p>'; return; }
-            const docs = snapshot.docs.slice().sort((a,b) => {
-                const ad = a.data().createdAt, bd = b.data().createdAt;
-                const at = ad && ad.toMillis ? ad.toMillis() : 0, bt = bd && bd.toMillis ? bd.toMillis() : 0;
-                return at - bt;
-            });
-            container.innerHTML = docs.map(doc => {
-                const m = doc.data() || {};
-                const fromSA = m.senderRole === 'superadmin';
-                return `<div class="communication-message ${fromSA ? 'from-superadmin' : 'from-headteacher'}"><small>${communicationSafeText(fromSA ? 'Super Admin' : (m.senderName || 'Headteacher'))} · ${communicationSafeText(communicationDate(m.createdAt))}</small>${communicationSafeText(m.text || '')}</div>`;
-            }).join('');
-            container.scrollTop = container.scrollHeight;
-        }
-        async function sendCommunicationEmailNotice({schoolName, schoolId, senderEmail, message}) {
-            // This endpoint must be implemented in the Render backend and use the Resend API key server-side.
-            const base = String(PAYMENT_SERVER_URL || '').replace(/\/$/, '');
-            if (!base) throw new Error('Backend URL is not configured.');
-            const response = await fetch(base + '/api/messages/notify', {
-                method: 'POST', headers: {'Content-Type':'application/json'},
-                body: JSON.stringify({to: SUPER_ADMIN_EMAIL, schoolName, schoolId, senderEmail, message, portalUrl: window.location.origin})
+        async function communicationApi(path, options = {}) {
+            if (!auth.currentUser) throw new Error('Please sign in again.');
+            const token = await auth.currentUser.getIdToken();
+            const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, '') + path, {
+                ...options,
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, ...(options.headers || {}) }
             });
             const data = await response.json().catch(() => ({}));
-            if (!response.ok || data.success === false) throw new Error(data.message || 'Email notification endpoint is not configured.');
-            return true;
+            if (!response.ok || !data.success) throw new Error(data.message || `Messaging request failed (HTTP ${response.status}).`);
+            return data;
+        }
+        function renderCommunicationMessages(container, messages) {
+            if (!container) return;
+            if (!Array.isArray(messages) || !messages.length) { container.innerHTML = '<p class="communication-empty">No messages yet. Start the conversation below.</p>'; return; }
+            container.innerHTML = messages.map(m => {
+                const fromSA = m.senderRole === 'superadmin';
+                let ticks = '';
+                if (!fromSA) {
+                    const status = String(m.status || 'sent').toLowerCase();
+                    ticks = status === 'read' ? '<span class="communication-ticks read" title="Read">✓✓</span>' : status === 'delivered' ? '<span class="communication-ticks" title="Delivered">✓✓</span>' : '<span class="communication-ticks" title="Sent">✓</span>';
+                }
+                return `<div class="communication-message ${fromSA ? 'from-superadmin' : 'from-headteacher'}"><small>${communicationSafeText(fromSA ? 'Super Admin' : (m.senderName || 'Headteacher'))} · ${communicationSafeText(communicationDate(m.createdAt))}</small><div class="communication-message-text">${communicationSafeText(m.text || '')}</div><div class="communication-message-meta">${ticks}</div></div>`;
+            }).join('');
+            container.scrollTop = container.scrollHeight;
         }
         async function loadHeadteacherConversation() {
             const box = document.getElementById('headteacherConversationMessages');
             const status = document.getElementById('headteacherCommunicationStatus');
-            if (!box || !currentSchoolId || !auth.currentUser) { if (box) box.innerHTML = '<p>School information is not available. Please log in again.</p>'; return; }
+            if (!box) return;
+            if (!currentSchoolId || !auth.currentUser) { box.innerHTML = '<p>School information is not available. Please log in again.</p>'; return; }
             try {
-                const threadRef = db.collection('supportConversations').doc(String(currentSchoolId));
-                await threadRef.set({schoolId:String(currentSchoolId), schoolName:currentSchoolName || 'School', schoolEmail:currentSchoolEmail || '', updatedAt:firebase.firestore.FieldValue.serverTimestamp()}, {merge:true});
-                if (headteacherMessagesUnsubscribe) headteacherMessagesUnsubscribe();
-                headteacherMessagesUnsubscribe = threadRef.collection('messages').orderBy('createdAt','asc').onSnapshot(snap => renderCommunicationMessages(box,snap), err => { box.innerHTML = '<p>Unable to load messages. Check Firestore security rules.</p>'; if(status) status.textContent = err.message; });
-            } catch (err) { box.innerHTML = '<p>Unable to open conversation. Check Firestore security rules.</p>'; if(status) status.textContent = err.message; }
+                box.innerHTML = '<p>Loading conversation...</p>';
+                const data = await communicationApi('/api/messages/conversation/' + encodeURIComponent(String(currentSchoolId)));
+                renderCommunicationMessages(box, data.messages || []);
+                if (status && !status.dataset.notice) status.textContent = '';
+                if (!headteacherChatPoll) headteacherChatPoll = setInterval(async () => {
+                    if (!document.getElementById('headteacherConversationMessages') || !auth.currentUser) return;
+                    try { const latest = await communicationApi('/api/messages/conversation/' + encodeURIComponent(String(currentSchoolId))); renderCommunicationMessages(box, latest.messages || []); } catch (e) { if (status) status.textContent = 'Conversation refresh failed: ' + e.message; }
+                }, 5000);
+            } catch (err) { box.innerHTML = '<p>Unable to load conversation. Please check your connection and Render server deployment.</p>'; if (status) status.textContent = err.message; }
         }
         async function sendHeadteacherMessage(event) {
             event.preventDefault();
             const input = document.getElementById('headteacherMessageText');
             const status = document.getElementById('headteacherCommunicationStatus');
-            const text = String(input?.value || '').trim();
-            if (!text) return;
-            if (!currentSchoolId || !auth.currentUser) { if(status) status.textContent = 'Please log in to send a message.'; return; }
-            const button = document.querySelector('#headteacherMessageForm button[type="submit"]'); if(button) button.disabled = true;
-            if(status) status.textContent = 'Sending message...';
+            const message = String(input?.value || '').trim();
+            if (!message) return;
+            const button = document.querySelector('#headteacherMessageForm button[type="submit"]');
+            if (button) { button.disabled = true; button.textContent = 'Sending...'; }
+            if (status) status.textContent = 'Sending message...';
             try {
-                const threadRef = db.collection('supportConversations').doc(String(currentSchoolId));
-                await threadRef.set({schoolId:String(currentSchoolId),schoolName:currentSchoolName || 'School',schoolEmail:currentSchoolEmail || '',headteacherEmail:auth.currentUser.email || '',updatedAt:firebase.firestore.FieldValue.serverTimestamp(),lastMessage:text,lastSenderRole:'headteacher',unreadForSuperAdmin:true},{merge:true});
-                await threadRef.collection('messages').add({text,senderRole:'headteacher',senderName:currentSchoolName || 'Headteacher',senderEmail:auth.currentUser.email || '',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+                const data = await communicationApi('/api/messages/send', { method: 'POST', body: JSON.stringify({ message }) });
                 input.value = '';
-                try {
-                    await sendCommunicationEmailNotice({schoolName:currentSchoolName || 'School',schoolId:String(currentSchoolId),senderEmail:auth.currentUser.email || '',message:text});
-                    if(status) status.textContent = 'Message sent. Email notification sent to the Super Admin.';
-                } catch(emailErr) {
-                    if(status) status.textContent = 'Message sent and saved in the portal, but email notification is not active yet. The backend needs the /api/messages/notify endpoint and Resend configuration.';
-                }
-            } catch (err) { if(status) status.textContent = 'Message could not be sent: ' + err.message; }
-            finally { if(button) button.disabled = false; }
+                await loadHeadteacherConversation();
+                if (status) { status.dataset.notice = '1'; status.textContent = data.emailSent ? 'Message sent. Email notification delivered to the Super Admin.' : 'Message sent and saved. Email notification could not be sent: ' + (data.emailError || 'Check Resend settings on Render.'); }
+            } catch (err) { if (status) status.textContent = 'Message could not be sent: ' + err.message; }
+            finally { if (button) { button.disabled = false; button.textContent = 'Send Message'; } }
         }
         async function loadSuperAdminConversations() {
             const list = document.getElementById('saConversationList');
-            if (!list) return;
-            if (superAdminConversationUnsubscribe) superAdminConversationUnsubscribe();
-            list.innerHTML = '<p>Loading conversations...</p>';
+            if (!list || !auth.currentUser) return;
             try {
-                superAdminConversationUnsubscribe = db.collection('supportConversations').onSnapshot(snap => {
-                    if (snap.empty) { list.innerHTML = '<p>No headteacher messages yet.</p>'; return; }
-                    const docs = snap.docs.slice().sort((a,b) => {
-                        const ad = a.data().updatedAt, bd = b.data().updatedAt;
-                        return (bd && bd.toMillis ? bd.toMillis() : 0) - (ad && ad.toMillis ? ad.toMillis() : 0);
-                    });
-                    list.innerHTML = docs.map(doc => { const d = doc.data() || {}; const id = doc.id;
-                        return `<button type="button" class="communication-thread-button ${id === activeSuperAdminConversationId ? 'active' : ''}" onclick="openSuperAdminConversation('${communicationSafeText(id)}')"><strong>${communicationSafeText(d.schoolName || 'School')}</strong><small>${communicationSafeText(d.lastMessage || 'No messages yet')}</small><small>${communicationSafeText(communicationDate(d.updatedAt))}${d.unreadForSuperAdmin ? ' · New message' : ''}</small></button>`;
-                    }).join('');
-                }, err => { list.innerHTML = '<p>Unable to load conversations. Check Firestore security rules.</p>'; });
+                const data = await communicationApi('/api/messages/conversations');
+                const docs = data.conversations || [];
+                if (!docs.length) { list.innerHTML = '<p>No headteacher messages yet.</p>'; }
+                else list.innerHTML = docs.map(d => `<button type="button" class="communication-thread-button ${d.id === activeSuperAdminConversationId ? 'active' : ''}" onclick="openSuperAdminConversation('${communicationSafeText(d.id)}')"><strong>${communicationSafeText(d.schoolName || 'School')}</strong><small>${communicationSafeText(d.lastMessage || 'No messages yet')}</small><small>${communicationSafeText(communicationDate(d.updatedAt))}${d.unreadForSuperAdmin ? ' · New message' : ''}</small></button>`).join('');
+                if (!superAdminChatPoll) superAdminChatPoll = setInterval(() => { if (document.getElementById('saConversationList') && auth.currentUser) loadSuperAdminConversations(); }, 5000);
+                if (!superAdminPresenceTimer) {
+                    const sendPresence = () => communicationApi('/api/messages/presence', { method: 'POST', body: JSON.stringify({ online: true }) }).catch(e => console.warn('Super Admin presence update:', e.message));
+                    sendPresence(); superAdminPresenceTimer = setInterval(sendPresence, 20000);
+                    window.addEventListener('pagehide', () => { if (auth.currentUser) communicationApi('/api/messages/presence', { method: 'POST', body: JSON.stringify({ online: false }) }).catch(() => {}); });
+                }
             } catch (err) { list.innerHTML = '<p>Unable to load conversations: ' + communicationSafeText(err.message) + '</p>'; }
         }
         async function openSuperAdminConversation(conversationId) {
@@ -4427,29 +4427,27 @@ body{
             const form = document.getElementById('saReplyForm');
             if (form) form.style.display = 'flex';
             if (status) status.textContent = '';
+            if (box) box.innerHTML = '<p>Loading conversation...</p>';
             try {
-                const ref = db.collection('supportConversations').doc(activeSuperAdminConversationId);
-                const thread = await ref.get(); const data = thread.data() || {};
-                if (heading) heading.textContent = (data.schoolName || 'School') + ' — Headteacher conversation';
-                await ref.set({unreadForSuperAdmin:false},{merge:true});
-                if (superAdminMessagesUnsubscribe) superAdminMessagesUnsubscribe();
-                superAdminMessagesUnsubscribe = ref.collection('messages').orderBy('createdAt','asc').onSnapshot(snap => renderCommunicationMessages(box,snap), err => { if(box) box.innerHTML = '<p>Unable to load messages. Check Firestore security rules.</p>'; });
-                loadSuperAdminConversations();
-            } catch (err) { if(status) status.textContent = 'Unable to open conversation: ' + err.message; }
+                const data = await communicationApi('/api/messages/conversation/' + encodeURIComponent(activeSuperAdminConversationId));
+                if (heading) heading.textContent = (data.conversation?.schoolName || 'School') + ' — Headteacher conversation';
+                renderCommunicationMessages(box, data.messages || []);
+                await loadSuperAdminConversations();
+            } catch (err) { if (box) box.innerHTML = '<p>Unable to load messages.</p>'; if (status) status.textContent = 'Unable to open conversation: ' + err.message; }
         }
         async function sendSuperAdminReply(event) {
             event.preventDefault();
-            const input = document.getElementById('saReplyText'); const status = document.getElementById('saCommunicationStatus');
-            const text = String(input?.value || '').trim();
-            if (!text || !activeSuperAdminConversationId) { if(status) status.textContent = 'Select a conversation and enter a reply first.'; return; }
-            const button = document.querySelector('#saReplyForm button[type="submit"]'); if(button) button.disabled = true;
+            const input = document.getElementById('saReplyText');
+            const status = document.getElementById('saCommunicationStatus');
+            const message = String(input?.value || '').trim();
+            if (!message || !activeSuperAdminConversationId) { if (status) status.textContent = 'Select a conversation and enter a reply first.'; return; }
+            const button = document.querySelector('#saReplyForm button[type="submit"]'); if (button) button.disabled = true;
             try {
-                const ref = db.collection('supportConversations').doc(activeSuperAdminConversationId);
-                await ref.collection('messages').add({text,senderRole:'superadmin',senderName:'Super Admin',senderEmail:auth.currentUser?.email || SUPER_ADMIN_EMAIL,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-                await ref.set({updatedAt:firebase.firestore.FieldValue.serverTimestamp(),lastMessage:text,lastSenderRole:'superadmin',unreadForHeadteacher:true},{merge:true});
-                input.value = ''; if(status) status.textContent = 'Reply sent.';
-            } catch (err) { if(status) status.textContent = 'Reply could not be sent: ' + err.message; }
-            finally { if(button) button.disabled = false; }
+                await communicationApi('/api/messages/reply', { method: 'POST', body: JSON.stringify({ schoolId: activeSuperAdminConversationId, message }) });
+                input.value = ''; if (status) status.textContent = 'Reply sent.';
+                await openSuperAdminConversation(activeSuperAdminConversationId);
+            } catch (err) { if (status) status.textContent = 'Reply could not be sent: ' + err.message; }
+            finally { if (button) button.disabled = false; }
         }
 
         async function loadAnnouncements(containerId, includeAllForSuperAdmin = false) {
