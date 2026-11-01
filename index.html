@@ -2695,6 +2695,24 @@ body{
                                 </div>
                             </div>
                         </div>
+
+                        <div class="dashboard-card" style="margin-top:20px;">
+                            <h3 style="margin-bottom:8px;">Audit Payment</h3>
+                            <p style="font-size:13px;color:#64748b;margin-bottom:16px;">View and update the subscription amount charged to schools. The saved amount will automatically apply to all schools of the selected category.</p>
+                            <div class="auth-form-group">
+                                <label for="auditPaymentSchoolType">Select School Category</label>
+                                <select id="auditPaymentSchoolType" onchange="loadAuditPaymentFee()">
+                                    <option value="junior">Junior School</option>
+                                    <option value="senior">Senior School</option>
+                                </select>
+                            </div>
+                            <div class="auth-form-group">
+                                <label for="auditPaymentAmount">Current Payment Amount (KSh)</label>
+                                <input type="number" id="auditPaymentAmount" min="1" step="1" inputmode="numeric" placeholder="Loading current amount...">
+                            </div>
+                            <button type="button" id="saveAuditPaymentBtn" class="btn-primary" onclick="saveAuditPaymentFee()">Save Payment Amount</button>
+                            <p id="auditPaymentStatus" class="msg" style="display:block;text-align:left;" aria-live="polite"></p>
+                        </div>
                     </div>
 
                     <div id="saTabCommunication" class="tab-pane">
@@ -3660,6 +3678,7 @@ body{
         let pendingLoginRole = "";
         const SUPER_ADMIN_EMAIL = "teshjunior438@gmail.com";
         let isGlobalPaymentEnabled = true;
+        let cachedSchoolPaymentFees = { junior: 1000, senior: 1500 };
         let schoolPaidUntil = null;
         let countdownTimerInterval = null;
         let subscriptionTimerInterval = null;
@@ -3675,13 +3694,109 @@ body{
         let latestPortalAnnouncementId = "";
 
         function getSchoolSubscriptionFee(schoolType) {
-            return String(schoolType || "junior").toLowerCase() === "senior" ? 1500 : 1000;
+            const type = String(schoolType || "junior").toLowerCase() === "senior" ? "senior" : "junior";
+            return Number(cachedSchoolPaymentFees[type] || (type === "senior" ? 1500 : 1000));
         }
 
         function updatePaymentAmountForSchoolType() {
             const amountInput = document.getElementById("mpesa-amount");
             if (!amountInput) return;
             amountInput.value = getSchoolSubscriptionFee(currentSchoolType);
+        }
+
+        async function fetchPaymentFeesFromServer() {
+            if (!auth.currentUser) throw new Error("Please sign in again to load payment amounts.");
+            const idToken = await auth.currentUser.getIdToken(true);
+            const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/payment-fees", {
+                headers: { "Authorization": "Bearer " + idToken }
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok || !data.success) throw new Error(data.message || "Could not load payment amounts.");
+            if (data.fees) {
+                cachedSchoolPaymentFees = {
+                    junior: Number(data.fees.junior) || 1000,
+                    senior: Number(data.fees.senior) || 1500
+                };
+            }
+            return data;
+        }
+
+        async function loadCurrentSchoolPaymentFee() {
+            try {
+                const data = await fetchPaymentFeesFromServer();
+                if (data.amount) {
+                    const type = String(data.schoolType || currentSchoolType || "junior").toLowerCase();
+                    cachedSchoolPaymentFees[type] = Number(data.amount);
+                }
+                updatePaymentAmountForSchoolType();
+            } catch (error) {
+                console.warn("Could not refresh the school payment amount:", error.message);
+                updatePaymentAmountForSchoolType();
+            }
+        }
+
+        async function loadAuditPaymentFee() {
+            const status = document.getElementById("auditPaymentStatus");
+            const amountInput = document.getElementById("auditPaymentAmount");
+            const typeInput = document.getElementById("auditPaymentSchoolType");
+            if (!status || !amountInput || !typeInput) return;
+            status.className = "msg";
+            status.style.display = "block";
+            status.textContent = "Loading current payment amount...";
+            try {
+                const data = await fetchPaymentFeesFromServer();
+                const type = typeInput.value;
+                const amount = Number((data.fees || cachedSchoolPaymentFees)[type]);
+                amountInput.value = amount;
+                status.className = "msg msg-success";
+                status.textContent = `${type === "senior" ? "Senior" : "Junior"} School currently pays KSh ${amount.toLocaleString("en-KE")}.`;
+            } catch (error) {
+                status.className = "msg msg-error";
+                status.textContent = error.message || "Could not load the current amount.";
+            }
+        }
+
+        async function saveAuditPaymentFee() {
+            const typeInput = document.getElementById("auditPaymentSchoolType");
+            const amountInput = document.getElementById("auditPaymentAmount");
+            const status = document.getElementById("auditPaymentStatus");
+            const button = document.getElementById("saveAuditPaymentBtn");
+            if (!typeInput || !amountInput || !status || !button) return;
+            const amount = Number(amountInput.value);
+            if (!Number.isSafeInteger(amount) || amount < 1) {
+                status.className = "msg msg-error";
+                status.style.display = "block";
+                status.textContent = "Enter a valid whole-number amount greater than zero.";
+                return;
+            }
+            button.disabled = true;
+            button.textContent = "Saving...";
+            status.className = "msg";
+            status.style.display = "block";
+            status.textContent = "Saving the new school payment amount...";
+            try {
+                const idToken = await auth.currentUser.getIdToken(true);
+                const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/payment-fees", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + idToken },
+                    body: JSON.stringify({ schoolType: typeInput.value, amount })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok || !data.success) throw new Error(data.message || "Could not save the payment amount.");
+                cachedSchoolPaymentFees = {
+                    junior: Number(data.fees.junior) || 1000,
+                    senior: Number(data.fees.senior) || 1500
+                };
+                status.className = "msg msg-success";
+                status.textContent = data.message || "Payment amount updated successfully.";
+                updatePaymentAmountForSchoolType();
+            } catch (error) {
+                status.className = "msg msg-error";
+                status.textContent = error.message || "Payment amount could not be saved.";
+            } finally {
+                button.disabled = false;
+                button.textContent = "Save Payment Amount";
+            }
         }
 
         const defaultCBCGrading = [
@@ -3991,6 +4106,7 @@ body{
             window.scrollTo(0, 0);
 
             if (tabId === 'tabLogo') loadSchoolLogoPreview();
+            if (tabId === 'tabPaymentRenewals') loadCurrentSchoolPaymentFee();
             if (tabId === 'tabManuals') loadManuals('adminManualsContainer');
             if (tabId === 'tabAnnouncements') loadAnnouncements('adminAnnouncementsContainer');
             if (tabId === 'tabCommunication') loadHeadteacherConversation();
@@ -4224,7 +4340,7 @@ body{
 
             if (tabId === 'saTabRegisteredSchools') loadRegisteredSchoolsList();
             if (tabId === 'saTabVerification') loadVerificationSchoolsList();
-            if (tabId === 'saTabPaymentControl') loadGlobalPaymentStatus();
+            if (tabId === 'saTabPaymentControl') { loadGlobalPaymentStatus(); loadAuditPaymentFee(); }
             if (tabId === 'saTabManuals') loadManuals('superAdminManualsContainer');
             if (tabId === 'saTabAnnouncements') loadAnnouncements('superAdminAnnouncementsContainer', true);
             if (tabId === 'saTabCommunication') loadSuperAdminConversations();
@@ -4664,7 +4780,8 @@ body{
                                     currentSchoolName = schoolData.name || "School";
                                     currentSchoolType = schoolData.schoolType || "junior";
                                     currentSchoolEmail = schoolData.email || "";
-                                     updatePaymentAmountForSchoolType();
+                                    updatePaymentAmountForSchoolType();
+                                    loadCurrentSchoolPaymentFee();
                                     currentSchoolPoBox = schoolData.poBox || "";
                                     currentSchoolLogo = schoolData.logoUrl || "";
                                     currentClosingDate = schoolData.closingDate || "N/A";
@@ -8124,10 +8241,11 @@ body > #adminSectionsContainer.portal-section-fullscreen {
             e.preventDefault();
 
             const phoneInput = document.getElementById("mpesa-phone");
-            const amount = Number(document.getElementById("mpesa-amount").value);
+            let amount = Number(document.getElementById("mpesa-amount").value);
             const statusMsg = document.getElementById("daraja-status");
             const payBtn = document.getElementById("payBtn");
             updatePaymentAmountForSchoolType();
+            amount = Number(document.getElementById("mpesa-amount").value);
             const normalizedPhone = normalizeMpesaPhone(phoneInput.value.trim());
 
             if (!isValidMpesaPhone(normalizedPhone)) {
