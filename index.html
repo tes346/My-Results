@@ -1,4 +1,4 @@
-ps<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <link rel="icon" type="image/png" href="favicon.png">
@@ -2507,6 +2507,150 @@ body{
 .communication-layout{display:grid;grid-template-columns:minmax(220px,30%) minmax(0,1fr);gap:16px;align-items:stretch}.communication-threads,.communication-chat{border:1px solid #dbe4ee;border-radius:14px;background:#fff;min-width:0;overflow:hidden}.communication-threads{padding:12px}.communication-threads h4{margin:4px 4px 12px}.communication-thread-button{display:block;width:100%;text-align:left;border:1px solid #e2e8f0;background:#f8fafc;border-radius:10px;padding:12px;margin:8px 0;cursor:pointer;color:#1e293b}.communication-thread-button.active{border-color:#2563eb;background:#eff6ff}.communication-thread-button strong,.communication-thread-button small{display:block;overflow-wrap:anywhere}.communication-thread-button small{color:#64748b;margin-top:4px}.communication-chat-heading{padding:14px 16px;background:#f1f5f9;font-weight:700;border-bottom:1px solid #e2e8f0}.communication-messages{height:clamp(240px,48vh,520px);overflow-y:auto;padding:14px;background:#f8fafc;display:flex;flex-direction:column;gap:10px}.communication-message{max-width:88%;border-radius:12px;padding:10px 12px;overflow-wrap:anywhere;white-space:pre-wrap}.communication-message.from-headteacher{align-self:flex-start;background:#e2e8f0;color:#0f172a}.communication-message.from-superadmin{align-self:flex-end;background:#dbeafe;color:#1e3a8a}.communication-message small{display:block;font-size:11px;opacity:.75;margin-bottom:5px}.communication-compose{display:flex;gap:10px;padding:12px;align-items:flex-end}.communication-compose textarea{flex:1;min-width:0;resize:vertical;border:1px solid #cbd5e1;border-radius:10px;padding:11px;font:inherit}.communication-status{padding:0 12px 12px;color:#475569;font-size:13px;min-height:18px}.communication-headteacher-chat{max-width:100%}@media(max-width:720px){.communication-layout{grid-template-columns:1fr}.communication-threads{max-height:240px;overflow-y:auto}.communication-compose{flex-direction:column;align-items:stretch}.communication-compose button{width:100%}.communication-message{max-width:96%}}
 </style>
 
+
+<style id="headteacher-desktop-sidebar-message-print-feedback-fix">
+/* Headteacher desktop: sidebar is a closed drawer until the hamburger is clicked. */
+@media (min-width:901px){
+  #adminView .app-container{padding-left:22px!important;padding-right:22px!important;}
+  #adminView .app-container>.admin-grid{
+    position:fixed!important;left:0!important;top:0!important;bottom:0!important;
+    width:310px!important;height:100vh!important;max-height:100vh!important;
+    display:flex!important;flex-direction:column!important;overflow-y:auto!important;
+    z-index:7000!important;transform:translateX(-105%)!important;
+    transition:transform .22s ease!important;
+  }
+  #adminView .app-container.picture-sidebar-open>.admin-grid{
+    transform:translateX(0)!important;
+  }
+  #adminView .app-container.picture-sidebar-hidden>.admin-grid{transform:translateX(-105%)!important;}
+  #adminView .app-container.picture-sidebar-open::after{
+    content:""!important;position:fixed!important;inset:0!important;z-index:6999!important;
+    background:rgba(2,31,74,.28)!important;pointer-events:auto!important;
+  }
+  #adminView .header{position:relative!important;z-index:7100!important;padding-left:18px!important;}
+  #adminView .picture-sidebar-toggle{
+    order:-2!important;position:relative!important;margin:0 14px 0 0!important;
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+  }
+  #adminView .picture-top-brand{order:-1!important;width:auto!important;flex:0 0 auto!important;padding:0 18px 0 0!important;border-right:0!important;font-size:24px!important;}
+  #adminView .picture-system-title{padding-left:8px!important;font-size:16px!important;}
+  #adminView .app-container.picture-sidebar-hidden,
+  #adminView .app-container:not(.picture-sidebar-open){padding-left:22px!important;}
+}
+/* Smaller, regular-weight sidebar labels; keep the existing icons and navigation. */
+#adminView .app-container>.admin-grid .admin-card .title{
+  font-size:12px!important;font-weight:400!important;line-height:1.25!important;
+  text-transform:none!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+#adminView .app-container>.admin-grid .admin-card{gap:10px!important;}
+/* Desktop compose area: textarea occupies its own row above the send button. */
+@media (min-width:721px){
+  #headteacherMessageForm.communication-compose{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:9px!important;}
+  #headteacherMessageForm.communication-compose textarea{display:block!important;width:100%!important;min-height:76px!important;box-sizing:border-box!important;}
+  #headteacherMessageForm.communication-compose button{align-self:flex-end!important;width:auto!important;min-width:145px!important;}
+}
+/* A4 print: compact report content so one learner report occupies one portrait page. */
+@media print{
+  @page{size:A4 portrait;margin:5mm;}
+  #printSection:not(.class-master-output) .report-card{
+    width:100%!important;max-width:none!important;min-height:0!important;height:auto!important;
+    box-sizing:border-box!important;margin:0!important;padding:7px 9px!important;
+    page-break-after:always!important;break-after:page!important;overflow:hidden!important;
+  }
+  #printSection:not(.class-master-output) .report-card:last-child{page-break-after:auto!important;break-after:auto!important;}
+  #printSection:not(.class-master-output) .report-card .rc-header{grid-template-columns:66px 1fr 66px!important;gap:6px!important;padding-bottom:4px!important;border-bottom-width:2px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-logo img,
+  #printSection:not(.class-master-output) .report-card .rc-logo .rc-logo-placeholder{width:54px!important;height:54px!important;font-size:7px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-student-photo img,
+  #printSection:not(.class-master-output) .report-card .rc-student-photo .rc-photo-box{width:48px!important;height:60px!important;border-radius:5px!important;font-size:7px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-school-info h2{font-size:13pt!important;margin-bottom:1px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-school-info p,
+  #printSection:not(.class-master-output) .report-card .rc-exam-line{font-size:7.5pt!important;margin:1px 0!important;}
+  #printSection:not(.class-master-output) .report-card .rc-bio-grid{margin:4px 0 5px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-bio-item{min-height:0!important;padding:3px 5px!important;font-size:7pt!important;line-height:1.15!important;}
+  #printSection:not(.class-master-output) .report-card .rc-marks-table{width:78%!important;font-size:7pt!important;}
+  #printSection:not(.class-master-output) .report-card .rc-marks-table th{font-size:7pt!important;padding:3px 4px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-marks-table td{height:auto!important;padding:2px 4px!important;font-size:7pt!important;}
+  #printSection:not(.class-master-output) .report-card .rc-performance{margin-top:4px!important;padding-top:3px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-performance-title{font-size:7.5pt!important;margin-bottom:1px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-chart-wrap{height:72px!important;max-height:72px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-summary{font-size:7pt!important;margin:3px 0 4px!important;gap:2px 10px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-summary-left,
+  #printSection:not(.class-master-output) .report-card .rc-summary-right{line-height:1.2!important;}
+  #printSection:not(.class-master-output) .report-card .rc-comment-box{padding:3px 5px!important;margin:3px 0!important;font-size:7pt!important;line-height:1.2!important;}
+  #printSection:not(.class-master-output) .report-card .rc-comment-box .rc-comment-heading{font-size:7.5pt!important;margin-bottom:1px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-footer-dates{font-size:7pt!important;margin-top:4px!important;padding-top:2px!important;gap:14px!important;}
+}
+</style>
+
+
+<style id="requested-a4-height-and-desktop-sidebar-one-column">
+/* Only the requested desktop Headteacher sidebar column layout.
+   Phone drawer layout and the other portals are intentionally untouched. */
+@media (min-width:901px){
+  #adminView #adminMainMenu{
+    display:flex !important;
+    flex-direction:column !important;
+    flex-wrap:nowrap !important;
+    grid-template-columns:1fr !important;
+    align-items:stretch !important;
+  }
+  #adminView #adminMainMenu > .admin-card{
+    width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+}
+
+/* Student report print: use most of the A4 printable height,
+   leaving a modest clear space at the bottom of the sheet. */
+@media print{
+  @page{size:A4 portrait; margin:7mm;}
+  .report-card{
+    min-height:255mm !important;
+    height:255mm !important;
+    box-sizing:border-box !important;
+    margin:0 !important;
+    page-break-after:always !important;
+    break-after:page !important;
+  }
+}
+</style>
+
+
+<style id="headteacher-return-button-visibility">
+#adminSectionsContainer > #adminReturnToMainMenu {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+</style>
+
+
+<style id="desktop-headteacher-return-button-fix">
+@media screen and (min-width: 901px) {
+  #adminView #adminSectionsContainer.picture-section-open > #adminReturnToMainMenu {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2147483000 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 40px !important;
+    margin: 0 0 14px 0 !important;
+    padding: 9px 16px !important;
+    color: #1268d9 !important;
+    background: #ffffff !important;
+    border: 1px solid #d4e2f1 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 7px rgba(15,55,100,.08) !important;
+    cursor: pointer !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2785,8 +2929,8 @@ body{
     <div id="adminView" class="view-screen">
         <div class="app-container">
             <div class="header">
-                <div class="picture-top-brand"><span class="picture-brand-mark">🎓</span><span>School<span>Portal</span></span></div>
                 <button type="button" id="pictureSidebarToggle" class="picture-sidebar-toggle" aria-label="Toggle menu" onclick="togglePictureSidebar()">☰</button>
+                <div class="picture-top-brand"><span class="picture-brand-mark">🎓</span><span>School<span>Portal</span></span></div>
                 <div class="picture-system-title">School Results Management System</div>
                 <div style="display:flex; align-items:center; gap:12px; margin-left:auto;">
                     <img id="adminLogoDisplay" class="header-logo-preview" style="display:none;" alt="School Logo" />
@@ -2951,13 +3095,14 @@ body{
                     <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabCommunication')"><div class="icon">💬</div><div class="title">Communication / Messaging</div></div>
+                
             <div class="admin-card sidebar-logout-card" onclick="logout()">
                     <div class="icon">🚪</div><div class="title">Logout</div>
                 </div>
             </div>
 
             <div id="adminSectionsContainer" style="display: none;">
-                <button class="btn-secondary" style="margin-bottom: 16px;" onclick="closeAdminSection()">← Back to Home Menu</button>
+                <button class="btn-secondary" id="adminReturnToMainMenu" style="display:inline-flex !important; align-items:center; gap:8px; margin:0 0 16px !important; position:relative; z-index:5;" onclick="closeAdminSection()">← Return to Main Menu</button>
                 
                 <div class="dashboard-card">
 
@@ -3804,7 +3949,7 @@ body{
             { grade: "AE1", min: 50, max: 59, desc: "Approaching Expectations (Level 2 High)" },
             { grade: "AE2", min: 40, max: 49, desc: "Approaching Expectations (Level 2 Low)" },
             { grade: "BE1", min: 25, max: 39, desc: "Below Expectations (Level 1 High)" },
-            { grade: "BE2", min: 1, max: 24, desc: "Below Expectations (Level 1 Low)" }
+            { grade: "BE2", min: 0, max: 24, desc: "Below Expectations (Level 1 Low)" }
         ];
 
         let currentGradingSystem = [...defaultCBCGrading];
@@ -4927,10 +5072,10 @@ body{
                     const mean=subjectStats[sub].count?subjectStats[sub].mean.toFixed(2):'-';
                     rows += `<tr><td>${esc(sub)}</td><td>${score==='-'?'-':`<span class="rc-mark">${score}</span> <span class="${gc}">(${g.grade})</span>`}</td><td>${pts?pts+' pts':'-'}</td><td>${mean}</td><td>${mean==='-'?'-':mean}</td></tr>`;
                 });
-                const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
+                const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const reportComments=getReportPerformanceComments(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
                 const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
                 currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
-                resultsContent.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>Excellent performance. Keep up the good work and consistency.</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
+                resultsContent.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
             } catch(err) { resultsContent.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
         }
 
@@ -4971,1032 +5116,65 @@ body{
         function getStudentReportDocumentHtml() {
             const report = document.getElementById("studentReportCard");
             if (!report) return null;
-            const styles = Array.from(document.querySelectorAll("style")).map(el => el.innerHTML).join("\n");
-            return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Student Report</title><style>${styles}
-/* ============================================================
-   MOBILE SIDEBAR FIX
-   The MyRezultz navigation is a side drawer, not part of
-   the Quick Actions/dashboard flow.
-   ============================================================ */
-@media (max-width:900px){
-  #adminView .app-container{
-    padding:0 12px 20px !important;
-    overflow-x:hidden !important;
-  }
 
-  /* Remove the navigation grid from the normal page flow. */
-  #adminView .app-container>.admin-grid{
-    position:fixed !important;
-    left:0 !important;
-    top:0 !important;
-    bottom:0 !important;
-    width:min(310px,86vw) !important;
-    height:100vh !important;
-    min-height:100vh !important;
-    max-height:none !important;
-    margin:0 !important;
-    padding:18px 12px 22px !important;
-    display:flex !important;
-    flex-direction:column !important;
-    grid-template-columns:none !important;
-    align-items:stretch !important;
-    justify-content:flex-start !important;
-    gap:4px !important;
-    overflow-y:auto !important;
-    overflow-x:hidden !important;
-    border-radius:0 !important;
-    z-index:6000 !important;
-    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
-    box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
-    transform:translateX(-105%) !important;
-    transition:transform .22s ease !important;
-  }
-
-  /* Only show the drawer after pressing the three-line button. */
-  #adminView .app-container.picture-sidebar-open>.admin-grid{
-    transform:translateX(0) !important;
-  }
-
-  /* MyRezultz remains inside the drawer, never below Quick Actions. */
-  #adminView .app-container>.admin-grid::before{
-    display:flex !important;
-    flex:0 0 61px !important;
-    min-height:61px !important;
-    height:61px !important;
-    grid-column:auto !important;
-    align-items:center !important;
-    margin:0 4px 12px !important;
-    padding:0 10px !important;
-    border-bottom:1px solid rgba(255,255,255,.13) !important;
-    color:#fff !important;
-    font-size:22px !important;
-    font-weight:800 !important;
-    content:"🎓  MyRezultz" !important;
-  }
-
-  #adminView .app-container>.admin-grid .admin-card{
-    display:flex !important;
-    flex:0 0 auto !important;
-    width:100% !important;
-    min-height:47px !important;
-    height:47px !important;
-    margin:0 !important;
-    padding:0 12px !important;
-    border:0 !important;
-    border-radius:8px !important;
-    background:transparent !important;
-    color:#fff !important;
-    box-shadow:none !important;
-    transform:none !important;
-    flex-direction:row !important;
-    justify-content:flex-start !important;
-    align-items:center !important;
-    gap:12px !important;
-  }
-
-  #adminView .app-container>.admin-grid .admin-card:hover{
-    background:rgba(255,255,255,.10) !important;
-    transform:none !important;
-  }
-
-  #adminView .app-container>.admin-grid .admin-card .icon{
-    display:flex !important;
-    align-items:center !important;
-    justify-content:center !important;
-    width:28px !important;
-    min-width:28px !important;
-    height:28px !important;
-    margin:0 !important;
-    font-size:20px !important;
-  }
-
-  #adminView .app-container>.admin-grid .admin-card .title{
-    display:block !important;
-    flex:1 !important;
-    color:#fff !important;
-    font-size:13px !important;
-    font-weight:600 !important;
-    text-transform:none !important;
-    white-space:normal !important;
-  }
-
-  /* Keep the actual dashboard/header unobstructed when drawer is closed. */
-  #adminView .picture-admin-dashboard{
-    position:relative !important;
-    z-index:1 !important;
-  }
-
-  #adminView .header{
-    position:relative !important;
-    z-index:6100 !important;
-  }
-
-  #adminView .picture-sidebar-toggle{
-    position:relative !important;
-    z-index:6101 !important;
-  }
-
-  /* Optional dimmed backdrop while the drawer is open. */
-  #adminView .app-container.picture-sidebar-open::after{
-    content:"" !important;
-    position:fixed !important;
-    inset:0 !important;
-    z-index:5999 !important;
-    background:rgba(2,31,74,.28) !important;
-    pointer-events:auto !important;
-  }
-
-  /* Keep the dashboard/Quick Actions in normal document flow. */
-  #adminView #pictureAdminDashboard{
-    display:block !important;
-    width:100% !important;
-    margin:0 auto 28px !important;
-  }
-}
-
-/* Desktop keeps the existing persistent sidebar behavior. */
-@media (min-width:901px){
-  #adminView .app-container.picture-sidebar-open>.admin-grid{
-    transform:translateX(0) !important;
-  }
-}
-
-
-/* ============================================================
-   TEACHER + SUPER ADMIN MOBILE SIDE DRAWERS
-   Dashboard stays in the normal page; navigation appears only
-   after the three-line menu button is pressed.
-   ============================================================ */
-@media (max-width:900px){
-  #teacherView .portal-sidebar,
-  #superAdminView .portal-sidebar{
-    position:fixed !important;
-    left:0 !important; top:0 !important; bottom:0 !important;
-    width:min(310px,86vw) !important;
-    height:100vh !important; min-height:100vh !important;
-    margin:0 !important; padding:18px 12px 22px !important;
-    display:flex !important; flex-direction:column !important;
-    align-items:stretch !important; justify-content:flex-start !important;
-    gap:4px !important; overflow-y:auto !important; overflow-x:hidden !important;
-    border-radius:0 !important; z-index:6000 !important;
-    background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
-    box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
-    transform:translateX(-105%) !important;
-    transition:transform .22s ease !important;
-  }
-  #teacherView.portal-sidebar-open .portal-sidebar,
-  #superAdminView.portal-sidebar-open .portal-sidebar{
-    transform:translateX(0) !important;
-  }
-  #teacherView.portal-sidebar-open::after,
-  #superAdminView.portal-sidebar-open::after{
-    content:"" !important; position:fixed !important; inset:0 !important;
-    z-index:5999 !important; background:rgba(2,31,74,.28) !important;
-  }
-  #teacherView .portal-sidebar .sidebar-brand,
-  #superAdminView .portal-sidebar .sidebar-brand{
-    display:flex !important; align-items:center !important;
-    min-height:61px !important; height:61px !important;
-    margin:0 4px 12px !important; padding:0 10px !important;
-    border-bottom:1px solid rgba(255,255,255,.13) !important;
-    color:#fff !important; font-size:21px !important; font-weight:800 !important;
-  }
-  #teacherView .portal-sidebar .admin-card,
-  #superAdminView .portal-sidebar .admin-card{
-    display:flex !important; flex:0 0 auto !important;
-    width:100% !important; min-height:47px !important; height:47px !important;
-    margin:0 !important; padding:0 12px !important;
-    border:0 !important; border-radius:8px !important;
-    background:transparent !important; color:#fff !important;
-    box-shadow:none !important; transform:none !important;
-    flex-direction:row !important; justify-content:flex-start !important;
-    align-items:center !important; gap:12px !important;
-  }
-  #teacherView .portal-sidebar .admin-card:hover,
-  #superAdminView .portal-sidebar .admin-card:hover{
-    background:rgba(255,255,255,.10) !important; transform:none !important;
-  }
-  #teacherView .portal-sidebar .admin-card .icon,
-  #superAdminView .portal-sidebar .admin-card .icon{
-    display:flex !important; align-items:center !important; justify-content:center !important;
-    width:28px !important; min-width:28px !important; height:28px !important;
-    margin:0 !important; font-size:20px !important;
-  }
-  #teacherView .portal-sidebar .admin-card .title,
-  #superAdminView .portal-sidebar .admin-card .title{
-    display:block !important; flex:1 !important; color:#fff !important;
-    font-size:13px !important; font-weight:600 !important;
-    text-transform:none !important; white-space:normal !important;
-  }
-  #teacherView .header,
-  #superAdminView .header{ position:relative !important; z-index:6100 !important; }
-  #teacherSidebarToggle,
-  #superAdminSidebarToggle{ position:relative !important; z-index:6101 !important; }
-}
-@media (min-width:901px){
-  #teacherView .portal-sidebar,
-  #superAdminView .portal-sidebar{ display:none !important; }
-  #teacherSidebarToggle,
-  #superAdminSidebarToggle{ display:none !important; }
-}
-
-
-/* ============================================================
-   FINAL SUPER ADMIN + TEACHER LAYOUT
-   Match the Headteacher portal:
-   - Dashboard shows ONE Quick Actions panel.
-   - Blue navigation exists ONLY in the hidden ☰ drawer.
-   - No permanent/duplicate blue panel on the dashboard.
-   ============================================================ */
-
-/* Normal dashboard page — no reserved sidebar space. */
-#superAdminView .app-container,
-#teacherView .app-container{
-  width:100% !important;
-  max-width:1200px !important;
-  min-height:100vh !important;
-  margin:0 auto !important;
-  padding:0 22px 30px !important;
-  background:linear-gradient(180deg,#f9fcff 0%,#f2f8ff 100%) !important;
-}
-
-/* ---------- DASHBOARD QUICK ACTIONS ---------- */
-#superAdminView #superAdminMainMenu,
-#teacherView #teacherMainMenu{
-  position:relative !important;
-  display:grid !important;
-  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-  gap:14px !important;
-  width:100% !important;
-  max-width:1180px !important;
-  min-height:0 !important;
-  height:auto !important;
-  margin:24px auto 28px !important;
-  padding:56px 16px 16px !important;
-  overflow:visible !important;
-  border:1px solid #d7e6f5 !important;
-  border-radius:14px !important;
-  background:#fff !important;
-  box-shadow:0 7px 24px rgba(15,57,105,.05) !important;
-}
-
-/* One Quick Actions heading — not a blue MyRezultz panel. */
-#superAdminView #superAdminMainMenu::before,
-#teacherView #teacherMainMenu::before{
-  position:absolute !important;
-  top:20px !important;
-  left:22px !important;
-  color:#082f68 !important;
-  font-size:20px !important;
-  font-weight:750 !important;
-  line-height:1 !important;
-}
-
-#superAdminView #superAdminMainMenu::before{
-  content:"Quick Actions" !important;
-}
-#teacherView #teacherMainMenu::before{
-  content:"Quick Actions" !important;
-}
-
-/* Quick Action buttons. */
-#superAdminView #superAdminMainMenu .admin-card,
-#teacherView #teacherMainMenu .admin-card{
-  position:relative !important;
-  display:flex !important;
-  flex-direction:row !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:12px !important;
-  width:100% !important;
-  min-height:82px !important;
-  height:auto !important;
-  margin:0 !important;
-  padding:14px 15px !important;
-  border:1px solid #d9e8f7 !important;
-  border-radius:11px !important;
-  background:#f7fbff !important;
-  color:#123a68 !important;
-  box-shadow:none !important;
-  transform:none !important;
-  text-align:left !important;
-  cursor:pointer !important;
-  transition:transform .15s ease,box-shadow .15s ease,background .15s ease !important;
-}
-
-#superAdminView #superAdminMainMenu .admin-card:hover,
-#teacherView #teacherMainMenu .admin-card:hover{
-  transform:translateY(-2px) !important;
-  background:#eef7ff !important;
-  box-shadow:0 7px 18px rgba(15,75,135,.10) !important;
-}
-
-#superAdminView #superAdminMainMenu .admin-card .icon,
-#teacherView #teacherMainMenu .admin-card .icon{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:42px !important;
-  min-width:42px !important;
-  height:42px !important;
-  margin:0 !important;
-  border-radius:10px !important;
-  background:#e2f0ff !important;
-  font-size:22px !important;
-  line-height:1 !important;
-}
-
-#superAdminView #superAdminMainMenu .admin-card .title,
-#teacherView #teacherMainMenu .admin-card .title{
-  display:block !important;
-  flex:1 !important;
-  min-width:0 !important;
-  color:#123a68 !important;
-  font-size:14px !important;
-  font-weight:700 !important;
-  line-height:1.3 !important;
-  text-transform:none !important;
-  white-space:normal !important;
-}
-
-#superAdminView #superAdminMainMenu .admin-card::after,
-#teacherView #teacherMainMenu .admin-card::after{
-  content:"›" !important;
-  margin-left:auto !important;
-  color:#1478ef !important;
-  font-size:25px !important;
-  line-height:1 !important;
-}
-
-/* ---------- SIDEBAR: HIDDEN UNTIL ☰ ---------- */
-#superAdminView .portal-sidebar,
-#teacherView .portal-sidebar{
-  position:fixed !important;
-  left:0 !important;
-  top:0 !important;
-  bottom:0 !important;
-  width:min(310px,86vw) !important;
-  height:100vh !important;
-  min-height:100vh !important;
-  margin:0 !important;
-  padding:18px 12px 22px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  justify-content:flex-start !important;
-  gap:4px !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  border-radius:0 !important;
-  z-index:7000 !important;
-  background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
-  box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
-  transform:translateX(-105%) !important;
-  transition:transform .22s ease !important;
-}
-
-/* ☰ opens it. */
-#superAdminView.portal-sidebar-open .portal-sidebar,
-#teacherView.portal-sidebar-open .portal-sidebar{
-  transform:translateX(0) !important;
-}
-
-#superAdminView.portal-sidebar-open::after,
-#teacherView.portal-sidebar-open::after{
-  content:"" !important;
-  position:fixed !important;
-  inset:0 !important;
-  z-index:6999 !important;
-  background:rgba(2,31,74,.28) !important;
-}
-
-/* Sidebar title. */
-#superAdminView .portal-sidebar .sidebar-brand,
-#teacherView .portal-sidebar .sidebar-brand{
-  display:flex !important;
-  align-items:center !important;
-  min-height:61px !important;
-  height:61px !important;
-  flex:0 0 61px !important;
-  margin:0 4px 12px !important;
-  padding:0 10px !important;
-  border-bottom:1px solid rgba(255,255,255,.13) !important;
-  color:#fff !important;
-  font-size:21px !important;
-  font-weight:800 !important;
-}
-
-/* Sidebar rows. */
-#superAdminView .portal-sidebar .admin-card,
-#teacherView .portal-sidebar .admin-card{
-  display:flex !important;
-  flex:0 0 auto !important;
-  flex-direction:row !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:12px !important;
-  width:100% !important;
-  min-height:47px !important;
-  height:47px !important;
-  margin:0 !important;
-  padding:0 12px !important;
-  border:0 !important;
-  border-radius:8px !important;
-  background:transparent !important;
-  color:#fff !important;
-  box-shadow:none !important;
-  transform:none !important;
-  text-align:left !important;
-}
-
-#superAdminView .portal-sidebar .admin-card:hover,
-#teacherView .portal-sidebar .admin-card:hover{
-  background:rgba(255,255,255,.10) !important;
-}
-
-#superAdminView .portal-sidebar .dashboard-nav-card,
-#teacherView .portal-sidebar .dashboard-nav-card{
-  background:linear-gradient(90deg,#147ff4,#1269d9) !important;
-  box-shadow:0 4px 13px rgba(0,83,190,.22) !important;
-}
-
-#superAdminView .portal-sidebar .admin-card .icon,
-#teacherView .portal-sidebar .admin-card .icon{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:28px !important;
-  min-width:28px !important;
-  height:28px !important;
-  margin:0 !important;
-  font-size:20px !important;
-}
-
-#superAdminView .portal-sidebar .admin-card .title,
-#teacherView .portal-sidebar .admin-card .title{
-  display:block !important;
-  flex:1 !important;
-  min-width:0 !important;
-  color:#fff !important;
-  font-size:13px !important;
-  font-weight:600 !important;
-  line-height:1.2 !important;
-  text-transform:none !important;
-  white-space:normal !important;
-}
-
-#superAdminView .portal-sidebar .sidebar-logout-card,
-#teacherView .portal-sidebar .sidebar-logout-card{
-  margin-top:auto !important;
-}
-
-/* Keep ☰ clickable above the drawer. */
-#superAdminView .header,
-#teacherView .header{
-  position:relative !important;
-  z-index:7100 !important;
-}
-#superAdminSidebarToggle,
-#teacherSidebarToggle{
-  position:relative !important;
-  z-index:7101 !important;
-}
-
-/* Section view fills the dashboard area when a Quick Action is opened. */
-#superAdminView #superAdminSectionsContainer,
-#teacherView #teacherSectionsContainer{
-  width:100% !important;
-  min-width:0 !important;
-  margin:0 !important;
-}
-
-@media(max-width:900px){
-  #superAdminView #superAdminMainMenu,
-  #teacherView #teacherMainMenu{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  }
-}
-
-@media(max-width:560px){
-  #superAdminView .app-container,
-  #teacherView .app-container{
-    padding:0 14px 20px !important;
-  }
-
-  #superAdminView #superAdminMainMenu,
-  #teacherView #teacherMainMenu{
-    grid-template-columns:1fr !important;
-    padding:54px 12px 12px !important;
-  }
-}
-
-
-
-/* ============================================================
-   V9 — EXACT HEADTEACHER-STYLE PORTAL NAVIGATION
-   1) The BLUE portal menu is ONLY the hidden drawer.
-   2) The dashboard contains ONLY normal white Quick Action cards.
-   3) No duplicate blue MyRezultz panel on the dashboard.
-   ============================================================ */
-
-/* ---- BLUE DRAWER: ALWAYS HIDDEN UNTIL ☰ ---- */
-#superAdminView #superAdminSidebar,
-#teacherView #teacherSidebar{
-  position:fixed !important;
-  left:0 !important;
-  top:0 !important;
-  bottom:0 !important;
-  width:min(310px,86vw) !important;
-  height:100vh !important;
-  max-height:100vh !important;
-  margin:0 !important;
-  padding:18px 12px 22px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  z-index:99990 !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  transform:translate3d(-110%,0,0) !important;
-  pointer-events:none !important;
-  border-radius:0 !important;
-  background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
-  box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
-  transition:transform .22s ease,opacity .15s ease,visibility 0s linear .22s !important;
-}
-
-/* Open state — ONLY this state makes the blue drawer visible. */
-#superAdminView.portal-sidebar-open #superAdminSidebar,
-#teacherView.portal-sidebar-open #teacherSidebar{
-  visibility:visible !important;
-  opacity:1 !important;
-  transform:translate3d(0,0,0) !important;
-  pointer-events:auto !important;
-  transition:transform .22s ease,opacity .15s ease,visibility 0s !important;
-}
-
-/* ---- DASHBOARD: NORMAL QUICK-ACTION CARD PANEL ---- */
-#superAdminView #superAdminMainMenu,
-#teacherView #teacherMainMenu{
-  position:relative !important;
-  display:grid !important;
-  grid-template-columns:repeat(3,minmax(0,1fr)) !important;
-  gap:14px !important;
-  width:100% !important;
-  max-width:1180px !important;
-  min-height:0 !important;
-  height:auto !important;
-  margin:24px auto 28px !important;
-  padding:58px 16px 16px !important;
-  border:1px solid #d7e6f5 !important;
-  border-radius:14px !important;
-  background:#fff !important;
-  box-shadow:0 7px 24px rgba(15,57,105,.05) !important;
-  overflow:visible !important;
-}
-
-/* ONE heading for the card panel. */
-#superAdminView #superAdminMainMenu::before,
-#teacherView #teacherMainMenu::before{
-  position:absolute !important;
-  top:20px !important;
-  left:22px !important;
-  color:#082f68 !important;
-  font-size:20px !important;
-  font-weight:750 !importanperAdminView .app-container > #superAdminSidebar,
-#teacherView .app-container > #teacherSidebar{
-  position:fixed !important;
-  left:0 !important;
-  top:0 !important;
-  bottom:0 !important;
-  width:min(310px,86vw) !important;
-  height:100vh !important;
-  max-height:100vh !important;
-  margin:0 !important;
-  padding:18px 12px 22px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:stretch !important;
-  gap:4px !important;
-  overflow-y:auto !important;
-  overflow-x:hidden !important;
-  box-sizing:border-box !important;
-  border-radius:0 !important;
-  z-index:99990 !important;
-  visibility:hidden !important;
-  opacity:0 !important;
-  transform:translate3d(-110%,0,0) !important;
-  pointer-events:none !important;
-  background:linear-gradient(180deg,#063d82 0%,#032d65 54%,#021f4a 100%) !important;
-  box-shadow:7px 0 24px rgba(1,35,76,.20) !important;
-  transition:transform .22s ease,opacity .15s ease,visibility 0s linear .22s !important;
-}
-
-/* Only pressing ☰ adds portal-sidebar-open. */
-#superAdminView.portal-sidebar-open .app-container > #superAdminSidebar,
-#teacherView.portal-sidebar-open .app-container > #teacherSidebar{
-  visibility:visible !important;
-  opacity:1 !important;
-  transform:translate3d(0,0,0) !important;
-  pointer-events:auto !important;
-  transition:transform .22s ease,opacity .15s ease,visibility 0s !important;
-}
-
-/* Drawer title and rows. */
-#superAdminView .app-container > #superAdminSidebar .sidebar-brand,
-#teacherView .app-container > #teacherSidebar .sidebar-brand{
-  display:flex !important;
-  align-items:center !important;
-  flex:0 0 61px !important;
-  min-height:61px !important;
-  height:61px !important;
-  margin:0 4px 12px !important;
-  padding:0 10px !important;
-  border-bottom:1px solid rgba(255,255,255,.13) !important;
-  color:#fff !important;
-  font-size:22px !important;
-  font-weight:800 !important;
-}
-
-#superAdminView .app-container > #superAdminSidebar .admin-card,
-#teacherView .app-container > #teacherSidebar .admin-card{
-  display:flex !important;
-  flex:0 0 auto !important;
-  flex-direction:row !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:12px !important;
-  width:100% !important;
-  min-height:47px !important;
-  height:47px !important;
-  margin:0 !important;
-  padding:0 12px !important;
-  border:0 !important;
-  border-radius:8px !important;
-  background:transparent !important;
-  color:#fff !important;
-  box-shadow:none !important;
-  transform:none !important;
-}
-
-#superAdminView .app-container > #superAdminSidebar .admin-card:hover,
-#teacherView .app-container > #teacherSidebar .admin-card:hover{
-  background:rgba(255,255,255,.10) !important;
-}
-
-#superAdminView .app-container > #superAdminSidebar .dashboard-nav-card,
-#teacherView .app-container > #teacherSidebar .dashboard-nav-card{
-  background:linear-gradient(90deg,#147ff4,#1269d9) !important;
-  box-shadow:0 4px 13px rgba(0,83,190,.22) !important;
-}
-
-#superAdminView .app-container > #superAdminSidebar .icon,
-#teacherView .app-container > #teacherSidebar .icon{
-  display:flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  width:28px !important;
-  min-width:28px !important;
-  height:28px !important;
-  margin:0 !important;
-  font-size:20px !important;
-}
-
-#superAdminView .app-container > #superAdminSidebar .title,
-#teacherView .app-container > #teacherSidebar .title{
-  display:block !important;
-  flex:1 !important;
-  min-width:0 !important;
-  color:#fff !important;
-  font-size:13px !important;
-  font-weight:600 !important;
-  line-height:1.2 !important;
-}
-
-#superAdminView .app-container > #superAdminSidebar .sidebar-logout-card,
-#teacherView .app-container > #teacherSidebar .sidebar-logout-card{
-  margin-top:auto !important;
-}
-
-/* Backdrop only while drawer is open. */
-#superAdminView.portal-sidebar-open::after,
-#teacherView.portal-sidebar-open::after{
-  content:"" !important;
-  position:fixed !important;
-  inset:0 !important;
-  z-index:99980 !important;
-  background:rgba(2,31,74,.28) !important;
-  pointer-events:auto !important;
-}
-
-/* Hamburger above drawer/backdrop. */
-#superAdminView .header,
-#teacherView .header{
-  position:relative !important;
-  z-index:100001 !important;
-}
-#superAdminSidebarToggle,
-#teacherSidebarToggle{
-  position:relative !important;
-  z-index:100002 !important;
-}
-
-/* Main dashboard has no blue-menu styling or reserved sidebar width. */
-#superAdminView .app-container,
-#teacherView .app-container{
-  padding-left:22px !important;
-  padding-right:22px !important;
-}
-
-@media(max-width:900px){
-  #superAdminView .app-container > #superAdminMainMenu,
-  #teacherView .app-container > #teacherMainMenu{
-    grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-    padding:20px 14px !important;
-  }
-}
-
-@media(max-width:560px){
-  #superAdminView .app-container > #superAdminMainMenu,
-  #teacherView .app-container > #teacherMainMenu{
-    grid-template-columns:1fr !important;
-    padding:20px 12px !important;
-  }
-}
-
-
-
-/* V12 — Dashboard Quick Action opens its section full-screen */
-.portal-section-fullscreen{
-  position:fixed !important;
-  inset:0 !important;
-  z-index:9000 !important;
-  width:100vw !important;
-  min-height:100vh !important;
-  height:100vh !important;
-  margin:0 !important;
-  padding:20px !important;
-  overflow-y:auto !important;
-  background:#f5f9fd !important;
-  box-sizing:border-box !important;
-}
-
-.portal-dashboard-hidden{
-  display:none !important;
-}
-
-.portal-section-fullscreen .section-card,
-.portal-section-fullscreen .content-card{
-  max-width:1200px !important;
-  margin-left:auto !important;
-  margin-right:auto !important;
-}
-
-
-
-/* V13 — Opened dashboard tabs replace the dashboard, full-screen. */
-#superAdminView #superAdminMainMenu.portal-dashboard-hidden,
-#teacherView #teacherMainMenu.portal-dashboard-hidden,
-#adminView #adminMainMenu.portal-dashboard-hidden{
-  display:none !important;
-}
-
-#superAdminView #superAdminSectionsContainer.portal-section-fullscreen,
-#teacherView #teacherSectionsContainer.portal-section-fullscreen,
-#adminView #adminSectionsContainer.portal-section-fullscreen{
-  position:fixed !important;
-  inset:0 !important;
-  z-index:9000 !important;
-  display:block !important;
-  width:100vw !important;
-  max-width:none !important;
-  min-width:0 !important;
-  height:100vh !important;
-  min-height:100vh !important;
-  margin:0 !important;
-  padding:20px !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  box-sizing:border-box !important;
-  background:#f5f9fd !important;
-}
-
-/* Only the selected tab is visible inside the full-screen section. */
-#superAdminView #superAdminSectionsContainer .tab-pane,
-#teacherView #teacherSectionsContainer .tab-pane,
-#adminView #adminSectionsContainer .tab-pane{
-  display:none !important;
-}
-#superAdminView #superAdminSectionsContainer .tab-pane.active,
-#teacherView #teacherSectionsContainer .tab-pane.active,
-#adminView #adminSectionsContainer .tab-pane.active{
-  display:block !important;
-  width:100% !important;
-  max-width:1200px !important;
-  margin:0 auto !important;
-}
-
-/* Back button remains at the top of the full-screen section. */
-#superAdminView #superAdminSectionsContainer > .btn-secondary,
-#teacherView #teacherSectionsContainer > .btn-secondary,
-#adminView #adminSectionsContainer > .btn-secondary{
-  display:inline-flex !important;
-  position:relative !important;
-  z-index:2 !important;
-  margin:0 0 14px !important;
-}
-
-
-
-/* ============================================================
-   V14 — DEFINITIVE SECTION SWITCH
-   Existing JS sets:
-      dashboard menu       -> display:none
-      sections container   -> display:block
-   These selectors intentionally override ALL older portal CSS.
-   ============================================================ */
-
-/* OPEN SECTION: the dashboard cannot remain visible. */
-#superAdminView #superAdminMainMenu[style*="display: none"],
-#teacherView #teacherMainMenu[style*="display: none"],
-#adminView #adminMainMenu[style*="display: none"]{
-  display:none !important;
-  visibility:hidden !important;
-  pointer-events:none !important;
-  position:absolute !important;
-  width:0 !important;
-  height:0 !important;
-  overflow:hidden !important;
-}
-
-/* OPEN SECTION: make the sections container the entire viewport. */
-#superAdminView #superAdminSectionsContainer[style*="display: block"],
-#teacherView #teacherSectionsContainer[style*="display: block"],
-#adminView #adminSectionsContainer[style*="display: block"]{
-  position:fixed !important;
-  inset:0 !important;
-  z-index:9990 !important;
-  display:block !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  width:100vw !important;
-  max-width:none !important;
-  min-width:0 !important;
-  height:100vh !important;
-  min-height:100vh !important;
-  margin:0 !important;
-  padding:18px !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  box-sizing:border-box !important;
-  background:#f5f9fd !important;
-}
-
-/* Do not leave any inactive tab content visible. */
-#superAdminView #superAdminSectionsContainer .tab-pane,
-#teacherView #teacherSectionsContainer .tab-pane,
-#adminView #adminSectionsContainer .tab-pane{
-  display:none !important;
-}
-#superAdminView #superAdminSectionsContainer .tab-pane.active,
-#teacherView #teacherSectionsContainer .tab-pane.active,
-#adminView #adminSectionsContainer .tab-pane.active{
-  display:block !important;
-  width:100% !important;
-  max-width:1200px !important;
-  margin:0 auto !important;
-}
-
-/* When Dashboard is selected, restore the normal dashboard and remove
-   full-screen section state. */
-#superAdminView #superAdminMainMenu:not([style*="display: none"]),
-#teacherView #teacherMainMenu:not([style*="display: none"]),
-#adminView #adminMainMenu:not([style*="display: none"]){
-  visibility:visible;
-}
-
-/* Header stays above the full-screen content so the menu/dashboard control
-   remains usable. */
-#superAdminView .header,
-#teacherView .header,
-#adminView .header{
-  position:relative !important;
-  z-index:10000 !important;
-}
-
-
-
-/* V15 — opened portal section is a true screen takeover */
-html.portal-fullscreen-active,
-body.portal-fullscreen-active{
-  width:100% !important;
-  min-width:100% !important;
-  height:100% !important;
-  min-height:100% !important;
-  overflow:hidden !important;
-}
-
-body.portal-fullscreen-active{
-  margin:0 !important;
-  padding:0 !important;
-  background:#f5f9fd !important;
-}
-
-body > #superAdminSectionsContainer.portal-section-fullscreen,
-body > #teacherSectionsContainer.portal-section-fullscreen,
-body > #adminSectionsContainer.portal-section-fullscreen{
-  position:fixed !important;
-  inset:0 !important;
-  z-index:2147483000 !important;
-  display:block !important;
-  visibility:visible !important;
-  opacity:1 !important;
-  width:100vw !important;
-  height:100dvh !important;
-  min-height:100vh !important;
-  max-width:none !important;
-  margin:0 !important;
-  padding:16px !important;
-  box-sizing:border-box !important;
-  overflow-x:hidden !important;
-  overflow-y:auto !important;
-  background:#f5f9fd !important;
-}
-
-body > #superAdminSectionsContainer.portal-section-fullscreen > .btn-secondary,
-body > #teacherSectionsContainer.portal-section-fullscreen > .btn-secondary,
-body > #adminSectionsContainer.portal-section-fullscreen > .btn-secondary{
-  display:inline-flex !important;
-  position:relative !important;
-  z-index:2 !important;
-  margin-bottom:16px !important;
-}
-
-body > #superAdminSectionsContainer.portal-section-fullscreen .tab-pane,
-body > #teacherSectionsContainer.portal-section-fullscreen .tab-pane,
-body > #adminSectionsContainer.portal-section-fullscreen .tab-pane{
-  width:100% !important;
-  max-width:1200px !important;
-  margin:0 auto !important;
-  box-sizing:border-box !important;
-}
-
-
-
-/* V16: section is detached from dashboard and fills the viewport. */
-body > #superAdminSectionsContainer.portal-section-fullscreen,
-body > #teacherSectionsContainer.portal-section-fullscreen,
-body > #adminSectionsContainer.portal-section-fullscreen {
-  position:fixed !important;
-  inset:0 !important;
-  z-index:2147483647 !important;
-  display:block !important;
-  width:100vw !important;
-  height:100dvh !important;
-  min-height:100vh !important;
-  max-width:none !important;
-  margin:0 !important;
-  padding:16px !important;
-  box-sizing:border-box !important;
-  overflow:auto !important;
-  background:#f5f9fd !important;
-}
-
-
-
-/* Restored dashboard card styling: all three portals use two columns and bold, larger labels. */
-#adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
-#adminView #adminMainMenu, #teacherView #teacherMainMenu, #superAdminView #superAdminMainMenu {
-  display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
-  gap:14px !important;
-  align-items:stretch !important;
-}
-#adminMainMenu .picture-action-title,
-#teacherMainMenu .picture-action-title,
-#superAdminMainMenu .picture-action-title,
-#adminMainMenu .admin-card .title,
-#teacherMainMenu .admin-card .title,
-#superAdminMainMenu .admin-card .title {
-  font-size:17px !important;
-  font-weight:800 !important;
-  line-height:1.25 !important;
-}
-#adminMainMenu .picture-action,
-#teacherMainMenu .picture-action,
-#superAdminMainMenu .picture-action {
-  min-width:0 !important;
-  box-sizing:border-box !important;
-}
-@media(max-width:560px){
- #adminMainMenu, #teacherMainMenu, #superAdminMainMenu,
- #adminView #adminMainMenu, #teacherView #teacherMainMenu, #superAdminView #superAdminMainMenu {
-   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
- }
-}
-</style></head><body>${report.outerHTML}</body></html>`;
+            /* Carry over the portal's original report styling so the downloaded
+               HTML and the printed report use the same report-card content. */
+            const styles = Array.from(document.querySelectorAll("style"))
+                .map(el => el.textContent || "")
+                .join("\n");
+
+            const reportPrintStyles = `
+                html, body {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    background: #fff !important;
+                }
+                body {
+                    -webkit-print-color-adjust: exact !important;
+                    print-color-adjust: exact !important;
+                }
+                @page {
+                    size: A4 portrait;
+                    margin: 0;
+                }
+                @media print {
+                    html, body {
+                        width: 210mm !important;
+                        min-width: 210mm !important;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                        background: #fff !important;
+                    }
+                    #studentReportCard.report-card {
+                        width: 200mm !important;
+                        min-width: 200mm !important;
+                        max-width: 200mm !important;
+                        height: 287mm !important;
+                        min-height: 287mm !important;
+                        max-height: 287mm !important;
+                        box-sizing: border-box !important;
+                        margin: 5mm auto !important;
+                        padding: 22px 24px 24px 24px !important;
+                        border: 0 !important;
+                        outline: 0 !important;
+                        box-shadow: none !important;
+                        overflow: visible !important;
+                        page-break-after: auto !important;
+                        break-after: auto !important;
+                    }
+                }
+            `;
+
+            return `<!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <title>Student Report</title>
+                    <style>${styles}\n${reportPrintStyles}</style>
+                </head>
+                <body>${report.outerHTML}</body>
+                </html>`;
         }
 
         function printStudentReport() {
@@ -6302,6 +5480,31 @@ body > #adminSectionsContainer.portal-section-fullscreen {
             } catch (err) {
                 console.error("Dropdown error: ", err);
             }
+        }
+
+        function getReportPerformanceComments(score) {
+            const info = getCBCGradeDetails(score);
+            const grade = String(info.grade || "").toUpperCase();
+            if (!grade || grade === "-") return {
+                classTeacher: "Results are not yet available. Continue participating in class activities and complete all assigned work.",
+                headteacher: "The learner's performance cannot yet be assessed because marks are incomplete. The school will continue to provide academic guidance."
+            };
+            if (grade.startsWith("EE")) return {
+                classTeacher: "Excellent performance. Keep up the strong effort, consistency and positive attitude towards learning.",
+                headteacher: "A very commendable achievement. The school congratulates the learner and encourages continued excellence."
+            };
+            if (grade.startsWith("ME")) return {
+                classTeacher: "Good progress. Keep working consistently and focus on the areas that can be improved further.",
+                headteacher: "The learner is making good progress. Continued commitment and support will help achieve even better results."
+            };
+            if (grade.startsWith("AE")) return {
+                classTeacher: "Fair progress. Put in more effort, complete all assignments and seek help in challenging areas.",
+                headteacher: "There is room for improvement. The learner is encouraged to work closely with teachers and maintain regular study habits."
+            };
+            return {
+                classTeacher: "More effort is needed. Attend lessons consistently, complete assignments and seek assistance whenever necessary.",
+                headteacher: "The learner requires additional academic support and closer follow-up. With consistent effort and guidance, progress can be made."
+            };
         }
 
         function getCBCGradeDetails(score) {
@@ -6937,6 +6140,7 @@ body > #adminSectionsContainer.portal-section-fullscreen {
 
                     const classMeanPoints = classPointCount > 0 ? classPointTotal / classPointCount : 0;
                     const graph = makePerformanceGraph(stMarks, studentSubjects);
+                    const reportComments = getReportPerformanceComments(mean);
 
                     htmlContent += `
                     <div class="report-card">
@@ -7026,12 +6230,12 @@ body > #adminSectionsContainer.portal-section-fullscreen {
 
                         <div class="rc-comment-box">
                             <div class="rc-comment-heading">Class Teacher's Comment</div>
-                            <div>Excellent performance. Keep up the good work and consistency.</div>
+                            <div>${escapeHtml(reportComments.classTeacher)}</div>
                         </div>
 
                         <div class="rc-comment-box">
                             <div class="rc-comment-heading">Principal's / HOI Comment</div>
-                            <div>A highly commendable standard. The administration congratulates the learner on this excellent achievement.</div>
+                            <div>${escapeHtml(reportComments.headteacher)}</div>
                         </div>
 
                         <div class="rc-footer-dates">
@@ -8425,11 +7629,8 @@ body > #adminSectionsContainer.portal-section-fullscreen {
     window.togglePictureSidebar = function(){
         const app = document.querySelector("#adminView .app-container");
         if(!app) return;
-        if(window.innerWidth <= 900){
-            app.classList.toggle("picture-sidebar-open");
-        } else {
-            app.classList.toggle("picture-sidebar-hidden");
-        }
+        app.classList.toggle("picture-sidebar-open");
+        app.classList.toggle("picture-sidebar-hidden", !app.classList.contains("picture-sidebar-open"));
     };
 
     async function refreshPictureDashboardStats(){
