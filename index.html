@@ -2951,9 +2951,6 @@ body{
                     <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabCommunication')"><div class="icon">💬</div><div class="title">Communication / Messaging</div></div>
-                <div class="admin-card picture-sidebar-logout" onclick="logout()">
-                    <div class="icon">⇥</div><div class="title">Logout</div>
-                </div>
             <div class="admin-card sidebar-logout-card" onclick="logout()">
                     <div class="icon">🚪</div><div class="title">Logout</div>
                 </div>
@@ -3807,7 +3804,7 @@ body{
             { grade: "AE1", min: 50, max: 59, desc: "Approaching Expectations (Level 2 High)" },
             { grade: "AE2", min: 40, max: 49, desc: "Approaching Expectations (Level 2 Low)" },
             { grade: "BE1", min: 25, max: 39, desc: "Below Expectations (Level 1 High)" },
-            { grade: "BE2", min: 0, max: 24, desc: "Below Expectations (Level 1 Low)" }
+            { grade: "BE2", min: 1, max: 24, desc: "Below Expectations (Level 1 Low)" }
         ];
 
         let currentGradingSystem = [...defaultCBCGrading];
