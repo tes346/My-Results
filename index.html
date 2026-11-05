@@ -8,6 +8,7 @@
     <title>myRezultz - School Results Management System</title>
     <!-- Chart.js for rendering performance graphs -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { background-color: #f8fafc; color: #0f172a; min-height: 100vh; font-size: 14px; }
@@ -2549,37 +2550,38 @@ body{
   #headteacherMessageForm.communication-compose textarea{display:block!important;width:100%!important;min-height:76px!important;box-sizing:border-box!important;}
   #headteacherMessageForm.communication-compose button{align-self:flex-end!important;width:auto!important;min-width:145px!important;}
 }
-/* A4 print: compact report content so one learner report occupies one portrait page. */
+/* A4 report form: retain the reference image proportions and keep each learner on one page. */
 @media print{
-  @page{size:A4 portrait;margin:5mm;}
+  @page{size:A4 portrait;margin:7mm;}
   #printSection:not(.class-master-output) .report-card{
     width:100%!important;max-width:none!important;min-height:0!important;height:auto!important;
-    box-sizing:border-box!important;margin:0!important;padding:7px 9px!important;
-    page-break-after:always!important;break-after:page!important;overflow:hidden!important;
+    box-sizing:border-box!important;margin:0!important;padding:13px 15px!important;
+    page-break-after:always!important;break-after:page!important;overflow:visible!important;
+    border:0!important;outline:0!important;box-shadow:none!important;background:#fff!important;
   }
   #printSection:not(.class-master-output) .report-card:last-child{page-break-after:auto!important;break-after:auto!important;}
-  #printSection:not(.class-master-output) .report-card .rc-header{grid-template-columns:66px 1fr 66px!important;gap:6px!important;padding-bottom:4px!important;border-bottom-width:2px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-header{grid-template-columns:95px minmax(0,1fr) 95px!important;gap:10px!important;padding-bottom:9px!important;border-bottom:3px solid #111827!important;}
   #printSection:not(.class-master-output) .report-card .rc-logo img,
-  #printSection:not(.class-master-output) .report-card .rc-logo .rc-logo-placeholder{width:54px!important;height:54px!important;font-size:7px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-logo .rc-logo-placeholder{width:78px!important;height:78px!important;font-size:9px!important;}
   #printSection:not(.class-master-output) .report-card .rc-student-photo img,
-  #printSection:not(.class-master-output) .report-card .rc-student-photo .rc-photo-box{width:48px!important;height:60px!important;border-radius:5px!important;font-size:7px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-school-info h2{font-size:13pt!important;margin-bottom:1px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-student-photo .rc-photo-box{width:78px!important;height:92px!important;border-radius:10px!important;font-size:9px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-school-info h2{font-size:18px!important;margin-bottom:3px!important;}
   #printSection:not(.class-master-output) .report-card .rc-school-info p,
-  #printSection:not(.class-master-output) .report-card .rc-exam-line{font-size:7.5pt!important;margin:1px 0!important;}
-  #printSection:not(.class-master-output) .report-card .rc-bio-grid{margin:4px 0 5px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-bio-item{min-height:0!important;padding:3px 5px!important;font-size:7pt!important;line-height:1.15!important;}
-  #printSection:not(.class-master-output) .report-card .rc-marks-table{width:78%!important;font-size:7pt!important;}
-  #printSection:not(.class-master-output) .report-card .rc-marks-table th{font-size:7pt!important;padding:3px 4px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-marks-table td{height:auto!important;padding:2px 4px!important;font-size:7pt!important;}
-  #printSection:not(.class-master-output) .report-card .rc-performance{margin-top:4px!important;padding-top:3px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-performance-title{font-size:7.5pt!important;margin-bottom:1px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-chart-wrap{height:72px!important;max-height:72px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-summary{font-size:7pt!important;margin:3px 0 4px!important;gap:2px 10px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-exam-line{font-size:10px!important;margin:2px 0!important;}
+  #printSection:not(.class-master-output) .report-card .rc-bio-grid{margin:8px 0 10px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-bio-item{min-height:38px!important;padding:5px 7px!important;font-size:9px!important;line-height:1.25!important;}
+  #printSection:not(.class-master-output) .report-card .rc-marks-table{width:78%!important;font-size:9px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-marks-table th{font-size:9px!important;padding:5px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-marks-table td{height:24px!important;padding:4px 5px!important;font-size:9px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-performance{margin-top:10px!important;padding-top:7px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-performance-title{font-size:10px!important;margin-bottom:3px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-chart-wrap{height:150px!important;max-height:150px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-summary{font-size:9px!important;margin:5px 0 7px!important;gap:4px 14px!important;}
   #printSection:not(.class-master-output) .report-card .rc-summary-left,
-  #printSection:not(.class-master-output) .report-card .rc-summary-right{line-height:1.2!important;}
-  #printSection:not(.class-master-output) .report-card .rc-comment-box{padding:3px 5px!important;margin:3px 0!important;font-size:7pt!important;line-height:1.2!important;}
-  #printSection:not(.class-master-output) .report-card .rc-comment-box .rc-comment-heading{font-size:7.5pt!important;margin-bottom:1px!important;}
-  #printSection:not(.class-master-output) .report-card .rc-footer-dates{font-size:7pt!important;margin-top:4px!important;padding-top:2px!important;gap:14px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-summary-right{line-height:1.35!important;}
+  #printSection:not(.class-master-output) .report-card .rc-comment-box{padding:5px 7px!important;margin:5px 0!important;font-size:9px!important;line-height:1.3!important;}
+  #printSection:not(.class-master-output) .report-card .rc-comment-box .rc-comment-heading{font-size:10px!important;margin-bottom:2px!important;}
+  #printSection:not(.class-master-output) .report-card .rc-footer-dates{font-size:9px!important;margin-top:7px!important;padding-top:4px!important;gap:20px!important;}
 }
 </style>
 
@@ -3095,7 +3097,9 @@ body{
                     <div class="icon">📢</div><div class="title">UPDATE / ANNOUNCEMENT <span id="adminAnnouncementBadge" class="notification-badge" style="display:none;">0</span></div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabCommunication')"><div class="icon">💬</div><div class="title">Communication / Messaging</div></div>
-                
+                <div class="admin-card picture-sidebar-logout" onclick="logout()">
+                    <div class="icon">⇥</div><div class="title">Logout</div>
+                </div>
             <div class="admin-card sidebar-logout-card" onclick="logout()">
                     <div class="icon">🚪</div><div class="title">Logout</div>
                 </div>
@@ -3230,20 +3234,16 @@ body{
 
                     <div id="tabBulkReg" class="tab-pane">
                         <h3>Bulk Student Registration</h3>
-                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Upload a CSV or JSON file containing a class list to register multiple students at once.</p>
-                        <div class="auth-form-group">
-                            <label>Select Class</label>
-                            <select id="bulkClassSelect"></select>
-                        </div>
-                        <div class="auth-form-group">
-                            <label>Select Academic Year</label>
-                            <input type="number" id="bulkYearInput" placeholder="2026" value="2026">
-                        </div>
+                        <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Upload a PDF class list. The PDF must contain Admission Number and Student Name headings. Serial Number is optional and columns may appear in any order.</p>
+                        <div class="auth-form-group" id="bulkPathwayGroup" style="display:none;"><label>Select Pathway</label><select id="bulkPathwaySelect"></select></div>
+                        <div class="auth-form-group"><label>Select Class</label><select id="bulkClassSelect"></select></div>
+                        <div class="auth-form-group"><label>Select Academic Year</label><select id="bulkYearInput"><option value="">-- Select Academic Year --</option></select></div>
                         <div class="upload-box">
-                            <input type="file" id="bulkFileInput" accept=".csv, .json, .txt" />
-                            <p style="font-size:11px; color:#64748b; margin-top:8px;">CSV Format: <code>AdmissionNo, StudentName</code> or JSON Array <code>[{"admissionNo":"101","name":"John"}]</code></p>
+                            <input type="file" id="bulkFileInput" accept="application/pdf,.pdf" />
+                            <p style="font-size:11px; color:#64748b; margin-top:8px;">PDF only. Required columns: Admission Number and Student Name. Serial Number is optional.</p>
                             <button class="btn-primary" style="margin-top:12px; max-width:200px;" onclick="processBulkRegistration()">Upload & Register Class List</button>
                         </div>
+                        <div id="bulkRegistrationStatus" style="margin-top:12px;"></div>
                     </div>
 
                     <div id="tabTransfer" class="tab-pane">
@@ -3393,6 +3393,7 @@ body{
                     <div id="tabSubject" class="tab-pane">
                         <h3>Register Subject</h3>
                         <form id="subjectForm" style="margin-top:12px;" onsubmit="saveSubject(event)">
+                            <div class="auth-form-group" id="subjectPathwayGroup" style="display:none;"><label>Pathway</label><select id="subjectPathwaySelect"></select></div>
                             <div class="auth-form-group"><label>Subject Name</label><input type="text" id="subName" placeholder="e.g. Mathematics" required></div>
                             <button class="btn-primary" type="submit">Save Subject</button>
                         </form>
@@ -3414,7 +3415,7 @@ body{
                             <div class="auth-form-group"><label>Admission No</label><input type="text" id="sAdm" required></div>
                             <div class="auth-form-group"><label>Full Name</label><input type="text" id="sName" required></div>
                             <div class="auth-form-group"><label>Class</label><select id="sClassSelect" required></select></div>
-                            <div class="auth-form-group" id="studentSubjectsGroup" style="display:none;"><label>Subjects / Units (select all the learner takes)</label><select id="sSubjectsSelect" multiple size="6"></select><p style="font-size:12px;color:#64748b;margin-top:6px;">Select the subjects/units assigned to this learner according to their pathway.</p></div>
+                            <div class="auth-form-group" id="studentPathwayGroup" style="display:none;"><label>Pathway</label><select id="sPathwaySelect"></select></div>
                             <div class="auth-form-group"><label>Entry Term</label>
                                 <select id="sTermSelect">
                                     <option value="Term 1">Term 1</option>
@@ -5070,7 +5071,16 @@ body{
                     if(score!=='-' && Number.isFinite(score)){ total+=score; count++; g=getCBCGradeDetails(score); pts=points[g.grade]||0; totalPoints+=pts; }
                     const gc=g.grade.startsWith('EE')?'rc-grade-ee':g.grade.startsWith('ME')?'rc-grade-me':g.grade.startsWith('AE')?'rc-grade-ae':g.grade.startsWith('BE')?'rc-grade-be':'';
                     const mean=subjectStats[sub].count?subjectStats[sub].mean.toFixed(2):'-';
-                    rows += `<tr><td>${esc(sub)}</td><td>${score==='-'?'-':`<span class="rc-mark">${score}</span> <span class="${gc}">(${g.grade})</span>`}</td><td>${pts?pts+' pts':'-'}</td><td>${mean}</td><td>${mean==='-'?'-':mean}</td></tr>`;
+                    let subjectPointTotal=0, subjectPointCount=0;
+                    allClassMarks.forEach(classMark=>{
+                        if(classMark.subject!==sub) return;
+                        const classScore=Number(classMark.score);
+                        if(!Number.isFinite(classScore)) return;
+                        const classGrade=getCBCGradeDetails(classScore).grade;
+                        if(points[classGrade]) { subjectPointTotal+=points[classGrade]; subjectPointCount++; }
+                    });
+                    const subjectMeanPoints=subjectPointCount?(subjectPointTotal/subjectPointCount).toFixed(2):'-';
+                    rows += `<tr><td>${esc(sub)}</td><td>${score==='-'?'-':`<span class="rc-mark">${score}</span> <span class="${gc}">(${g.grade})</span>`}</td><td>${pts?pts+' pts':'-'}</td><td>${mean}</td><td>${subjectMeanPoints==='-'?'-':subjectMeanPoints+' pts'}</td></tr>`;
                 });
                 const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const reportComments=getReportPerformanceComments(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
                 const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
@@ -5373,27 +5383,28 @@ body{
         });
 
         async function populateStudentSubjectDropdown() {
-            const group = document.getElementById("studentSubjectsGroup");
-            const select = document.getElementById("sSubjectsSelect");
-            if (!group || !select) return;
-            const isSenior = String(currentSchoolType || "junior").toLowerCase() === "senior";
-            if (!isSenior) {
-                group.style.display = "none";
-                select.required = false;
-                select.innerHTML = "";
-                return;
-            }
-            group.style.display = "flex";
-            select.required = true;
-            select.innerHTML = '<option value="">-- Select Subject / Unit --</option>';
-            const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
-            subSnap.docs
-                .map(doc => String((doc.data() || {}).name || "").trim())
-                .filter(Boolean)
-                .filter((name, index, list) => list.indexOf(name) === index)
-                .forEach(name => {
-                    select.innerHTML += `<option value="${esc(name)}">${esc(name)}</option>`;
-                });
+            const senior = isSeniorSchool();
+            [['studentPathwayGroup','sPathwaySelect'],['subjectPathwayGroup','subjectPathwaySelect'],['bulkPathwayGroup','bulkPathwaySelect']].forEach(([gid,sid])=>{
+                const g=document.getElementById(gid),sel=document.getElementById(sid);
+                if(g) g.style.display=senior?'block':'none';
+                if(senior && sel) fillPathwaySelect(sel);
+                if(!senior && sel) sel.innerHTML='';
+            });
+            const oldGroup=document.getElementById('studentSubjectsGroup');
+            if(oldGroup) oldGroup.style.display='none';
+        }
+
+        async function populatePathwayAndYearDropdowns() {
+            await populateStudentSubjectDropdown();
+            const yearSelect=document.getElementById('bulkYearInput');
+            if(!yearSelect) return;
+            const previous=yearSelect.value;
+            const snap=await db.collection('termsYears').where('schoolId','==',currentSchoolId).get();
+            const years=[...new Set(snap.docs.map(d=>String((d.data()||{}).year||'').trim()).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+            const currentYear=String(new Date().getFullYear());
+            if(!years.includes(currentYear)) years.push(currentYear);
+            yearSelect.innerHTML='<option value="">-- Select Academic Year --</option>'+years.map(y=>`<option value="${esc(y)}">${esc(y)}</option>`).join('');
+            yearSelect.value=years.includes(previous)?previous:currentYear;
         }
 
         async function populateAllDropdowns() {
@@ -5464,6 +5475,8 @@ body{
                         tSel.innerHTML += `<option value="${doc.id}">${esc(td.name||td.displayName||'Teacher')} (${esc(td.email||'')})</option>`;
                     });
                 }
+
+                await populatePathwayAndYearDropdowns();
 
                 const examSnap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
                 const examSelects = ['adminExamSelect', 'analyticsExamSelect', 'examSelect'];
@@ -5577,11 +5590,13 @@ body{
         async function saveSubject(e) {
             e.preventDefault();
             const name = document.getElementById("subName").value.trim();
-            if (!name) return;
+            const pathway = isSeniorSchool() ? document.getElementById("subjectPathwaySelect").value : "";
+            if (!name || (isSeniorSchool() && !pathway)) { alert("Enter a subject name and select its pathway."); return; }
             try {
                 await db.collection("subjects").add({
                     schoolId: currentSchoolId,
                     name: name,
+                    ...(isSeniorSchool() ? {pathway} : {}),
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 alert("Subject created successfully!");
@@ -5651,37 +5666,27 @@ body{
 
         async function enrollStudent(e) {
             e.preventDefault();
-            const adm = document.getElementById("sAdm").value.trim();
-            const name = document.getElementById("sName").value.trim();
-            const className = document.getElementById("sClassSelect").value;
-            const subjectSelect = document.getElementById("sSubjectsSelect");
-            const isSenior = String(currentSchoolType || "junior").toLowerCase() === "senior";
-            const subjects = isSenior && subjectSelect ? Array.from(subjectSelect.selectedOptions).map(o => o.value).filter(Boolean) : [];
-            const term = document.getElementById("sTermSelect").value;
-            const year = document.getElementById("sYearSelect").value;
-
-            if (!adm || !name || !className || (isSenior && !subjects.length)) {
-                if (isSenior) alert("Select at least one subject/unit for the learner.");
-                return;
-            }
-
-            try {
-                const studentRecord = {
-                    schoolId: currentSchoolId,
-                    admissionNo: adm,
-                    name: name,
-                    class: className,
-                    term: term,
-                    year: year,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                if (isSenior) studentRecord.subjects = subjects;
+            const adm=document.getElementById("sAdm").value.trim();
+            const name=document.getElementById("sName").value.trim();
+            const className=document.getElementById("sClassSelect").value;
+            const pathway=isSeniorSchool()?document.getElementById("sPathwaySelect").value:"";
+            const term=document.getElementById("sTermSelect").value;
+            const year=document.getElementById("sYearSelect").value;
+            if(!adm||!name||!className||(isSeniorSchool()&&!pathway)){alert("Complete the required student details and select a pathway for Senior school.");return;}
+            try{
+                const studentRecord={schoolId:currentSchoolId,admissionNo:adm,name,class:className,term,year,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+                if(isSeniorSchool()){
+                    const subjectsSnap=await db.collection("subjects").where("schoolId","==",currentSchoolId).get();
+                    const subjects=selectedPathwaySubjects(pathway,subjectsSnap.docs);
+                    if(!subjects.length){alert("No subjects have been registered under "+pathway+" yet. Register pathway subjects first.");return;}
+                    studentRecord.pathway=pathway;
+                    studentRecord.subjects=subjects;
+                }
                 await db.collection("students").add(studentRecord);
                 alert("Student enrolled successfully!");
                 document.getElementById("studentForm").reset();
-            } catch (err) {
-                alert("Error enrolling student: " + err.message);
-            }
+                await populateAllDropdowns();
+            }catch(err){alert("Error enrolling student: "+err.message);}
         }
 
         async function saveAllocation(e) {
@@ -6923,10 +6928,11 @@ body{
             try {
                 const snap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
                 if (snap.empty) { container.innerHTML = "<p>No students found.</p>"; return; }
-                let html = `<table><thead><tr><th>Admission No</th><th>Name</th><th>Term</th><th>Year</th></tr></thead><tbody>`;
+                const senior=isSeniorSchool();
+                let html = `<table><thead><tr><th>Admission No</th><th>Name</th>${senior?'<th>Pathway</th>':''}<th>Term</th><th>Year</th></tr></thead><tbody>`;
                 snap.forEach(doc => {
                     const d = doc.data();
-                    html += `<tr><td>${d.admissionNo}</td><td style="text-align:left;">${d.name}</td><td>${d.term || 'Term 1'}</td><td>${d.year || '2026'}</td></tr>`;
+                    html += `<tr><td>${esc(d.admissionNo||'')}</td><td style="text-align:left;">${esc(d.name||'')}</td>${senior?`<td>${esc(d.pathway||'Not assigned')}</td>`:''}<td>${esc(d.term || 'Term 1')}</td><td>${esc(d.year || '2026')}</td></tr>`;
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
@@ -7397,32 +7403,136 @@ body{
                     let html='<table><thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead><tbody>'; docs.forEach(doc=>{const d=doc.data();html+=`<tr><td>${esc(d.name||d.displayName||'')}</td><td>${esc(d.email||'')}</td><td><button class="btn-secondary" onclick="editTeacherRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteTeacherRecord('${doc.id}')">Delete</button></td></tr>`;});container.innerHTML=html+'</tbody></table>';return;
                 }
                 if(type==='students'){
-                    const groups={};snap.docs.forEach(doc=>{const d=doc.data(),k=d.class||'Unassigned Class';(groups[k] ||= []).push({id:doc.id,d});});let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Name</th><th>ADM</th><th>Class</th><th>Year</th><th>Action</th></tr></thead><tbody>`;groups[cls].sort((a,b)=>String(a.d.name||'').localeCompare(String(b.d.name||''))).forEach(x=>{html+=`<tr><td>${esc(x.d.name)}</td><td>${esc(x.d.admissionNo)}</td><td>${esc(x.d.class)}</td><td>${esc(x.d.year||'')}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});container.innerHTML=html;return;
+                    const groups={};snap.docs.forEach(doc=>{const d=doc.data(),k=d.class||'Unassigned Class';(groups[k] ||= []).push({id:doc.id,d});});let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3>`;const pathwayGroups=isSeniorSchool()?SENIOR_PATHWAYS:[''];pathwayGroups.forEach(path=>{const rows=groups[cls].filter(x=>!isSeniorSchool()||String(x.d.pathway||'')===path).sort((a,b)=>String(a.d.name||'').localeCompare(String(b.d.name||'')));if(!rows.length)return;if(isSeniorSchool())html+=`<h4 style="margin:10px 0 6px;">${esc(path)}</h4>`;html+=`<table><thead><tr><th>Name</th><th>ADM</th><th>Class</th>${isSeniorSchool()?'<th>Pathway</th>':''}<th>Year</th><th>Action</th></tr></thead><tbody>`;rows.forEach(x=>{html+=`<tr><td>${esc(x.d.name||'')}</td><td>${esc(x.d.admissionNo||'')}</td><td>${esc(x.d.class||'')}</td>${isSeniorSchool()?`<td>${esc(x.d.pathway||'')}</td>`:''}<td>${esc(x.d.year||'')}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});});container.innerHTML=html;return;
                 }
                 if(type==='allocations'){
                     const groups={}; await Promise.all(snap.docs.map(async doc=>{const d=doc.data()||{};let name=d.teacherName||'',email=d.teacherEmail||'';if((!name||!email)&&d.teacherId){const u=await db.collection('users').doc(d.teacherId).get();if(u.exists){const ud=u.data();name=name||ud.name||ud.displayName||'';email=email||ud.email||'';}}const cls=displayClassName(d.className||d.class)||'Unassigned Class';const subject=displaySubjectName(d.subjectName||d.subject)||'';(groups[cls] ||= []).push({id:doc.id,d,name,email,subject});}));let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Teacher Name</th><th>Email</th><th>Subject Allocated</th><th>Action</th></tr></thead><tbody>`;groups[cls].forEach(x=>{html+=`<tr><td>${esc(x.name)}</td><td>${esc(x.email)}</td><td>${esc(x.subject)}</td><td><button class="btn-secondary" onclick="editAllocationRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('allocations','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});container.innerHTML=html;return;
                 }
                 if(type==='timetable'||type==='resources'){
-                    const docs=snap.docs.filter(d=>{const x=d.data()||{};return Boolean(x.fileUrl||x.downloadURL||x.url||x.link);}); if(!docs.length){container.innerHTML='<p>No uploaded items found.</p>';return;} let html=type==='timetable'?'<table><thead><tr><th>Class</th><th>Uploaded Timetable</th><th>Action</th></tr></thead><tbody>':'<table><thead><tr><th>Class</th><th>Resource</th><th>Action</th></tr></thead><tbody>';docs.forEach(doc=>{const d=doc.data()||{},href=d.fileUrl||d.downloadURL||d.url||d.link,label=d.fileName||d.title||'Uploaded file',isImg=/^image\//i.test(d.fileType||'')||/\.(png|jpe?g|gif|webp)$/i.test(label);html+=`<tr><td>${esc(displayClassName(d.class||d.className||''))}</td><td style="text-align:left;">${isImg?`<img src="${esc(href)}" alt="Uploaded file" style="max-width:100%;max-height:300px;object-fit:contain;display:block;">`:`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';container.innerHTML=html;return;
+                    const docs=snap.docs.filter(d=>{const x=d.data()||{};return Boolean(x.fileUrl||x.downloadURL||x.url||x.link);}); if(!docs.length){container.innerHTML='<p>No uploaded items found.</p>';return;} let html=type==='timetable'?'<table><thead><tr><th>Class</th><th>Uploaded Timetable</th><th>Action</th></tr></thead><tbody>':'<table><thead><tr><th>Class</th><th>Resource</th><th>Action</th></tr></thead><tbody>';docs.forEach(doc=>{const d=doc.data()||{},href=d.fileUrl||d.downloadURL||d.url||d.link,label=d.fileName||d.title||'Uploaded file',isImg=/^image\//i.test(d.fileType||'')||/\.(png|jpe?g|gif|webp)$/i.test(label);html+=`<tr><td>${esc(displayClassName(d.class||d.className||''))}</td><td style="text-align:left;">${isImg?`<img src="${esc(href)}" alt="Uploaded file" style="max-width:100%;max-height:300px;object-fit:contain;display:block;">`:`<a href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}</a>`}</td><td><button class="btn-secondary" onclick="editGenericRecord('${type}','${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';container.innerHTML=html;return;
                 }
                 if(type==='classes'){
                     let html='<table><thead><tr><th>Class</th><th>Action</th></tr></thead><tbody>';
-                    snap.docs.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.className||d.title||d.class||displayClassName(doc.id))}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('classes','${doc.id}')">Delete</button></td></tr>`;});
+                    snap.docs.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.className||d.title||d.class||displayClassName(doc.id))}</td><td><button class="btn-secondary" onclick="editClassRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('classes','${doc.id}')">Delete</button></td></tr>`;});
                     container.innerHTML=html+'</tbody></table>';return;
                 }
                 if(type==='subjects'){
-                    let html='<table><thead><tr><th>Subject</th><th>Action</th></tr></thead><tbody>';
-                    snap.docs.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.subjectName||d.title||d.subject||displaySubjectName(doc.id))}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('subjects','${doc.id}')">Delete</button></td></tr>`;});
-                    container.innerHTML=html+'</tbody></table>';return;
+                    let html='';
+                    if(isSeniorSchool()){
+                        SENIOR_PATHWAYS.forEach(path=>{const rows=snap.docs.filter(doc=>String((doc.data()||{}).pathway||'')===path).sort((a,b)=>String((a.data()||{}).name||'').localeCompare(String((b.data()||{}).name||'')));if(!rows.length)return;html+=`<h3 style="margin:18px 0 8px;">${esc(path)}</h3><table><thead><tr><th>Subject</th><th>Pathway</th><th>Action</th></tr></thead><tbody>`;rows.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.subjectName||d.title||d.subject||displaySubjectName(doc.id))}</td><td>${esc(d.pathway||'')}</td><td><button class="btn-secondary" onclick="editSubjectRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('subjects','${doc.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});
+                    }else{html='<table><thead><tr><th>Subject</th><th>Action</th></tr></thead><tbody>';snap.docs.forEach(doc=>{const d=doc.data()||{};html+=`<tr><td>${esc(d.name||d.subjectName||d.title||d.subject||displaySubjectName(doc.id))}</td><td><button class="btn-secondary" onclick="editSubjectRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('subjects','${doc.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';}
+                    container.innerHTML=html||'<p>No subjects registered.</p>';return;
                 }
-                container.innerHTML='<table><thead><tr><th>Details</th><th>Action</th></tr></thead><tbody>'+snap.docs.map(doc=>`<tr><td>${esc(JSON.stringify(doc.data()))}</td><td><button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`).join('')+'</tbody></table>';
+                container.innerHTML='<table><thead><tr><th>Details</th><th>Action</th></tr></thead><tbody>'+snap.docs.map(doc=>`<tr><td>${esc(JSON.stringify(doc.data()))}</td><td><button class="btn-secondary" onclick="editGenericRecord('${type}','${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('${type}','${doc.id}')">Delete</button></td></tr>`).join('')+'</tbody></table>';
             }catch(e){container.innerHTML='<p style="color:red;">Error loading records: '+esc(e.message)+'</p>';}
         }
 
+        async function editClassRecord(id){const ref=db.collection('classes').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit class name:',d.name||d.className||'');if(name===null)return;try{await ref.update({name:name.trim()});alert('Class updated successfully.');await loadRegisteredCollection('classes');await populateAllDropdowns();}catch(e){alert('Error updating class: '+e.message);}}
+        async function editGenericRecord(type,id){const ref=db.collection(type).doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const label=d.title||d.fileName||d.name||d.className||'Record';const value=prompt('Edit record title/name:',label);if(value===null)return;const field=d.title!==undefined?'title':(d.fileName!==undefined?'fileName':(d.name!==undefined?'name':'title'));try{await ref.update({[field]:value.trim()});alert('Record updated successfully.');await loadRegisteredCollection(type);}catch(e){alert('Edit failed: '+e.message);}}
         async function editTeacherRecord(uid){const ref=db.collection('users').doc(uid);const snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit teacher name:',d.name||'');if(name===null)return;const email=prompt('Edit teacher email:',d.email||'');if(email===null)return;try{await ref.update({name:name.trim(),email:email.trim().toLowerCase()});alert('Teacher updated successfully.');await loadRegisteredCollection('teachers');populateAllDropdowns();}catch(e){alert('Error updating teacher: '+e.message);}}
         async function deleteTeacherRecord(uid){if(!confirm('Delete this teacher record?'))return;try{await db.collection('users').doc(uid).delete();alert('Teacher record deleted successfully.');await loadRegisteredCollection('teachers');populateAllDropdowns();}catch(e){alert('Error deleting teacher: '+e.message);}}
-        async function editStudentRecord(id){const ref=db.collection('students').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit student name:',d.name||'');if(name===null)return;const adm=prompt('Edit admission number:',d.admissionNo||'');if(adm===null)return;try{await ref.update({name:name.trim(),admissionNo:adm.trim()});alert('Student updated successfully.');await loadRegisteredCollection('students');}catch(e){alert('Error updating student: '+e.message);}}
+        async function editStudentRecord(id){const ref=db.collection('students').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit student name:',d.name||'');if(name===null)return;const adm=prompt('Edit admission number:',d.admissionNo||'');if(adm===null)return;const updates={name:name.trim(),admissionNo:adm.trim()};if(isSeniorSchool()){const path=prompt('Edit pathway (STEM, Social Sciences, Arts and Sports Science):',d.pathway||'');if(path===null)return;if(!SENIOR_PATHWAYS.includes(path)){alert('Choose one of the listed pathways exactly.');return;}const ss=await db.collection('subjects').where('schoolId','==',currentSchoolId).get();updates.pathway=path;updates.subjects=selectedPathwaySubjects(path,ss.docs);}try{await ref.update(updates);alert('Student updated successfully.');await loadRegisteredCollection('students');}catch(e){alert('Error updating student: '+e.message);}}
+        async function editSubjectRecord(id){const ref=db.collection('subjects').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const name=prompt('Edit subject name:',d.name||'');if(name===null)return;const updates={name:name.trim()};if(isSeniorSchool()){const path=prompt('Edit pathway (STEM, Social Sciences, Arts and Sports Science):',d.pathway||'');if(path===null)return;if(!SENIOR_PATHWAYS.includes(path)){alert('Choose one of the listed pathways exactly.');return;}updates.pathway=path;}try{await ref.update(updates);alert('Subject updated successfully.');await loadRegisteredCollection('subjects');}catch(e){alert('Error updating subject: '+e.message);}}
         async function editAllocationRecord(id){const ref=db.collection('allocations').doc(id),snap=await ref.get();if(!snap.exists)return;const d=snap.data()||{};const sub=prompt('Edit allocated subject:',d.subjectName||d.subject||'');if(sub===null)return;try{await ref.update({subjectName:sub.trim()});alert('Allocation updated successfully.');await loadRegisteredCollection('allocations');}catch(e){alert('Error updating allocation: '+e.message);}}
+
+        const SENIOR_PATHWAYS = ['STEM', 'Social Sciences', 'Arts and Sports Science'];
+        const isSeniorSchool = () => String(currentSchoolType || 'junior').toLowerCase() === 'senior';
+        function pathwayOrder(value) { const i = SENIOR_PATHWAYS.indexOf(String(value || '').trim()); return i < 0 ? 99 : i; }
+        function fillPathwaySelect(select, includeAll=false) {
+            if (!select) return;
+            select.innerHTML = (includeAll ? '<option value="">-- All Pathways --</option>' : '<option value="">-- Select Pathway --</option>') + SENIOR_PATHWAYS.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+        }
+        function selectedPathwaySubjects(pathway, docs) {
+            return docs.map(doc => { const d=doc.data()||{}; return {name:String(d.name||d.subjectName||d.title||d.subject||'').trim(), pathway:String(d.pathway||'').trim()}; }).filter(x=>x.name && x.pathway===pathway).map(x=>x.name).filter((v,i,a)=>a.indexOf(v)===i);
+        }
+
+        function normalizePdfHeader(value) {
+            return String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+        }
+        function identifyPdfColumns(cells) {
+            const headers=cells.map(c=>normalizePdfHeader(c.text));
+            const admissionIndex=headers.findIndex(h=>['admissionno','admissionnumber','admno','admnumber','adm'].includes(h));
+            const nameIndex=headers.findIndex(h=>['name','studentname','fullname','learnername'].includes(h));
+            return {admissionIndex,nameIndex};
+        }
+        async function extractStudentsFromPdf(file) {
+            if(!window.pdfjsLib) throw new Error('PDF reader could not load. Check your internet connection and reload the page.');
+            pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const buffer=await file.arrayBuffer();
+            const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
+            const records=[];
+            for(let pageNo=1;pageNo<=pdf.numPages;pageNo++){
+                const page=await pdf.getPage(pageNo),content=await page.getTextContent();
+                const rows=[];
+                content.items.filter(it=>it.str&&it.str.trim()).forEach(it=>{
+                    const y=Math.round(it.transform[5]*2)/2;
+                    let row=rows.find(r=>Math.abs(r.y-y)<=3);
+                    if(!row){row={y,cells:[]};rows.push(row);}
+                    row.cells.push({x:it.transform[4],text:it.str.trim()});
+                });
+                rows.sort((a,b)=>b.y-a.y).forEach(r=>r.cells.sort((a,b)=>a.x-b.x));
+                let header=null, headerY=0;
+                for(let i=0;i<rows.length;i++){
+                    const found=identifyPdfColumns(rows[i].cells);
+                    if(found.admissionIndex>=0&&found.nameIndex>=0){header=found;headerY=rows[i].y;break;}
+                }
+                if(!header) continue;
+                const headerCells=rows.find(r=>r.y===headerY).cells;
+                const admX=headerCells[header.admissionIndex].x, nameX=headerCells[header.nameIndex].x;
+                for(const r of rows.filter(r=>r.y<headerY-2)){
+                    const columns={admission:[],name:[]};
+                    r.cells.forEach(c=>{
+                        const da=Math.abs(c.x-admX),dn=Math.abs(c.x-nameX);
+                        if(da<=dn) columns.admission.push(c); else columns.name.push(c);
+                    });
+                    const admissionNo=columns.admission.sort((a,b)=>a.x-b.x).map(c=>c.text).join(' ').trim();
+                    const name=columns.name.sort((a,b)=>a.x-b.x).map(c=>c.text).join(' ').trim();
+                    if(!admissionNo||!name)continue;
+                    if(normalizePdfHeader(admissionNo)==='admissionnumber'||normalizePdfHeader(name)==='studentname')continue;
+                    if(!/^[A-Za-z0-9][A-Za-z0-9\/-]*$/.test(admissionNo))continue;
+                    if(name.length<2||/^\d+$/.test(name))continue;
+                    records.push({admissionNo,name});
+                }
+            }
+            const unique=[];const seen=new Set();records.forEach(r=>{const k=r.admissionNo.toLowerCase();if(!seen.has(k)){seen.add(k);unique.push(r);}});
+            if(!unique.length)throw new Error('No student rows could be read. The PDF must contain selectable text and clear Admission Number and Student Name column headings. Scanned/image-only PDFs need OCR and are not supported by this importer.');
+            return unique;
+        }
+        async function processBulkRegistration() {
+            const file=document.getElementById('bulkFileInput')?.files?.[0];
+            const className=document.getElementById('bulkClassSelect')?.value;
+            const year=document.getElementById('bulkYearInput')?.value;
+            const pathway=isSeniorSchool()?document.getElementById('bulkPathwaySelect')?.value:'';
+            const status=document.getElementById('bulkRegistrationStatus');
+            const setStatus=(msg,color='#334155')=>{if(status){status.style.color=color;status.textContent=msg;}};
+            if(!file||(!/\.pdf$/i.test(file.name)&&file.type!=='application/pdf')){setStatus('Please choose a PDF file only.','#dc2626');return;}
+            if(!className||!year||(isSeniorSchool()&&!pathway)){setStatus('Select the class, academic year'+(isSeniorSchool()?' and pathway':'')+' before uploading.','#dc2626');return;}
+            try{
+                setStatus('Reading PDF and identifying the Admission Number and Student Name columns...');
+                const rows=await extractStudentsFromPdf(file);
+                let subjects=[];
+                if(isSeniorSchool()){
+                    const subSnap=await db.collection('subjects').where('schoolId','==',currentSchoolId).get();
+                    subjects=selectedPathwaySubjects(pathway,subSnap.docs);
+                    if(!subjects.length)throw new Error('No subjects are registered under '+pathway+'. Register the pathway subjects before bulk registration.');
+                }
+                const existingSnap=await db.collection('students').where('schoolId','==',currentSchoolId).get();
+                const existing=new Set(existingSnap.docs.map(d=>String((d.data()||{}).admissionNo||'').trim().toLowerCase()));
+                let batch=db.batch(),batchCount=0,added=0,skipped=0;
+                for(const row of rows){
+                    if(existing.has(row.admissionNo.toLowerCase())){skipped++;continue;}
+                    const ref=db.collection('students').doc();
+                    const record={schoolId:currentSchoolId,admissionNo:row.admissionNo,name:row.name,class:className,year:String(year),term:'Term 1',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+                    if(isSeniorSchool()){record.pathway=pathway;record.subjects=subjects;}
+                    batch.set(ref,record);batchCount++;added++;
+                    if(batchCount===450){await batch.commit();batch=db.batch();batchCount=0;}
+                }
+                if(batchCount)await batch.commit();
+                setStatus(`Completed: ${added} student(s) registered. ${skipped} duplicate admission number(s) skipped. ${rows.length} row(s) read from the PDF.`, '#15803d');
+                document.getElementById('bulkFileInput').value='';
+                await populateAllDropdowns();
+            }catch(err){console.error('Bulk PDF registration failed:',err);setStatus('Bulk registration failed: '+err.message,'#dc2626');}
+        }
 
         // Secure M-PESA payment backend. Replace this URL with your deployed Node.js server URL.
         const PAYMENT_SERVER_URL = "https://results-management-payment.onrender.com";
@@ -7583,8 +7693,16 @@ body{
     window.showAdminDashboard = function(){
         setPictureDashboardVisible(true);
         const app = document.querySelector("#adminView .app-container");
-        if(app && window.innerWidth <= 900){
+        if(app){
+            /* Always reset the Headteacher drawer on dashboard entry.
+               This prevents a previously opened desktop sidebar from
+               remaining visible after logout and the next login. */
             app.classList.remove("picture-sidebar-open");
+            if(window.innerWidth > 900){
+                app.classList.add("picture-sidebar-hidden");
+            }else{
+                app.classList.remove("picture-sidebar-hidden");
+            }
         }
         const sections = document.getElementById("adminSectionsContainer");
         const menu = document.getElementById("adminMainMenu");
@@ -7629,8 +7747,9 @@ body{
     window.togglePictureSidebar = function(){
         const app = document.querySelector("#adminView .app-container");
         if(!app) return;
-        app.classList.toggle("picture-sidebar-open");
-        app.classList.toggle("picture-sidebar-hidden", !app.classList.contains("picture-sidebar-open"));
+        const isOpening = !app.classList.contains("picture-sidebar-open");
+        app.classList.toggle("picture-sidebar-open", isOpening);
+        app.classList.toggle("picture-sidebar-hidden", !isOpening && window.innerWidth > 900);
     };
 
     async function refreshPictureDashboardStats(){
