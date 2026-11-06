@@ -7447,55 +7447,139 @@ body{
         }
 
         function normalizePdfHeader(value) {
-            return String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+            return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
         }
+
+        // Recognise headings even when PDF.js splits a heading into several text items.
         function identifyPdfColumns(cells) {
-            const headers=cells.map(c=>normalizePdfHeader(c.text));
-            const admissionIndex=headers.findIndex(h=>['admissionno','admissionnumber','admno','admnumber','adm'].includes(h));
-            const nameIndex=headers.findIndex(h=>['name','studentname','fullname','learnername'].includes(h));
-            return {admissionIndex,nameIndex};
-        }
-        async function extractStudentsFromPdf(file) {
-            if(!window.pdfjsLib) throw new Error('PDF reader could not load. Check your internet connection and reload the page.');
-            pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-            const buffer=await file.arrayBuffer();
-            const pdf=await pdfjsLib.getDocument({data:buffer}).promise;
-            const records=[];
-            for(let pageNo=1;pageNo<=pdf.numPages;pageNo++){
-                const page=await pdf.getPage(pageNo),content=await page.getTextContent();
-                const rows=[];
-                content.items.filter(it=>it.str&&it.str.trim()).forEach(it=>{
-                    const y=Math.round(it.transform[5]*2)/2;
-                    let row=rows.find(r=>Math.abs(r.y-y)<=3);
-                    if(!row){row={y,cells:[]};rows.push(row);}
-                    row.cells.push({x:it.transform[4],text:it.str.trim()});
-                });
-                rows.sort((a,b)=>b.y-a.y).forEach(r=>r.cells.sort((a,b)=>a.x-b.x));
-                let header=null, headerY=0;
-                for(let i=0;i<rows.length;i++){
-                    const found=identifyPdfColumns(rows[i].cells);
-                    if(found.admissionIndex>=0&&found.nameIndex>=0){header=found;headerY=rows[i].y;break;}
+            const sorted = [...cells].sort((a, b) => a.x - b.x);
+            const combined = sorted.map(c => c.text).join(' ');
+            const compact = normalizePdfHeader(combined);
+            const findAnchor = (kind) => {
+                const patterns = kind === 'admission'
+                    ? [/admission(?:number|no)?/, /adm(?:ission)?(?:number|no)/]
+                    : [/(?:student)?name/, /fullname/, /learnername/];
+                for (const pattern of patterns) {
+                    const match = compact.match(pattern);
+                    if (match) {
+                        // Find the text item nearest the matching heading's approximate position.
+                        const phrase = match[0];
+                        const source = sorted.find(c => normalizePdfHeader(c.text).includes(phrase));
+                        if (source) return source.x;
+                        const partial = sorted.find(c => {
+                            const t = normalizePdfHeader(c.text);
+                            return kind === 'admission'
+                                ? /admission|^adm$|admno|admnumber/.test(t)
+                                : /name|fullname|learner/.test(t);
+                        });
+                        if (partial) return partial.x;
+                    }
                 }
-                if(!header) continue;
-                const headerCells=rows.find(r=>r.y===headerY).cells;
-                const admX=headerCells[header.admissionIndex].x, nameX=headerCells[header.nameIndex].x;
-                for(const r of rows.filter(r=>r.y<headerY-2)){
-                    const columns={admission:[],name:[]};
-                    r.cells.forEach(c=>{
-                        const da=Math.abs(c.x-admX),dn=Math.abs(c.x-nameX);
-                        if(da<=dn) columns.admission.push(c); else columns.name.push(c);
-                    });
-                    const admissionNo=columns.admission.sort((a,b)=>a.x-b.x).map(c=>c.text).join(' ').trim();
-                    const name=columns.name.sort((a,b)=>a.x-b.x).map(c=>c.text).join(' ').trim();
-                    if(!admissionNo||!name)continue;
-                    if(normalizePdfHeader(admissionNo)==='admissionnumber'||normalizePdfHeader(name)==='studentname')continue;
-                    if(!/^[A-Za-z0-9][A-Za-z0-9\/-]*$/.test(admissionNo))continue;
-                    if(name.length<2||/^\d+$/.test(name))continue;
-                    records.push({admissionNo,name});
+                return null;
+            };
+            return { admissionX: findAnchor('admission'), nameX: findAnchor('name'), combined };
+        }
+
+        async function extractStudentsFromPdf(file) {
+            if (!window.pdfjsLib) {
+                throw new Error('PDF reader could not load. Check your internet connection and reload the page.');
+            }
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+            const buffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+            const records = [];
+            let foundSelectableText = false;
+
+            for (let pageNo = 1; pageNo <= pdf.numPages; pageNo++) {
+                const page = await pdf.getPage(pageNo);
+                const content = await page.getTextContent();
+                const rows = [];
+                content.items.filter(it => it.str && it.str.trim()).forEach(it => {
+                    foundSelectableText = true;
+                    const y = Math.round(it.transform[5] * 2) / 2;
+                    let row = rows.find(r => Math.abs(r.y - y) <= 3);
+                    if (!row) { row = { y, cells: [] }; rows.push(row); }
+                    row.cells.push({ x: it.transform[4], text: it.str.trim() });
+                });
+                rows.sort((a, b) => b.y - a.y);
+                rows.forEach(r => r.cells.sort((a, b) => a.x - b.x));
+
+                // A heading can be spread across adjacent PDF text fragments or wrapped lines.
+                let headerIndex = -1;
+                let admissionX = null;
+                let nameX = null;
+                for (let i = 0; i < rows.length; i++) {
+                    const candidates = [rows[i]];
+                    if (rows[i + 1]) candidates.push({ y: rows[i + 1].y, cells: [...rows[i].cells, ...rows[i + 1].cells] });
+                    for (const candidate of candidates) {
+                        const found = identifyPdfColumns(candidate.cells);
+                        if (found.admissionX !== null && found.nameX !== null && found.admissionX !== found.nameX) {
+                            headerIndex = i;
+                            admissionX = found.admissionX;
+                            nameX = found.nameX;
+                            break;
+                        }
+                    }
+                    if (headerIndex >= 0) break;
+                }
+
+                // If headings are not laid out as a conventional table, use row text as a safe fallback.
+                const dataRows = headerIndex >= 0 ? rows.slice(headerIndex + 1) : rows;
+                for (const row of dataRows) {
+                    const cells = [...row.cells].sort((a, b) => a.x - b.x);
+                    const fullLine = cells.map(c => c.text).join(' ').replace(/\s+/g, ' ').trim();
+                    if (!fullLine) continue;
+                    const normalizedLine = normalizePdfHeader(fullLine);
+                    if (/serialnumber|admissionnumber|studentname/.test(normalizedLine)) continue;
+
+                    let admissionNo = '';
+                    let name = '';
+
+                    if (headerIndex >= 0) {
+                        // Assign each fragment to whichever recognised column heading is closest.
+                        const admissionParts = [];
+                        const nameParts = [];
+                        for (const cell of cells) {
+                            const da = Math.abs(cell.x - admissionX);
+                            const dn = Math.abs(cell.x - nameX);
+                            (da <= dn ? admissionParts : nameParts).push(cell.text);
+                        }
+                        admissionNo = admissionParts.join(' ').trim();
+                        name = nameParts.join(' ').trim();
+                    }
+
+                    // Fallback handles PDFs where a complete row is emitted as one text fragment,
+                    // where columns are reordered, or where serial numbers are present/absent.
+                    if (!admissionNo || !name || !/^[A-Za-z0-9][A-Za-z0-9\/-]*$/.test(admissionNo)) {
+                        const parts = fullLine.split(/\s+/).filter(Boolean);
+                        const admIndex = parts.findIndex(part => /^[A-Za-z0-9][A-Za-z0-9\/-]*$/.test(part) && /[A-Za-z]/.test(part) && /\d/.test(part));
+                        if (admIndex >= 0) {
+                            admissionNo = parts[admIndex].replace(/^[,;:]+|[,;:]+$/g, '');
+                            name = parts.filter((_, index) => index !== admIndex && !(index < admIndex && /^\d+[.)]?$/.test(parts[index]))).join(' ').trim();
+                        }
+                    }
+
+                    admissionNo = String(admissionNo || '').replace(/^\s*\d+[.)]?\s+/, '').replace(/\s+/g, '').replace(/^[,;:]+|[,;:]+$/g, '');
+                    name = String(name || '').replace(/\s+/g, ' ').replace(/^[,;:]+|[,;:]+$/g, '').trim();
+                    if (!admissionNo || !/^[A-Za-z0-9][A-Za-z0-9\/-]*$/.test(admissionNo)) continue;
+                    if (name.length < 2 || /^\d+$/.test(name) || /^(admission|student|serial)( number| no)?$/i.test(name)) continue;
+                    records.push({ admissionNo, name });
                 }
             }
-            const unique=[];const seen=new Set();records.forEach(r=>{const k=r.admissionNo.toLowerCase();if(!seen.has(k)){seen.add(k);unique.push(r);}});
-            if(!unique.length)throw new Error('No student rows could be read. The PDF must contain selectable text and clear Admission Number and Student Name column headings. Scanned/image-only PDFs need OCR and are not supported by this importer.');
+
+            const unique = [];
+            const seen = new Set();
+            records.forEach(record => {
+                const key = record.admissionNo.toLowerCase();
+                if (!seen.has(key)) { seen.add(key); unique.push(record); }
+            });
+
+            if (!unique.length) {
+                if (!foundSelectableText) {
+                    throw new Error('This PDF contains no selectable text. It appears to be scanned or image-only. Please export the class list as a text-based PDF.');
+                }
+                throw new Error('No student records were identified. Ensure each row contains an Admission Number and Student Name. Serial Number is optional, and the two required columns may appear in either order.');
+            }
             return unique;
         }
         async function processBulkRegistration() {
@@ -7693,16 +7777,8 @@ body{
     window.showAdminDashboard = function(){
         setPictureDashboardVisible(true);
         const app = document.querySelector("#adminView .app-container");
-        if(app){
-            /* Always reset the Headteacher drawer on dashboard entry.
-               This prevents a previously opened desktop sidebar from
-               remaining visible after logout and the next login. */
+        if(app && window.innerWidth <= 900){
             app.classList.remove("picture-sidebar-open");
-            if(window.innerWidth > 900){
-                app.classList.add("picture-sidebar-hidden");
-            }else{
-                app.classList.remove("picture-sidebar-hidden");
-            }
         }
         const sections = document.getElementById("adminSectionsContainer");
         const menu = document.getElementById("adminMainMenu");
@@ -7747,9 +7823,8 @@ body{
     window.togglePictureSidebar = function(){
         const app = document.querySelector("#adminView .app-container");
         if(!app) return;
-        const isOpening = !app.classList.contains("picture-sidebar-open");
-        app.classList.toggle("picture-sidebar-open", isOpening);
-        app.classList.toggle("picture-sidebar-hidden", !isOpening && window.innerWidth > 900);
+        app.classList.toggle("picture-sidebar-open");
+        app.classList.toggle("picture-sidebar-hidden", !app.classList.contains("picture-sidebar-open"));
     };
 
     async function refreshPictureDashboardStats(){
