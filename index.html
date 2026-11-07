@@ -6589,92 +6589,146 @@ body{
             }
         }
 
+        async function superAdminSchoolApi(path, options = {}) {
+            const user = firebase.auth().currentUser;
+            if (!user) throw new Error("Your Super Admin session has expired. Sign in again.");
+            const token = await user.getIdToken(true);
+            const headers = { "Authorization": "Bearer " + token };
+            if (options.body) headers["Content-Type"] = "application/json";
+            const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + path, {
+                ...options,
+                headers: { ...headers, ...(options.headers || {}) }
+            });
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || !result.success) {
+                throw new Error(result.message || `Request failed (HTTP ${response.status}).`);
+            }
+            return result;
+        }
+
         async function loadVerificationSchoolsList() {
             const container = document.getElementById("verificationSchoolsContainer");
             if (!container) return;
+            container.innerHTML = "<p>Loading registered schools...</p>";
             try {
-                const snap = await db.collection("schools").get();
-                let html = `<table><thead><tr><th>School Name</th><th>Headteacher</th><th>Phone</th><th>Action</th></tr></thead><tbody>`;
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    html += `<tr><td>${d.name}</td><td>${d.headteacher || 'N/A'}</td><td>${d.phone || 'N/A'}</td><td><button class="btn-primary" onclick="viewSchoolDetails('${doc.id}')">Review & Verify</button></td></tr>`;
+                const result = await superAdminSchoolApi("/api/schools");
+                const schools = Array.isArray(result.schools) ? result.schools : [];
+                if (!schools.length) {
+                    container.innerHTML = "<p>No schools have been registered yet.</p>";
+                    return;
+                }
+                let html = `<table><thead><tr><th>School Name</th><th>Headteacher</th><th>Phone</th><th>Status</th><th>Action</th></tr></thead><tbody>`;
+                schools.forEach(d => {
+                    const idArg = encodeURIComponent(d.id).replace(/'/g, "%27");
+                    html += `<tr>
+                        <td>${esc(d.name || "Unnamed school")}</td>
+                        <td>${esc(d.headteacher || "N/A")}</td>
+                        <td>${esc(d.phone || "N/A")}</td>
+                        <td>${d.verified === true ? '<span class="badge badge-success">Verified</span>' : '<span class="badge badge-danger">Pending</span>'}</td>
+                        <td><button type="button" class="btn-primary" onclick="viewSchoolDetails(decodeURIComponent('${idArg}'))">Review &amp; Verify</button></td>
+                    </tr>`;
                 });
-                html += `</tbody></table>`;
-                container.innerHTML = html;
+                container.innerHTML = html + `</tbody></table>`;
             } catch (e) {
-                container.innerHTML = "<p>Error loading verification list.</p>";
+                console.error("Verification schools loading error:", e);
+                container.innerHTML = `<p style="color:#b91c1c;">Could not load schools: ${esc(e.message || "Please check your connection and permissions.")}</p>`;
             }
         }
 
         async function viewSchoolDetails(schoolId) {
             const detailsModal = document.getElementById("schoolDetailsModal");
-            if (detailsModal) {
-                detailsModal.style.setProperty("display", "flex", "important");
-                detailsModal.style.setProperty("position", "fixed", "important");
-                detailsModal.style.setProperty("z-index", "99999", "important");
+            const body = document.getElementById("schoolDetailsBody");
+            const verifyBtn = document.getElementById("verifyActionBtn");
+            const deleteBtn = document.getElementById("deleteSchoolActionBtn");
+            if (!detailsModal || !body || !verifyBtn || !deleteBtn) {
+                alert("School details window is unavailable. Please reload the portal.");
+                return;
             }
+
+            detailsModal.style.setProperty("display", "flex", "important");
+            detailsModal.style.setProperty("position", "fixed", "important");
+            detailsModal.style.setProperty("inset", "0", "important");
+            detailsModal.style.setProperty("z-index", "99999", "important");
+            body.innerHTML = "<p style='text-align:center;padding:20px;'>Loading school details...</p>";
+            verifyBtn.disabled = true;
+            deleteBtn.disabled = true;
+
             try {
-                const doc = await db.collection("schools").doc(schoolId).get();
-                if (!doc.exists) return;
-                const d = doc.data();
-                const body = document.getElementById("schoolDetailsBody");
-                body.innerHTML = `
-                    <p><strong>School Name:</strong> ${d.name}</p>
-                    <p><strong>Email:</strong> ${d.email}</p>
-                    <p><strong>P.O. Box:</strong> ${d.poBox || 'N/A'}</p>
-                    <p><strong>Headteacher:</strong> ${d.headteacher || 'N/A'}</p>
-                    <p><strong>TSC Number:</strong> ${d.tscNumber || 'N/A'}</p>
-                    <p><strong>Phone:</strong> ${d.phone || 'N/A'}</p>
-                    <p><strong>County:</strong> ${d.county}</p>
-                    <p><strong>Sub-County:</strong> ${d.subCounty}</p>
-                    <p><strong>Verification Status:</strong> ${d.verified ? 'Verified' : 'Pending'}</p>
-                `;
-                const btn = document.getElementById("verifyActionBtn");
-                btn.textContent = d.verified ? "Unverify School Access" : "Verify School Access";
-                btn.onclick = async function() {
-                    await db.collection("schools").doc(schoolId).update({ verified: !d.verified });
-                    closeSchoolDetailsModal();
-                    loadVerificationSchoolsList();
-                };
-                document.getElementById("deleteSchoolActionBtn").onclick = async function() {
-                    if (!confirm("Remove this school and all associated data permanently?")) return;
+                const result = await superAdminSchoolApi("/api/schools/" + encodeURIComponent(schoolId));
+                const d = result.school || {};
+                if (!d.id) {
+                    body.innerHTML = "<p style='color:#b91c1c;'>This school record no longer exists. Refresh the verification list.</p>";
+                    return;
+                }
+                const fields = [
+                    ["School Name", d.name], ["School Type", d.schoolType],
+                    ["School Email", d.email], ["Login Email", d.headteacherLoginEmail || d.loginEmail],
+                    ["P.O. Box", d.poBox], ["Headteacher", d.headteacher],
+                    ["TSC Number", d.tscNumber], ["Phone", d.phone],
+                    ["County", d.county], ["Sub-County", d.subCounty],
+                    ["School ID", schoolId], ["Verification Status", d.verified === true ? "Verified" : "Pending"]
+                ];
+                body.innerHTML = fields.map(([label, value]) =>
+                    `<p><strong>${esc(label)}:</strong> ${esc(value === undefined || value === null || value === "" ? "N/A" : value)}</p>`
+                ).join("");
+
+                verifyBtn.textContent = d.verified === true ? "Unverify School Access" : "Verify School Access";
+                verifyBtn.disabled = false;
+                verifyBtn.onclick = async function() {
+                    verifyBtn.disabled = true;
+                    verifyBtn.textContent = "Updating...";
                     try {
-                        let removedByServer = false;
-                        try {
-                            const user = firebase.auth().currentUser;
-                            if (user) {
-                                const token = await user.getIdToken();
-                                const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/schools/" + encodeURIComponent(schoolId), {
-                                    method: "DELETE",
-                                    headers: { "Authorization": "Bearer " + token }
-                                });
-                                let result = {};
-                                try { result = await response.json(); } catch (_) {}
-                                if (response.ok && result.success) removedByServer = true;
-                            }
-                        } catch (serverError) {
-                            console.warn("School API removal unavailable; trying Firestore school record removal.", serverError);
-                        }
-
-                        // Fallback for when the removal API returns "fetch data failed" or is unavailable.
-                        if (!removedByServer) {
-                            await db.collection("schools").doc(schoolId).delete();
-                        }
-
-                        alert(removedByServer
-                            ? "School and associated data removed."
-                            : "School record removed. Some associated server-side data may require separate cleanup.");
-                        document.getElementById("schoolDetailsModal").style.display = "none";
+                        const verificationResult = await superAdminSchoolApi(
+                            "/api/schools/" + encodeURIComponent(schoolId) + "/verification",
+                            { method: "PATCH", body: JSON.stringify({ verified: d.verified !== true }) }
+                        );
+                        alert(verificationResult.message || (d.verified === true ? "School access has been unverified." : "School successfully verified."));
+                        closeSchoolDetailsModal();
                         await loadVerificationSchoolsList();
-                        if (typeof loadSchools === "function") loadSchools();
-                    } catch (err) {
-                        alert("Error removing school: " + (err.message || "Please check your connection and permissions."));
+                        if (typeof loadSchools === "function") await loadSchools();
+                    } catch (error) {
+                        console.error("School verification update failed:", error);
+                        alert("Verification failed: " + (error.message || "Please check permissions and try again."));
+                        verifyBtn.disabled = false;
+                        verifyBtn.textContent = d.verified === true ? "Unverify School Access" : "Verify School Access";
                     }
                 };
-                document.getElementById("schoolDetailsModal").style.setProperty("display", "flex", "important");
-                document.getElementById("schoolDetailsModal").style.setProperty("z-index", "99999", "important");
+
+                deleteBtn.disabled = false;
+                deleteBtn.onclick = async function() {
+                    if (!confirm("PERMANENTLY delete this school, all its records, teacher/headteacher login accounts and uploaded Cloudinary files? This cannot be undone.")) return;
+                    deleteBtn.disabled = true;
+                    deleteBtn.textContent = "Deleting school...";
+                    verifyBtn.disabled = true;
+                    try {
+                        const user = firebase.auth().currentUser;
+                        if (!user) throw new Error("Your Super Admin session has expired. Sign in again.");
+                        const token = await user.getIdToken(true);
+                        const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/schools/" + encodeURIComponent(schoolId), {
+                            method: "DELETE",
+                            headers: { "Authorization": "Bearer " + token }
+                        });
+                        const result = await response.json().catch(() => ({}));
+                        if (!response.ok || !result.success) {
+                            throw new Error(result.message || `School deletion failed (HTTP ${response.status}).`);
+                        }
+                        alert(`School permanently deleted. Firestore records: ${result.deletedRecords || 0}; login accounts: ${result.deletedAuthAccounts || 0}; Cloudinary files: ${result.deletedCloudinaryFiles || 0}.`);
+                        closeSchoolDetailsModal();
+                        await loadVerificationSchoolsList();
+                        if (typeof loadSchools === "function") await loadSchools();
+                    } catch (error) {
+                        console.error("Complete school deletion failed:", error);
+                        alert("School deletion failed: " + (error.message || "Please try again."));
+                        deleteBtn.disabled = false;
+                        deleteBtn.textContent = "Remove School";
+                        verifyBtn.disabled = false;
+                    }
+                };
             } catch (e) {
-                alert("Error loading school details.");
+                console.error("School details loading error:", e);
+                body.innerHTML = `<p style="color:#b91c1c;">Error loading school details: ${esc(e.message || "Please check your connection and permissions.")}</p>`;
+                verifyBtn.disabled = true;
+                deleteBtn.disabled = true;
             }
         }
 
@@ -6759,12 +6813,13 @@ body{
         async function loadTeacherAllocations(teacherUid) {
             const listContainer = document.getElementById("teacherAllocationsList");
             if (!listContainer) return;
+            listContainer.innerHTML = "<p>Loading your assigned subjects...</p>";
             try {
                 const snap = await db.collection("allocations")
                     .where("schoolId", "==", currentSchoolId)
                     .where("teacherId", "==", teacherUid)
                     .get();
-                
+
                 if (snap.empty) {
                     listContainer.innerHTML = "<p>No class/subject allocations assigned to you yet.</p>";
                     return;
@@ -6772,41 +6827,71 @@ body{
 
                 let html = "";
                 snap.forEach(doc => {
-                    const d = doc.data();
+                    const d = doc.data() || {};
+                    const className = String(d.className || d.class || "").trim();
+                    const subjectName = String(d.subjectName || d.subject || "").trim();
+                    if (!className || !subjectName) return;
                     html += `<div class="control-card">
                         <div class="control-info">
-                            <h4>Class: ${d.className}</h4>
-                            <p>Subject: ${d.subjectName}</p>
+                            <h4>Class: ${esc(className)}</h4>
+                            <p>Subject: ${esc(subjectName)}</p>
                         </div>
                         <div class="control-actions">
-                            <button class="btn-primary" onclick="openTeacherMarksEntry('${d.className}', '${d.subjectName}')">Enter Marks</button>
+                            <button class="btn-primary" type="button"
+                              onclick="openTeacherMarksEntry(decodeURIComponent('${encodeURIComponent(className).replace(/'/g, '%27')}'), decodeURIComponent('${encodeURIComponent(subjectName).replace(/'/g, '%27')}'))">Enter Marks</button>
                         </div>
                     </div>`;
                 });
-                listContainer.innerHTML = html;
+                listContainer.innerHTML = html || "<p>No valid class/subject allocations found.</p>";
             } catch (e) {
-                listContainer.innerHTML = "<p>Error loading allocations.</p>";
+                console.error("Teacher allocation loading error:", e);
+                listContainer.innerHTML = "<p style='color:red;'>Could not load your allocations. Please refresh and try again.</p>";
             }
         }
 
-        function openTeacherMarksEntry(className, subjectName) {
-            selectedTeacherClass = className;
-            selectedTeacherSubject = subjectName;
-            document.getElementById("selectedClassNameHeading").textContent = `Class: ${className} | Subject: ${subjectName}`;
-            openTeacherSection('tTabClassActions');
-            loadTeacherExamDropdown();
+        async function verifyTeacherSubjectAllocation(className, subjectName) {
+            const user = firebase.auth().currentUser;
+            if (!user) throw new Error("Please sign in again.");
+            const snap = await db.collection("allocations")
+                .where("schoolId", "==", currentSchoolId)
+                .where("teacherId", "==", user.uid)
+                .get();
+            const norm = value => String(value || "").trim().toLowerCase();
+            const allowed = snap.docs.some(doc => {
+                const d = doc.data() || {};
+                return norm(d.className || d.class) === norm(className) &&
+                    norm(d.subjectName || d.subject) === norm(subjectName);
+            });
+            if (!allowed) throw new Error("Access denied: this subject is not assigned to you for the selected class.");
+            return true;
+        }
+
+        async function openTeacherMarksEntry(className, subjectName) {
+            try {
+                await verifyTeacherSubjectAllocation(className, subjectName);
+                selectedTeacherClass = className;
+                selectedTeacherSubject = subjectName;
+                document.getElementById("selectedClassNameHeading").textContent = `Class: ${className} | Subject: ${subjectName}`;
+                openTeacherSection('tTabClassActions');
+                await loadTeacherExamDropdown();
+            } catch (e) {
+                alert(e.message || "You are not assigned to this subject.");
+            }
         }
 
         async function loadTeacherExamDropdown() {
             try {
                 const snap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
                 const sel = document.getElementById("examSelect");
+                if (!sel) return;
                 sel.innerHTML = '<option value="">-- Choose Exam Type --</option>';
                 snap.forEach(doc => {
-                    sel.innerHTML += `<option value="${doc.data().name}">${doc.data().name}</option>`;
+                    const name = String((doc.data() || {}).name || "").trim();
+                    if (name) sel.insertAdjacentHTML("beforeend", `<option value="${esc(name)}">${esc(name)}</option>`);
                 });
             } catch (e) {
                 console.error("Exam load error", e);
+                alert("Could not load exam types. Please try again.");
             }
         }
 
@@ -6820,27 +6905,32 @@ body{
             }
             promptBox.style.display = "none";
             formSection.style.display = "block";
-            
             const container = document.getElementById("teacherMarksContainer");
-            container.innerHTML = "<p>Loading students...</p>";
+            container.innerHTML = "<p>Checking your subject allocation and loading students...</p>";
 
             try {
+                await verifyTeacherSubjectAllocation(selectedTeacherClass, selectedTeacherSubject);
+                const controlSnap = await db.collection("marksControls").doc(currentSchoolId).get();
+                const control = controlSnap.exists ? controlSnap.data() || {} : {};
+                if (control.teachersCanEnter === false) throw new Error("Marks entry has been disabled by the Headteacher.");
+                if (control.deadline && control.deadline.toDate && control.deadline.toDate().getTime() <= Date.now()) {
+                    throw new Error("The marks entry deadline has passed.");
+                }
+
                 const studSnap = await db.collection("students")
                     .where("schoolId", "==", currentSchoolId)
                     .where("class", "==", selectedTeacherClass)
                     .get();
-                
+
                 if (studSnap.empty) {
                     container.innerHTML = "<p style='color:red;'>No students registered in this class.</p>";
                     return;
                 }
 
-                let studentsList = [];
-                studSnap.forEach(d => studentsList.push(d.data()));
-
+                const studentsList = studSnap.docs.map(d => d.data() || {});
                 let html = `<table><thead><tr><th>Admission No</th><th>Student Name</th><th>Score (%)</th></tr></thead><tbody>`;
                 studentsList.forEach(st => {
-                    html += `<tr><td>${st.admissionNo}</td><td style="text-align:left;">${st.name}</td><td><input type="number" class="teacher-score-input" data-adm="${st.admissionNo}" min="0" max="100" style="width:70px; text-align:center;" placeholder="-"></td></tr>`;
+                    html += `<tr><td>${esc(st.admissionNo || '')}</td><td style="text-align:left;">${esc(st.name || '')}</td><td><input type="number" class="teacher-score-input" data-adm="${esc(st.admissionNo || '')}" min="0" max="100" step="any" style="width:70px; text-align:center;" placeholder="-"></td></tr>`;
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
@@ -6853,45 +6943,58 @@ body{
                     .get();
 
                 marksSnap.forEach(doc => {
-                    const data = doc.data();
-                    const input = container.querySelector(`input[data-adm="${data.admissionNo}"]`);
+                    const data = doc.data() || {};
+                    const input = Array.from(container.querySelectorAll("input.teacher-score-input"))
+                        .find(el => el.getAttribute("data-adm") === String(data.admissionNo || ""));
                     if (input) input.value = data.score;
                 });
             } catch (e) {
-                container.innerHTML = "<p style='color:red;'>Error loading student marks: " + e.message + "</p>";
+                container.innerHTML = `<p style='color:red;'>${esc(e.message || "Could not load marks entry.")}</p>`;
+                formSection.style.display = "block";
             }
         }
 
         async function saveTeacherMarks() {
-            const examName = document.getElementById("examSelect").value;
-            if (!examName) return;
-            const inputs = document.querySelectorAll(".teacher-score-input");
-            
-            try {
-                const batch = db.batch();
-                inputs.forEach(input => {
-                    const adm = input.getAttribute("data-adm");
-                    const val = input.value.trim();
-                    const docId = `${currentSchoolId}_${selectedTeacherClass}_${adm}_${selectedTeacherSubject}_${examName}`;
-                    const docRef = db.collection("marks").doc(docId);
-                    
-                    if (val !== "") {
-                        batch.set(docRef, {
-                            schoolId: currentSchoolId,
-                            class: selectedTeacherClass,
-                            admissionNo: adm,
-                            subject: selectedTeacherSubject,
-                            exam: examName,
-                            score: Number(val),
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
-                    }
-                });
+            const examName = document.getElementById("examSelect")?.value || "";
+            if (!examName) { alert("Choose an exam type first."); return; }
+            const inputs = Array.from(document.querySelectorAll("#teacherMarksContainer .teacher-score-input"));
+            if (!inputs.length) { alert("There are no student marks to submit."); return; }
 
-                await batch.commit();
+            try {
+                await verifyTeacherSubjectAllocation(selectedTeacherClass, selectedTeacherSubject);
+                const scores = inputs.map(input => ({
+                    admissionNo: input.getAttribute("data-adm"),
+                    score: input.value.trim()
+                })).filter(item => item.score !== "");
+
+                for (const item of scores) {
+                    const score = Number(item.score);
+                    if (!Number.isFinite(score) || score < 0 || score > 100) {
+                        throw new Error(`Enter a valid score from 0 to 100 for admission number ${item.admissionNo}.`);
+                    }
+                }
+                if (!scores.length) { alert("Enter at least one mark before submitting."); return; }
+
+                const user = firebase.auth().currentUser;
+                if (!user) throw new Error("Your session has expired. Please sign in again.");
+                const token = await user.getIdToken();
+                const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/teacher-marks", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+                    body: JSON.stringify({
+                        schoolId: currentSchoolId,
+                        className: selectedTeacherClass,
+                        subjectName: selectedTeacherSubject,
+                        examName,
+                        scores
+                    })
+                });
+                const result = await response.json().catch(() => ({}));
+                if (!response.ok || !result.success) throw new Error(result.message || "Marks submission failed.");
                 alert("Marks successfully submitted to central pool!");
             } catch (e) {
-                alert("Error saving marks: " + e.message);
+                console.error("Teacher marks submission error:", e);
+                alert("Error saving marks: " + (e.message || "Please try again."));
             }
         }
 
