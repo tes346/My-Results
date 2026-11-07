@@ -6849,9 +6849,15 @@ body{
             }
         }
 
+        // Teacher accounts sign in through the Secondary Firebase Auth instance.
+        // Fall back to the primary instance only for older teacher sessions.
+        function getTeacherAuthenticatedUser() {
+            return secAuth.currentUser || auth.currentUser;
+        }
+
         async function verifyTeacherSubjectAllocation(className, subjectName) {
-            const user = firebase.auth().currentUser;
-            if (!user) throw new Error("Please sign in again.");
+            const user = getTeacherAuthenticatedUser();
+            if (!user) throw new Error("Your teacher session could not be found. Please sign in again.");
             const snap = await db.collection("allocations")
                 .where("schoolId", "==", currentSchoolId)
                 .where("teacherId", "==", user.uid)
@@ -6975,9 +6981,9 @@ body{
                 }
                 if (!scores.length) { alert("Enter at least one mark before submitting."); return; }
 
-                const user = firebase.auth().currentUser;
-                if (!user) throw new Error("Your session has expired. Please sign in again.");
-                const token = await user.getIdToken();
+                const user = getTeacherAuthenticatedUser();
+                if (!user) throw new Error("Your teacher session has expired. Please sign in again.");
+                const token = await user.getIdToken(true);
                 const response = await fetch(PAYMENT_SERVER_URL.replace(/\/$/, "") + "/api/teacher-marks", {
                     method: "POST",
                     headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
