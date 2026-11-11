@@ -2835,6 +2835,13 @@ body{
                         <p style="color:#64748b;margin:8px 0 16px;">Live totals are calculated from records currently stored in Firebase.</p>
                         <div id="saPlatformStatsGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:16px 0;"><p>Loading platform statistics...</p></div>
                         <button type="button" class="btn-primary" onclick="loadPlatformStats()">Refresh Statistics</button>
+                        <div style="margin:20px 0;padding:16px;border:1px solid #f59e0b;border-radius:12px;background:#fffbeb;">
+                            <h3 style="margin:0 0 8px;color:#92400e;">Orphaned School Data Cleanup</h3>
+                            <p style="color:#78350f;margin:0 0 12px;line-height:1.5;">Find records left in Firebase after schools were deleted manually. The scan only selects records explicitly linked to school IDs that no longer exist. Active schools are excluded.</p>
+                            <button type="button" class="btn-secondary" onclick="previewOrphanedSchoolData()">Scan Orphaned Records</button>
+                            <div id="orphanedSchoolPreview" style="margin-top:12px;color:#334155;">No scan has been run yet.</div>
+                        </div>
+
                         <h3 style="margin-top:24px;">School Access Control</h3>
                         <p style="color:#64748b;margin:8px 0 12px;">Suspend or restore access without deleting school records or historical results.</p>
                         <div id="saSchoolAccessContainer" class="table-responsive">Loading schools...</div>
@@ -4684,6 +4691,54 @@ body{
 
         function platformSafe(value) { return communicationSafeText(value == null ? '' : value); }
         function platformDate(value) { try { const d = value && typeof value.toDate === 'function' ? value.toDate() : value && value._seconds ? new Date(value._seconds * 1000) : value ? new Date(value) : null; return d && !isNaN(d.getTime()) ? d.toLocaleString() : '—'; } catch (_) { return '—'; } }
+
+
+        async function previewOrphanedSchoolData() {
+            const box = document.getElementById('orphanedSchoolPreview');
+            if (!box) return;
+            box.innerHTML = '<p>Scanning Firebase safely...</p>';
+            try {
+                const data = await superAdminSchoolApi('/api/platform/orphaned-school-data/preview');
+                const rows = Object.entries(data.counts || {});
+                const details = rows.length
+                    ? `<ul style="margin:8px 0 8px 20px;">${rows.map(([name,count]) => `<li><strong>${platformSafe(name)}:</strong> ${Number(count).toLocaleString()}</li>`).join('')}</ul>`
+                    : '<p>No linked orphaned documents were found.</p>';
+                const ids = (data.orphanSchoolIds || []).map(platformSafe).join(', ') || 'None';
+                box.innerHTML = `<div style="background:#fff;padding:12px;border:1px solid #cbd5e1;border-radius:8px;">
+                    <p><strong>Active schools protected:</strong> ${Number(data.activeSchoolCount || 0)}</p>
+                    <p><strong>Orphan school IDs:</strong> ${ids}</p>
+                    <p><strong>Firestore records identified:</strong> ${Number(data.totalRecords || 0).toLocaleString()}</p>
+                    <p><strong>Linked Authentication accounts:</strong> ${Number(data.authAccounts || 0).toLocaleString()}</p>
+                    <p><strong>Cloudinary files identified:</strong> ${Number(data.cloudinaryFiles || 0).toLocaleString()}</p>
+                    ${details}
+                    ${Number(data.totalRecords || 0) ? '<button type="button" class="btn-danger" onclick="confirmOrphanedSchoolCleanup()">Permanently Delete These Orphaned Records</button>' : ''}
+                    <p style="font-size:12px;color:#64748b;margin-top:8px;">This is a preview only. Nothing has been deleted yet.</p>
+                </div>`;
+            } catch (error) {
+                box.innerHTML = `<p style="color:#b91c1c;">${platformSafe(error.message)}</p>`;
+            }
+        }
+
+        async function confirmOrphanedSchoolCleanup() {
+            const confirmation = prompt('This permanently deletes records linked to school IDs that no longer exist. Active schools are excluded.\\n\\nType exactly: DELETE ORPHANED SCHOOL DATA');
+            if (confirmation !== 'DELETE ORPHANED SCHOOL DATA') {
+                alert('Confirmation did not match. Nothing was deleted.');
+                return;
+            }
+            const box = document.getElementById('orphanedSchoolPreview');
+            if (box) box.innerHTML = '<p>Deleting confirmed orphaned records. Please wait...</p>';
+            try {
+                const result = await superAdminSchoolApi('/api/platform/orphaned-school-data/cleanup', {
+                    method: 'POST',
+                    body: JSON.stringify({ confirmation })
+                });
+                alert(`${result.message}\\nFirestore records deleted: ${result.deletedRecords || 0}\\nAuthentication accounts deleted: ${result.deletedAuthAccounts || 0}\\nCloudinary files deleted: ${result.deletedCloudinaryFiles || 0}`);
+                await Promise.all([loadPlatformStats(), previewOrphanedSchoolData()]);
+            } catch (error) {
+                if (box) box.innerHTML = `<p style="color:#b91c1c;">Cleanup failed: ${platformSafe(error.message)}</p>`;
+                alert('Cleanup failed: ' + (error.message || 'Please try again.'));
+            }
+        }
 
         async function loadPlatformStats() {
             const box = document.getElementById('saPlatformStatsGrid'); if (!box) return;
