@@ -5117,7 +5117,18 @@ body{
             if (user) {
                 currentUserId = user.uid;
                 try {
-                    const userDoc = await db.collection("users").doc(user.uid).get();
+                    let userDoc = await db.collection("users").doc(user.uid).get();
+                    // Recover only the specifically configured Super Admin account if its profile is missing.
+                    if (!userDoc.exists && pendingLoginRole === "superadmin" &&
+                        user.uid === "poCXRhSUZpfKdw3peXyS34jLL9u2" &&
+                        String(user.email || "").trim().toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()) {
+                        await db.collection("users").doc(user.uid).set({
+                            name: "Super Admin",
+                            email: SUPER_ADMIN_EMAIL,
+                            role: "superadmin"
+                        }, { merge: true });
+                        userDoc = await db.collection("users").doc(user.uid).get();
+                    }
                     if (userDoc.exists) {
                         const userData = userDoc.data();
                         currentSchoolId = userData.schoolId || "";
