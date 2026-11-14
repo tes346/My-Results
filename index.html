@@ -2782,6 +2782,7 @@ body{
                 <div class="sidebar-brand">🎓 <span>MyRezultz</span></div>
                 <div class="admin-card dashboard-nav-card" onclick="showSuperAdminDashboard()"><div class="icon">🏠</div><div class="title">Dashboard</div></div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabRegisteredSchools')"><div class="icon">🏫</div><div class="title">Registered School</div></div>
+                <div class="admin-card" onclick="openSuperAdminSection('saTabUsers')"><div class="icon">👥</div><div class="title">Users</div></div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabVerification')"><div class="icon">✅</div><div class="title">Verification</div></div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabPaymentControl')"><div class="icon">💳</div><div class="title">Control Payment</div></div>
                 <div class="admin-card" onclick="openSuperAdminSection('saTabManuals')"><div class="icon">📖</div><div class="title">MANUALS</div></div>
@@ -2798,6 +2799,7 @@ body{
                 <div class="picture-action" onclick="openSuperAdminSection('saTabRegisteredSchools')">
                     <div class="picture-action-icon">🏫</div><div class="picture-action-title">Registered School</div>
                 </div>
+                <div class="picture-action" onclick="openSuperAdminSection('saTabUsers')"><div class="picture-action-icon">👥</div><div class="picture-action-title">Users</div></div>
                 <div class="picture-action" onclick="openSuperAdminSection('saTabVerification')">
                     <div class="picture-action-icon">✅</div><div class="picture-action-title">Verification</div>
                 </div>
@@ -2823,6 +2825,32 @@ body{
                     <div id="saTabRegisteredSchools" class="tab-pane">
                         <h3>Registered Schools</h3>
                         <div id="registeredSchoolsContainer" class="table-responsive" style="margin-top:16px;"></div>
+                    </div>
+                    <div id="saTabUsers" class="tab-pane">
+                        <h3>Users — School Portal Access</h3>
+                        <p style="color:#64748b;margin:8px 0 16px;">Select a school, then inspect its Headteacher portal or a randomly selected existing Teacher or Student portal.</p>
+                        <div class="auth-form-group">
+                            <label for="saUsersSchoolSearch">Search school</label>
+                            <input id="saUsersSchoolSearch" type="search" placeholder="Search by school name..." oninput="filterSupportTestingSchools()">
+                        </div>
+                        <div class="auth-form-group">
+                            <label for="saUsersSchoolSelect">Select school</label>
+                            <select id="saUsersSchoolSelect"><option value="">Loading schools...</option></select>
+                        </div>
+                        <button type="button" class="btn-primary" onclick="prepareSupportTestingAccess()">Access</button>
+                        <div id="saUsersAccessMessage" style="margin-top:12px;color:#475569;"></div>
+                        <div id="saUsersRolePanel" style="display:none;margin-top:18px;padding:16px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;">
+                            <h4 style="margin:0 0 10px;">Select portal type</h4>
+                            <label for="saUsersRoleSelect">Portal</label>
+                            <select id="saUsersRoleSelect">
+                                <option value="">Select portal</option>
+                                <option value="admin">Headteacher</option>
+                                <option value="teacher">Teacher</option>
+                                <option value="student">Student</option>
+                            </select>
+                            <button type="button" class="btn-primary" style="margin-top:12px;" onclick="openSelectedSupportTestingPortal()">Login</button>
+                        </div>
+                        <p style="font-size:12px;color:#92400e;margin-top:14px;">Support access uses an existing account in the selected school. Headteacher access opens the school administrator account; Teacher and Student access randomly selects an active existing account. Changes and requests are saved to the school records using the normal portal workflows. Use Exit Support to return to the Super Admin panel.</p>
                     </div>
                     <div id="saTabVerification" class="tab-pane">
                         <h3>School Verification</h3>
@@ -2910,6 +2938,20 @@ body{
                             </div>
                             <button type="button" id="saveAuditPaymentBtn" class="btn-primary" onclick="saveAuditPaymentFee()">Save Payment Amount</button>
                             <p id="auditPaymentStatus" class="msg" style="display:block;text-align:left;" aria-live="polite"></p>
+                        </div>
+
+                        <div class="dashboard-card" style="margin-top:20px;border:1px solid #f59e0b;">
+                            <h3 style="margin-bottom:8px;color:#92400e;">Manual School Subscription Activation</h3>
+                            <p style="font-size:13px;color:#64748b;margin-bottom:16px;">Use when a school reports that it has paid but its subscription was not activated. Select the school and grant 120 days of access. This action is restricted to the authorized Super Admin and is recorded in the audit log.</p>
+                            <div class="auth-form-group">
+                                <label for="saSupportActivationSchool">Select School</label>
+                                <select id="saSupportActivationSchool" onchange="showSelectedSupportActivationSchool()">
+                                    <option value="">Loading schools...</option>
+                                </select>
+                            </div>
+                            <p id="saSupportActivationSchoolInfo" style="font-size:12px;color:#64748b;margin:8px 0 12px;">Choose a school to continue.</p>
+                            <button type="button" id="saGrant120DaysBtn" class="btn-success" onclick="grantSelectedSchoolSupportActivation()" disabled>Activate 120 Days</button>
+                            <p id="saGrant120DaysFeedback" class="msg" style="display:none;text-align:left;" aria-live="polite"></p>
                         </div>
                     </div>
 
@@ -4285,6 +4327,13 @@ body{
 
             /* Take the section completely OUT of the dashboard DOM tree. */
             document.body.appendChild(sections);
+            // The details modal must live inside the visible fullscreen layer. If it
+            // stays under superAdminView, that parent is hidden and the modal appears
+            // only after returning to the main menu.
+            if (tabId === 'saTabVerification') {
+                const verificationModal = document.getElementById('schoolDetailsModal');
+                if (verificationModal && verificationModal.parentElement !== sections) sections.appendChild(verificationModal);
+            }
 
             sections.style.setProperty('position', 'fixed', 'important');
             sections.style.setProperty('inset', '0', 'important');
@@ -4317,7 +4366,10 @@ body{
             window.scrollTo(0, 0);
 
             if (tabId === 'tabLogo') loadSchoolLogoPreview();
-            if (tabId === 'tabPaymentRenewals') loadCurrentSchoolPaymentFee();
+            if (tabId === 'tabPaymentRenewals') {
+                loadCurrentSchoolPaymentFee();
+                setTimeout(showSuperAdminSupportActivation, 80);
+            }
             if (tabId === 'tabManuals') loadManuals('adminManualsContainer');
             if (tabId === 'tabAnnouncements') loadAnnouncements('adminAnnouncementsContainer');
             if (tabId === 'tabCommunication') loadHeadteacherConversation();
@@ -4491,6 +4543,310 @@ body{
             window.scrollTo(0, 0);
         }
 
+        // Super Admin support access to existing school portal accounts.
+        // Super Admin enters the selected role's portal context; normal portal saves remain enabled.
+        let supportTestingSchools = [];
+        let supportTestingSchool = null;
+        let supportTestingActive = false;
+        let supportTestingRole = "";
+        let supportTestingOriginal = null;
+        let supportTestingWriteGuards = [];
+        let supportTestingFetchOriginal = null;
+        let supportTestingXhrOriginals = null;
+        let supportTestingMutationObserver = null;
+
+        function filterSupportTestingSchools() {
+            const search = String(document.getElementById("saUsersSchoolSearch")?.value || "").toLowerCase().trim();
+            const select = document.getElementById("saUsersSchoolSelect");
+            if (!select) return;
+            const selected = select.value;
+            const rows = supportTestingSchools.filter(x => String(x.name || "").toLowerCase().includes(search));
+            select.innerHTML = '<option value="">Select a school</option>' + rows.map(x =>
+                `<option value="${esc(x.id)}">${esc(x.name || "Unnamed school")}</option>`
+            ).join("");
+            if (rows.some(x => x.id === selected)) select.value = selected;
+        }
+
+        async function loadSupportTestingSchools() {
+            const select = document.getElementById("saUsersSchoolSelect");
+            const message = document.getElementById("saUsersAccessMessage");
+            if (select) select.innerHTML = '<option value="">Loading schools...</option>';
+            try {
+                const snap = await db.collection("schools").get();
+                supportTestingSchools = snap.docs.map(doc => ({ id: doc.id, ...(doc.data() || {}) }))
+                    .sort((a,b) => String(a.name || "").localeCompare(String(b.name || "")));
+                filterSupportTestingSchools();
+                if (message) message.textContent = supportTestingSchools.length ? `${supportTestingSchools.length} school(s) found.` : "No registered schools found.";
+            } catch (error) {
+                console.error("Users tab school loading error:", error);
+                if (select) select.innerHTML = '<option value="">Unable to load schools</option>';
+                if (message) message.textContent = "Could not load schools. Confirm that your Super Admin account can read school records.";
+            }
+        }
+
+        async function prepareSupportTestingAccess() {
+            const schoolId = document.getElementById("saUsersSchoolSelect")?.value || "";
+            const message = document.getElementById("saUsersAccessMessage");
+            const panel = document.getElementById("saUsersRolePanel");
+            supportTestingSchool = supportTestingSchools.find(x => x.id === schoolId) || null;
+            if (!supportTestingSchool) {
+                if (message) message.textContent = "Select a school before continuing.";
+                if (panel) panel.style.display = "none";
+                return;
+            }
+            const roleSelect = document.getElementById("saUsersRoleSelect");
+            if (roleSelect) roleSelect.value = "";
+            if (panel) panel.style.display = "block";
+            if (message) message.textContent = `School selected: ${supportTestingSchool.name || "Unnamed school"}. Choose a portal type.`;
+        }
+
+        function supportTestingPatchMethod(target, method, replacement) {
+            if (!target || typeof target[method] !== "function") return;
+            const original = target[method];
+            target[method] = replacement(original);
+            supportTestingWriteGuards.push(() => { target[method] = original; });
+        }
+
+        function installSupportTestingPersistenceGuards() {
+            // Firestore compat SDK write methods: block client-side writes while test mode is active.
+            try {
+                const docRef = db.collection("__support_test_guard__").doc("probe");
+                const docProto = Object.getPrototypeOf(docRef);
+                ["set", "update", "delete"].forEach(method => supportTestingPatchMethod(docProto, method, original => function(...args) {
+                    if (supportTestingActive) return Promise.reject(new Error("SUPPORT TESTING MODE: database changes are temporary and cannot be saved."));
+                    return original.apply(this, args);
+                }));
+                const colRef = db.collection("__support_test_guard__");
+                const colProto = Object.getPrototypeOf(colRef);
+                supportTestingPatchMethod(colProto, "add", original => function(...args) {
+                    if (supportTestingActive) return Promise.reject(new Error("SUPPORT TESTING MODE: database changes cannot be saved."));
+                    return original.apply(this, args);
+                });
+                const batchProto = Object.getPrototypeOf(db.batch());
+                supportTestingPatchMethod(batchProto, "commit", original => function(...args) {
+                    if (supportTestingActive) return Promise.reject(new Error("SUPPORT TESTING MODE: batch writes are blocked."));
+                    return original.apply(this, args);
+                });
+                const storageRef = storage.ref("__support_test_guard__");
+                const storageProto = Object.getPrototypeOf(storageRef);
+                ["put", "putString", "delete"].forEach(method => supportTestingPatchMethod(storageProto, method, original => function(...args) {
+                    if (supportTestingActive) throw new Error("SUPPORT TESTING MODE: file uploads and deletions are blocked.");
+                    return original.apply(this, args);
+                }));
+                supportTestingPatchMethod(db, "runTransaction", original => function(...args) {
+                    if (supportTestingActive) return Promise.reject(new Error("SUPPORT TESTING MODE: transactions are blocked."));
+                    return original.apply(this, args);
+                });
+            } catch (error) { console.warn("Some Firebase persistence guards could not be installed:", error); }
+
+            // Block all non-read HTTP requests, including API writes and external file uploads.
+            if (!supportTestingFetchOriginal) {
+                supportTestingFetchOriginal = window.fetch;
+                window.fetch = function(input, init) {
+                    if (supportTestingActive) {
+                        const method = String(init?.method || input?.method || "GET").toUpperCase();
+                        if (!["GET", "HEAD", "OPTIONS"].includes(method)) {
+                            return Promise.reject(new Error("SUPPORT TESTING MODE: network changes are blocked and will not be saved."));
+                        }
+                    }
+                    return supportTestingFetchOriginal.apply(this, arguments);
+                };
+            }
+            if (!supportTestingXhrOriginals) {
+                supportTestingXhrOriginals = { open: XMLHttpRequest.prototype.open, send: XMLHttpRequest.prototype.send };
+                XMLHttpRequest.prototype.open = function(method, url, ...rest) {
+                    this.__supportTestingMethod = String(method || "GET").toUpperCase();
+                    return supportTestingXhrOriginals.open.call(this, method, url, ...rest);
+                };
+                XMLHttpRequest.prototype.send = function(...args) {
+                    if (supportTestingActive && !["GET", "HEAD", "OPTIONS"].includes(this.__supportTestingMethod || "GET")) {
+                        try { this.abort(); } catch (_) {}
+                        throw new Error("SUPPORT TESTING MODE: network changes are blocked.");
+                    }
+                    return supportTestingXhrOriginals.send.apply(this, args);
+                };
+            }
+        }
+
+        function restoreSupportTestingPersistenceGuards() {
+            supportTestingWriteGuards.splice(0).reverse().forEach(restore => { try { restore(); } catch (_) {} });
+            if (supportTestingFetchOriginal) { window.fetch = supportTestingFetchOriginal; supportTestingFetchOriginal = null; }
+            if (supportTestingXhrOriginals) {
+                XMLHttpRequest.prototype.open = supportTestingXhrOriginals.open;
+                XMLHttpRequest.prototype.send = supportTestingXhrOriginals.send;
+                supportTestingXhrOriginals = null;
+            }
+        }
+
+        function supportTestingClickGuard(event) {
+            // Navigation and ordinary UI controls must remain usable in Support Testing.
+            // Persistence is still protected separately by the Firestore, Storage and
+            // network write guards installed above.
+            return;
+        }
+
+        function supportTestingSubmitGuard(event) {
+            if (!supportTestingActive) return;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            alert("SUPPORT TESTING MODE: form submission is blocked. Any typed changes remain local and will be discarded when you exit.");
+        }
+
+        function showSupportTestingBanner(roleLabel, personName) {
+            let banner = document.getElementById("supportTestingBanner");
+            if (!banner) {
+                banner = document.createElement("div");
+                banner.id = "supportTestingBanner";
+                banner.style.cssText = "position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#7c2d12;color:#fff;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;box-shadow:0 2px 10px #0003;";
+                document.body.appendChild(banner);
+            }
+            banner.innerHTML = `<span>SUPPORT ACCESS — ${esc(roleLabel)}<br><small style="font-weight:400">${esc(supportTestingSchool?.name || "")} · ${personName ? esc(personName) : "Selected school account"} · Changes save normally</small></span><button id="supportTestingExitButton" type="button" onclick="exitSupportTestingMode()" style="background:#fff;color:#7c2d12;border:0;border-radius:8px;padding:9px 12px;font-weight:700;white-space:nowrap;">Exit to Super Admin</button>`;
+            document.body.style.paddingTop = "62px";
+        }
+
+        async function openSelectedSupportTestingPortal() {
+            if (!supportTestingSchool) { alert("Select a school first."); return; }
+            const role = document.getElementById("saUsersRoleSelect")?.value || "";
+            if (!["admin", "teacher", "student"].includes(role)) { alert("Choose Headteacher, Teacher or Student."); return; }
+            let profile = null, selectedUid = "", roleLabel = "";
+            try {
+                if (role === "admin") {
+                    // Existing Myrezultz installations may label the headteacher role as
+                    // admin, headteacher, or school_admin. Accept only accounts linked to
+                    // this school; do not create or authenticate a new account.
+                    const adminSnap = await db.collection("users").where("schoolId", "==", supportTestingSchool.id).get();
+                    const adminRoles = ["admin", "headteacher", "school_admin", "schooladmin"];
+                    const adminDocs = adminSnap.docs.filter(doc => adminRoles.includes(String(doc.data()?.role || "").toLowerCase()));
+                    if (adminDocs.length) {
+                        const doc = adminDocs[0]; profile = doc.data() || {}; selectedUid = doc.id;
+                    } else {
+                        const possibleUid = supportTestingSchool.adminUid || supportTestingSchool.headteacherUid || supportTestingSchool.userId || supportTestingSchool.ownerUid || "";
+                        if (possibleUid) {
+                            const doc = await db.collection("users").doc(possibleUid).get();
+                            const candidate = doc.exists ? (doc.data() || {}) : {};
+                            if (doc.exists && String(candidate.schoolId || "") === supportTestingSchool.id && adminRoles.includes(String(candidate.role || "").toLowerCase())) {
+                                profile = candidate; selectedUid = doc.id;
+                            }
+                        }
+                    }
+                    if (!profile) { alert("No existing Headteacher account linked to this school was found. Check that the headteacher profile exists in the users collection and its schoolId matches this school."); return; }
+                    roleLabel = "Headteacher";
+                } else if (role === "teacher") {
+                    const snap = await db.collection("users").where("schoolId", "==", supportTestingSchool.id).get();
+                    const candidates = snap.docs.filter(doc => String(doc.data()?.role || "").toLowerCase() === "teacher" && doc.data()?.suspended !== true && doc.data()?.accessStatus !== "suspended");
+                    if (!candidates.length) { alert("No existing active Teacher account was found for this school."); return; }
+                    const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                    profile = chosen.data() || {}; selectedUid = chosen.id; roleLabel = "Teacher";
+                } else {
+                    const snap = await db.collection("students").where("schoolId", "==", supportTestingSchool.id).get();
+                    const candidates = snap.docs.filter(doc => doc.data()?.suspended !== true && doc.data()?.accessStatus !== "suspended");
+                    if (!candidates.length) { alert("No existing active Student record was found for this school."); return; }
+                    const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                    profile = chosen.data() || {}; selectedUid = chosen.id; roleLabel = "Student";
+                }
+
+                // The Super Admin tab container is moved to document.body when a tab is
+                // opened full-screen. Restore it before switching views, otherwise the
+                // detached Super Admin tab remains above the selected school portal.
+                try { if (typeof closeSuperAdminSection === "function") closeSuperAdminSection(); } catch (e) { console.warn("Could not close Super Admin section before portal switch:", e); }
+                // Clear any previously opened full-screen section in the destination portal.
+                try {
+                    if (role === "admin" && typeof closeAdminSection === "function") closeAdminSection();
+                    if (role === "teacher" && typeof closeTeacherSection === "function") closeTeacherSection();
+                } catch (e) { console.warn("Could not reset destination portal view:", e); }
+
+                supportTestingOriginal = {
+                    schoolId: currentSchoolId, schoolName: currentSchoolName, schoolEmail: currentSchoolEmail,
+                    schoolPoBox: currentSchoolPoBox, schoolLogo: currentSchoolLogo, schoolType: currentSchoolType,
+                    closingDate: currentClosingDate, openingDate: currentOpeningDate, userId: currentUserId,
+                    activeViews: Array.from(document.querySelectorAll(".view-screen.active")).map(el => el.id)
+                };
+                supportTestingActive = true;
+                supportTestingRole = role;
+                currentSchoolId = supportTestingSchool.id;
+                currentSchoolName = supportTestingSchool.name || "School";
+                currentSchoolEmail = supportTestingSchool.email || "";
+                currentSchoolPoBox = supportTestingSchool.poBox || "";
+                currentSchoolLogo = supportTestingSchool.logoUrl || "";
+                currentSchoolType = supportTestingSchool.schoolType || "junior";
+                currentClosingDate = supportTestingSchool.closingDate || "N/A";
+                currentOpeningDate = supportTestingSchool.openingDate || "N/A";
+                currentUserId = selectedUid;
+                // Do not install the former persistence guards here. Super Admin support
+                // access must use the portal's ordinary save, submit and upload workflows.
+
+                if (role === "admin") {
+                    const adminName = document.getElementById("adminNameDisplay");
+                    const adminTitle = document.getElementById("adminSchoolTitle");
+                    if (adminTitle) adminTitle.textContent = currentSchoolName;
+                    if (adminName) adminName.textContent = profile.name || profile.headteacherName || "Headteacher";
+                    const logo = document.getElementById("adminLogoDisplay");
+                    if (logo) { if (currentSchoolLogo) { logo.src = currentSchoolLogo; logo.style.display = "block"; } else logo.style.display = "none"; }
+                    const adminView = document.getElementById("adminView");
+                    if (!adminView) throw new Error("Headteacher portal view is missing from this page.");
+                    // Support access is not restricted by the school's verification screen.
+                    adminView.classList.remove("school-pending-verification");
+                    const pending = document.getElementById("pendingVerificationNotice");
+                    if (pending) pending.style.display = "none";
+                    const menu = document.getElementById("adminMainMenu");
+                    if (menu) menu.style.display = "grid";
+                    showView("adminView");
+                    try { if (typeof window.showAdminDashboard === "function") window.showAdminDashboard(); } catch (e) { console.warn("Headteacher dashboard setup warning:", e); }
+                    try { await populateAllDropdowns(); } catch (e) { console.warn("Dropdown loading warning:", e); }
+                    try { if (typeof loadGradingSystem === "function") await loadGradingSystem(); } catch (e) { console.warn("Grading setup warning:", e); }
+                } else if (role === "teacher") {
+                    const teacherName = document.getElementById("teacherNameDisplay");
+                    if (teacherName) teacherName.textContent = profile.name || "Teacher";
+                    if (!document.getElementById("teacherView")) throw new Error("Teacher portal view is missing from this page.");
+                    showView("teacherView");
+                    try { if (typeof showTeacherDashboard === "function") showTeacherDashboard(); } catch (e) { console.warn("Teacher dashboard setup warning:", e); }
+                    try { await populateAllDropdowns(); } catch (e) { console.warn("Teacher dropdown loading warning:", e); }
+                    // The portal must remain open even if an optional allocations query fails.
+                    try { await loadTeacherAllocations(selectedUid); } catch (e) { console.warn("Teacher allocations could not be loaded:", e); }
+                } else {
+                    const studentName = document.getElementById("studentNameDisplay");
+                    if (studentName) studentName.textContent = profile.name || "Student";
+                    if (!document.getElementById("studentView")) throw new Error("Student portal view is missing from this page.");
+                    showView("studentView");
+                    try { await renderStudentPortal({ ...profile, id: selectedUid, schoolId: supportTestingSchool.id }); }
+                    catch (e) { console.warn("Student portal data loading warning:", e); }
+                }
+                showSupportTestingBanner(roleLabel, profile.name || "");
+            } catch (error) {
+                console.error("Support testing portal error:", error);
+                supportTestingActive = false;
+                restoreSupportTestingPersistenceGuards();
+                alert("Could not open this portal: " + (error.message || "Unknown error"));
+            }
+        }
+
+        function exitSupportTestingMode() {
+            if (!supportTestingActive) return;
+            supportTestingActive = false;
+            restoreSupportTestingPersistenceGuards();
+            document.getElementById("supportTestingBanner")?.remove();
+            document.body.style.removeProperty("padding-top");
+            if (supportTestingOriginal) {
+                currentSchoolId = supportTestingOriginal.schoolId;
+                currentSchoolName = supportTestingOriginal.schoolName;
+                currentSchoolEmail = supportTestingOriginal.schoolEmail;
+                currentSchoolPoBox = supportTestingOriginal.schoolPoBox;
+                currentSchoolLogo = supportTestingOriginal.schoolLogo;
+                currentSchoolType = supportTestingOriginal.schoolType;
+                currentClosingDate = supportTestingOriginal.closingDate;
+                currentOpeningDate = supportTestingOriginal.openingDate;
+                currentUserId = supportTestingOriginal.userId;
+            }
+            supportTestingOriginal = null;
+            supportTestingSchool = null;
+            supportTestingRole = "";
+            document.querySelectorAll(".view-screen").forEach(el => el.classList.remove("active"));
+            const saView = document.getElementById("superAdminView");
+            if (saView) { saView.style.removeProperty("display"); saView.style.removeProperty("visibility"); saView.style.removeProperty("pointer-events"); saView.classList.add("active"); }
+            showSuperAdminDashboard();
+            alert("Support access ended. You have been returned to the Super Admin panel. Changes already saved through the portal remain in the school's records.");
+        }
+
         function openSuperAdminSection(tabId) {
             const view = document.getElementById('superAdminView');
             const menu = document.getElementById('superAdminMainMenu');
@@ -4551,12 +4907,13 @@ body{
             window.scrollTo(0, 0);
 
             if (tabId === 'saTabRegisteredSchools') loadRegisteredSchoolsList();
+            if (tabId === 'saTabUsers') loadSupportTestingSchools();
             if (tabId === 'saTabVerification') loadVerificationSchoolsList();
             if (tabId === 'saTabPlatformStats') { loadPlatformStats(); loadSchoolAccessList(); }
             if (tabId === 'saTabInterventions') loadInterventionCases(true);
             if (tabId === 'saTabSecurityAudit') loadSecurityAuditCentre();
             if (tabId === 'saTabMaintenance') loadMaintenanceSettings();
-            if (tabId === 'saTabPaymentControl') { loadGlobalPaymentStatus(); loadAuditPaymentFee(); }
+            if (tabId === 'saTabPaymentControl') { loadGlobalPaymentStatus(); loadAuditPaymentFee(); loadSupportActivationSchoolOptions(); }
             if (tabId === 'saTabManuals') loadManuals('superAdminManualsContainer');
             if (tabId === 'saTabAnnouncements') loadAnnouncements('superAdminAnnouncementsContainer', true);
             if (tabId === 'saTabCommunication') loadSuperAdminConversations();
@@ -5317,8 +5674,10 @@ body{
                     resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">No published marks available yet.</p>';
                     return;
                 }
-                const examName = studentData.exam || marks.find(m => m.exam)?.exam || (studentData.term ? `${studentData.term} ${studentData.year || ''}`.trim() : 'Results');
-                const marksForExam = marks.filter(m => !m.exam || String(m.exam).trim().toLowerCase() === String(examName).trim().toLowerCase());
+                const availableExamNames = [...new Set(marks.map(m => String(m.exam || m.examType || m.examName || '').trim()).filter(Boolean))];
+                const requestedExam = String(studentData.selectedReportExam || studentData.exam || '').trim();
+                const examName = availableExamNames.includes(requestedExam) ? requestedExam : (availableExamNames[0] || (studentData.term ? `${studentData.term} ${studentData.year || ''}`.trim() : 'Results'));
+                const marksForExam = marks.filter(m => { const name = String(m.exam || m.examType || m.examName || '').trim(); return !name || name.toLowerCase() === String(examName).trim().toLowerCase(); });
                 const marksMap = {};
                 marksForExam.forEach(m => { marksMap[m.subject] = m.score; });
                 const classMarksSnap = await db.collection("marks").where("schoolId", "==", schoolId).where("class", "==", studentData.class).where("exam", "==", examName).get();
@@ -5354,10 +5713,18 @@ body{
                 const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const reportComments=getReportPerformanceComments(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
                 const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
                 currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
-                resultsContent.innerHTML = `<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade==='-'?'-':overall.grade.substring(0,2)}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
+                resultsContent.innerHTML = `${availableExamNames.length > 1 ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportExamSelect">Available Report Cards</label><select id="studentReportExamSelect" onchange="selectStudentReportExam(this.value)">${availableExamNames.map(name => `<option value="${esc(name)}" ${name===examName?'selected':''}>${esc(name)}</option>`).join('')}</select></div>` : ''}<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
             } catch(err) { resultsContent.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
         }
 
+
+        async function selectStudentReportExam(examName) {
+            const student = window.activeStudentPortalData;
+            if (!student) return;
+            window.activeStudentPortalData = { ...student, selectedReportExam: String(examName || '').trim() };
+            await renderStudentPortal(window.activeStudentPortalData);
+            showStudentPortalTab('results');
+        }
 
         function showStudentPortalTab(tab) {
             const r=document.getElementById('studentResultsPanel'), m=document.getElementById('studentMaterialsPanel'), welcome=document.getElementById('studentDashboardWelcome'); if(!r||!m)return;
@@ -6394,7 +6761,7 @@ body{
                     const mean = count > 0 ? (total / count) : 0;
                     const overallGrade = count > 0 ? getCBCGradeDetails(mean) : { grade: "-", desc: "-" };
                     const position = classPositionFor(st.admissionNo);
-                    const level = overallGrade.grade !== "-" ? overallGrade.grade.substring(0, 2) : "-";
+                    const level = overallGrade.grade;
                     const classTotalPossible = cachedStudents.length * studentSubjects.length * 100;
                     const classMeanMarks = studentSubjects.length > 0
                         ? studentSubjects.reduce((sum, sub) => sum + (subjectStats[sub].mean || 0), 0) / studentSubjects.length
@@ -6620,6 +6987,123 @@ body{
 
             update();
             subscriptionTimerInterval = setInterval(update, 1000);
+        }
+
+        async function loadSupportActivationSchoolOptions() {
+            const select = document.getElementById("saSupportActivationSchool");
+            const info = document.getElementById("saSupportActivationSchoolInfo");
+            const button = document.getElementById("saGrant120DaysBtn");
+            if (!select) return;
+            select.innerHTML = '<option value="">Loading schools...</option>';
+            if (button) button.disabled = true;
+            try {
+                const result = await superAdminSchoolApi("/api/schools");
+                const schools = Array.isArray(result.schools) ? result.schools : [];
+                schools.sort((a, b) => String(a.name || "").localeCompare(String(b.name || "")));
+                select.innerHTML = '<option value="">Select a school</option>' + schools.map(school =>
+                    `<option value="${esc(school.id)}" data-name="${esc(school.name || "Unnamed school")}">${esc(school.name || "Unnamed school")}</option>`
+                ).join("");
+                if (info) info.textContent = schools.length ? `${schools.length} registered school(s) available. Select the school that needs activation.` : "No registered schools were found.";
+            } catch (error) {
+                select.innerHTML = '<option value="">Could not load schools</option>';
+                if (info) info.textContent = error.message || "Could not load the school list.";
+            }
+        }
+
+        function showSelectedSupportActivationSchool() {
+            const select = document.getElementById("saSupportActivationSchool");
+            const info = document.getElementById("saSupportActivationSchoolInfo");
+            const button = document.getElementById("saGrant120DaysBtn");
+            const option = select && select.selectedOptions ? select.selectedOptions[0] : null;
+            const selected = !!(select && select.value);
+            if (button) button.disabled = !selected;
+            if (info) info.textContent = selected ? `Selected school: ${option ? option.textContent : select.value}. Activation will grant 120 days from the current expiry date, or from today if expired.` : "Choose a school to continue.";
+            const feedback = document.getElementById("saGrant120DaysFeedback");
+            if (feedback) { feedback.style.display = "none"; feedback.textContent = ""; }
+        }
+
+        async function grantSelectedSchoolSupportActivation() {
+            const select = document.getElementById("saSupportActivationSchool");
+            const button = document.getElementById("saGrant120DaysBtn");
+            const feedback = document.getElementById("saGrant120DaysFeedback");
+            const show = (message, success) => {
+                if (!feedback) return;
+                feedback.style.display = "block";
+                feedback.className = "msg " + (success ? "msg-success" : "msg-error");
+                feedback.textContent = message;
+            };
+            const schoolId = select ? String(select.value || "").trim() : "";
+            if (!schoolId) { show("Select a school first.", false); return; }
+            if (!firebase.auth().currentUser) { show("Your Super Admin session has expired. Sign in again.", false); return; }
+            const schoolName = select.selectedOptions && select.selectedOptions[0] ? select.selectedOptions[0].textContent : schoolId;
+            if (!window.confirm(`Confirm 120-day subscription activation for ${schoolName}? This action will update the school's actual subscription.`)) return;
+            try {
+                if (button) { button.disabled = true; button.textContent = "Activating..."; }
+                const result = await superAdminSchoolApi(
+                    "/api/superadmin/schools/" + encodeURIComponent(schoolId) + "/support-activation",
+                    { method: "POST", body: JSON.stringify({ reason: "School reports payment received but normal subscription activation did not occur. Manual 120-day Super Admin activation." }) }
+                );
+                show(`${result.message || "120 days activated successfully."} School: ${schoolName}.`, true);
+            } catch (error) {
+                show("Activation failed: " + (error.message || "Please try again."), false);
+            } finally {
+                if (button) { button.disabled = !select.value; button.textContent = "Activate 120 Days"; }
+            }
+        }
+
+        async function showSuperAdminSupportActivation() {
+            const panel = document.getElementById("superAdminSupportActivation");
+            if (!panel) return;
+            panel.style.display = "none";
+            try {
+                // This control belongs in the Headteacher Payment tab, but only while
+                // the authenticated Super Admin is operating that school's portal.
+                if (!supportTestingActive || supportTestingRole !== "admin" || !supportTestingSchool || currentSchoolId !== supportTestingSchool.id) return;
+                const user = firebase.auth().currentUser;
+                if (!user) return;
+                const profileSnap = await db.collection("users").doc(user.uid).get();
+                const profile = profileSnap.exists ? (profileSnap.data() || {}) : {};
+                const authorized = String(profile.role || "").toLowerCase() === "superadmin"
+                    && String(user.email || "").trim().toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase()
+                    && String(profile.email || "").trim().toLowerCase() === SUPER_ADMIN_EMAIL.toLowerCase();
+                panel.style.display = authorized ? "block" : "none";
+            } catch (error) {
+                console.warn("Could not verify Super Admin support controls:", error.message);
+                panel.style.display = "none";
+            }
+        }
+
+        async function grantSchoolSupportActivation() {
+            const button = document.getElementById("superAdminGrant120DaysBtn");
+            const feedback = document.getElementById("superAdminGrant120DaysFeedback");
+            const showFeedback = (message, success) => {
+                if (!feedback) return;
+                feedback.style.display = "block";
+                feedback.className = "msg " + (success ? "msg-success" : "msg-error");
+                feedback.textContent = message;
+            };
+            if (!currentSchoolId) {
+                showFeedback("Activation failed: no school is currently selected.", false);
+                return;
+            }
+            if (!auth.currentUser) {
+                showFeedback("Your session has expired. Sign in again.", false);
+                return;
+            }
+            if (!window.confirm("Confirm 120-day support activation for this school? This will update its subscription record.")) return;
+            try {
+                if (button) { button.disabled = true; button.textContent = "Activating..."; }
+                const result = await superAdminSchoolApi(
+                    "/api/superadmin/schools/" + encodeURIComponent(currentSchoolId) + "/support-activation",
+                    { method: "POST", body: JSON.stringify({ reason: "Headteacher reports payment received but subscription was not activated." }) }
+                );
+                showFeedback(result.message || "120-day subscription activation completed.", true);
+                await fetchSchoolPaymentStatus();
+            } catch (error) {
+                showFeedback("Activation failed: " + error.message, false);
+            } finally {
+                if (button) { button.disabled = false; button.textContent = "Activate 120 Days"; }
+            }
         }
 
         async function fetchSchoolPaymentStatus() {
@@ -6917,8 +7401,13 @@ body{
                 alert("School details window is unavailable. Please reload the portal.");
                 return;
             }
+            const visibleSuperAdminSections = document.getElementById('superAdminSectionsContainer');
+            if (visibleSuperAdminSections && visibleSuperAdminSections.parentElement === document.body && detailsModal.parentElement !== visibleSuperAdminSections) {
+                visibleSuperAdminSections.appendChild(detailsModal);
+            }
 
             detailsModal.style.setProperty("display", "flex", "important");
+            detailsModal.style.setProperty("z-index", "2147483647", "important");
             detailsModal.style.setProperty("position", "fixed", "important");
             detailsModal.style.setProperty("inset", "0", "important");
             detailsModal.style.setProperty("z-index", "99999", "important");
@@ -7125,6 +7614,17 @@ body{
         // Teacher accounts sign in through the Secondary Firebase Auth instance.
         // Fall back to the primary instance only for older teacher sessions.
         function getTeacherAuthenticatedUser() {
+            // During Super Admin Support Access, use the selected existing teacher's
+            // UID for allocation checks, but use the authenticated Super Admin token
+            // for the server to authorize the support operation.
+            if (supportTestingActive && supportTestingRole === "teacher" && currentUserId) {
+                const supportActor = secAuth.currentUser || auth.currentUser;
+                if (!supportActor) return null;
+                return {
+                    uid: currentUserId,
+                    getIdToken: forceRefresh => supportActor.getIdToken(!!forceRefresh)
+                };
+            }
             return secAuth.currentUser || auth.currentUser;
         }
 
@@ -7265,7 +7765,11 @@ body{
                         className: selectedTeacherClass,
                         subjectName: selectedTeacherSubject,
                         examName,
-                        scores
+                        scores,
+                        ...(supportTestingActive && supportTestingRole === "teacher" ? {
+                            supportAccess: true,
+                            supportTeacherUid: currentUserId
+                        } : {})
                     })
                 });
                 const result = await response.json().catch(() => ({}));
