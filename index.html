@@ -3942,9 +3942,39 @@ body{
         let cachedSubjects = [];
         let cachedStudents = [];
         let cachedMarksMap = {};
+        let cachedMarkRecords = {};
         let currentUserId = "";
         let latestPortalAnnouncement = null;
         let latestPortalAnnouncementId = "";
+
+        // Short-lived in-memory cache prevents repeated identical Firestore reads
+        // while a user moves between views or selects another report card.
+        const firestoreReadCache = new Map();
+        async function getCachedFirestoreRead(cacheKey, loader, ttlMs = 20000) {
+            const now = Date.now();
+            const cached = firestoreReadCache.get(cacheKey);
+            if (cached && cached.expiresAt > now) return cached.promise;
+            const promise = Promise.resolve().then(loader).catch(error => {
+                firestoreReadCache.delete(cacheKey);
+                throw error;
+            });
+            firestoreReadCache.set(cacheKey, { promise, expiresAt: now + ttlMs });
+            return promise;
+        }
+        function clearFirestoreReadCache(prefix = "") {
+            for (const key of firestoreReadCache.keys()) {
+                if (!prefix || key.startsWith(prefix)) firestoreReadCache.delete(key);
+            }
+        }
+        function makeResultExpiryDates(baseDate = new Date()) {
+            const submittedAt = new Date(baseDate.getTime());
+            const expiresAt = new Date(submittedAt.getTime());
+            expiresAt.setFullYear(expiresAt.getFullYear() + 3);
+            return {
+                submittedAt: firebase.firestore.Timestamp.fromDate(submittedAt),
+                expiresAt: firebase.firestore.Timestamp.fromDate(expiresAt)
+            };
+        }
 
         function getSchoolSubscriptionFee(schoolType) {
             const type = String(schoolType || "junior").toLowerCase() === "senior" ? "senior" : "junior";
@@ -5652,13 +5682,15 @@ body{
             content.innerHTML = '<div class="student-portal-tabs" role="tablist" aria-label="Student dashboard"><button type="button" class="btn-secondary" id="studentResultsTabBtn" role="tab" aria-selected="false" onclick="showStudentPortalTab(\'results\')">Results</button><button type="button" class="btn-secondary" id="studentMaterialsTabBtn" role="tab" aria-selected="false" onclick="showStudentPortalTab(\'materials\')">Learning Materials</button></div><section id="studentDashboardWelcome" class="student-dashboard-welcome"><h3>Welcome to Your Student Dashboard</h3><p>Choose a tab above to view your published results or access learning materials shared by your school.</p><div class="student-dashboard-shortcuts"><div><strong>📊 Results</strong><p>View, print or download your results when you select the Results tab.</p></div><div><strong>📚 Learning Materials</strong><p>Find notes, assignments, past papers and other class materials.</p></div></div></section><section id="studentResultsPanel" style="display:none;"><p>Loading report card...</p></section><section id="studentMaterialsPanel" style="display:none;"></section>';
             const resultsContent = document.getElementById('studentResultsPanel');
             try {
-                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap] = await Promise.all([
+                const studentReadKey = `student-portal:${schoolId}:${String(studentData.admissionNo || "")}:${String(studentData.class || "")}`;
+                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap, examTypesSnap] = await getCachedFirestoreRead(studentReadKey, () => Promise.all([
                     db.collection("schools").doc(schoolId).get(),
                     db.collection("marksControls").doc(schoolId).get(),
                     db.collection("marks").where("schoolId", "==", schoolId).where("admissionNo", "==", studentData.admissionNo).get(),
                     db.collection("subjects").where("schoolId", "==", schoolId).get(),
-                    db.collection("students").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get()
-                ]);
+                    db.collection("students").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get(),
+                    db.collection("examTypes").where("schoolId", "==", schoolId).get()
+                ]));
                 if (!controlSnap.exists || controlSnap.data().resultsPublished !== true) {
                     resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">Results have not been published by the school yet.</p>';
                     return;
@@ -5674,14 +5706,25 @@ body{
                     resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">No published marks available yet.</p>';
                     return;
                 }
-                const availableExamNames = [...new Set(marks.map(m => String(m.exam || m.examType || m.examName || '').trim()).filter(Boolean))];
+                // The Headteacher registers exam types before marks entry. Use those
+                // registered names as the report-card choices, then include any legacy
+                // exam names already present in this student's marks.
+                const registeredExamNames = examTypesSnap.docs
+                    .map(d => String((d.data() || {}).name || '').trim())
+                    .filter(Boolean);
+                const markExamNames = marks.map(m => String(m.exam || m.examType || m.examName || '').trim()).filter(Boolean);
+                const availableExamNames = [...new Set([...registeredExamNames, ...markExamNames])];
                 const requestedExam = String(studentData.selectedReportExam || studentData.exam || '').trim();
                 const examName = availableExamNames.includes(requestedExam) ? requestedExam : (availableExamNames[0] || (studentData.term ? `${studentData.term} ${studentData.year || ''}`.trim() : 'Results'));
                 const marksForExam = marks.filter(m => { const name = String(m.exam || m.examType || m.examName || '').trim(); return !name || name.toLowerCase() === String(examName).trim().toLowerCase(); });
                 const marksMap = {};
                 marksForExam.forEach(m => { marksMap[m.subject] = m.score; });
-                const classMarksSnap = await db.collection("marks").where("schoolId", "==", schoolId).where("class", "==", studentData.class).where("exam", "==", examName).get();
-                const allClassMarks = classMarksSnap.docs.map(d => d.data());
+                const classMarksCacheKey = `student-class-marks:${schoolId}:${String(studentData.class || "")}:${String(examName || "")}`;
+                const classMarksSnap = await getCachedFirestoreRead(classMarksCacheKey, () => db.collection("marks").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get());
+                const allClassMarks = classMarksSnap.docs.map(d => d.data()).filter(m => {
+                    const savedExam = String(m.exam || m.examType || m.examName || '').trim();
+                    return savedExam.toLowerCase() === String(examName).trim().toLowerCase();
+                });
                 const subjectStats = {};
                 subjects.forEach(sub => {
                     const vals = allClassMarks.map(m => m.subject === sub ? Number(m.score) : NaN).filter(Number.isFinite);
@@ -6369,25 +6412,34 @@ body{
             matrixContainer.innerHTML = "<p style='padding:12px;'>Loading class marks grid...</p>";
 
             try {
-                const subSnap = await db.collection("subjects").where("schoolId", "==", currentSchoolId).get();
+                const matrixCacheKey = `admin-marks:${currentSchoolId}:${String(className)}:${String(examName)}`;
+                const [subSnap, studSnap, marksSnap] = await getCachedFirestoreRead(matrixCacheKey, () => Promise.all([
+                    db.collection("subjects").where("schoolId", "==", currentSchoolId).get(),
+                    db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get(),
+                    // Read the class mark records once and match exam/examType/examName.
+                    // This also supports older saved records that used another field name.
+                    db.collection("marks").where("schoolId", "==", currentSchoolId).where("class", "==", className).get()
+                ]));
                 cachedSubjects = [];
                 subSnap.forEach(d => cachedSubjects.push(d.data().name));
 
-                const studSnap = await db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get();
                 cachedStudents = [];
                 studSnap.forEach(d => cachedStudents.push(d.data()));
 
-                const marksSnap = await db.collection("marks")
-                    .where("schoolId", "==", currentSchoolId)
-                    .where("class", "==", className)
-                    .where("exam", "==", examName)
-                    .get();
-
                 cachedMarksMap = {};
+                cachedMarkRecords = {};
                 marksSnap.forEach(d => {
-                    const data = d.data();
+                    const data = d.data() || {};
+                    const savedExam = String(data.exam || data.examType || data.examName || '').trim();
+                    if (savedExam.toLowerCase() !== String(examName).trim().toLowerCase()) return;
                     if (!cachedMarksMap[data.admissionNo]) cachedMarksMap[data.admissionNo] = {};
+                    if (!cachedMarkRecords[data.admissionNo]) cachedMarkRecords[data.admissionNo] = {};
                     cachedMarksMap[data.admissionNo][data.subject] = data.score;
+                    // Keep the actual Firestore document ID. Older marks may have
+                    // been created with auto-generated IDs, so rebuilding an ID
+                    // from the student/subject fields can create a duplicate
+                    // instead of editing the existing result.
+                    cachedMarkRecords[data.admissionNo][data.subject] = { ...data, _docId: d.id };
                 });
 
                 if (cachedStudents.length === 0) {
@@ -6452,33 +6504,75 @@ body{
         async function saveAdminEditedMarks() {
             const examName = document.getElementById("adminExamSelect").value;
             const className = document.getElementById("mClassSelect").value;
-            const inputs = document.querySelectorAll(".admin-mark-input");
-            
+            const inputs = Array.from(document.querySelectorAll(".admin-mark-input"));
+            const writes = [];
+
             try {
-                const batch = db.batch();
                 inputs.forEach(input => {
                     const adm = input.getAttribute("data-adm");
                     const sub = input.getAttribute("data-sub");
                     const val = input.value.trim();
-                    
-                    const docId = `${currentSchoolId}_${className}_${adm}_${sub}_${examName}`;
-                    const docRef = db.collection("marks").doc(docId);
-                    
-                    if (val !== "") {
-                        batch.set(docRef, {
-                            schoolId: currentSchoolId,
-                            class: className,
-                            admissionNo: adm,
-                            subject: sub,
-                            exam: examName,
-                            score: Number(val),
-                            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-                        }, { merge: true });
+                    if (val === "") return;
+                    const numericValue = Number(val);
+                    if (!Number.isFinite(numericValue) || numericValue < 0 || numericValue > 100) {
+                        throw new Error(`Enter a valid mark from 0 to 100 for ${adm} - ${sub}.`);
                     }
+                    const oldValue = cachedMarksMap[adm]?.[sub];
+                    if (oldValue !== undefined && oldValue !== null && Number.isFinite(Number(oldValue)) && Number(oldValue) === numericValue) return;
+
+                    const oldRecord = cachedMarkRecords[adm]?.[sub] || null;
+                    const deterministicDocId = `${currentSchoolId}_${className}_${adm}_${sub}_${examName}`;
+                    // Update the exact existing document where possible. This
+                    // supports older records whose Firestore IDs were auto-generated.
+                    const docRef = db.collection("marks").doc(oldRecord?._docId || deterministicDocId);
+                    const payload = {
+                        schoolId: currentSchoolId,
+                        class: className,
+                        admissionNo: adm,
+                        subject: sub,
+                        exam: examName,
+                        score: numericValue,
+                        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    };
+                    // Only a genuinely new subject-result receives its original
+                    // submission date and three-year expiry. Corrections leave both untouched.
+                    if (!oldRecord) {
+                        Object.assign(payload, makeResultExpiryDates(new Date()));
+                    } else if (!oldRecord.expiresAt) {
+                        // Legacy result: use the best available historical timestamp once.
+                        // Subsequent corrections preserve this expiry date.
+                        let baseDate = null;
+                        for (const candidate of [oldRecord.submittedAt, oldRecord.createdAt, oldRecord.updatedAt]) {
+                            if (candidate && typeof candidate.toDate === "function") { baseDate = candidate.toDate(); break; }
+                            if (candidate) { const parsed = new Date(candidate); if (Number.isFinite(parsed.getTime())) { baseDate = parsed; break; } }
+                        }
+                        Object.assign(payload, makeResultExpiryDates(baseDate || new Date()));
+                        if (oldRecord.submittedAt) payload.submittedAt = oldRecord.submittedAt;
+                    }
+                    writes.push({ ref: docRef, payload, isExisting: !!oldRecord });
                 });
 
-                await batch.commit();
-                alert("Marks successfully updated!");
+                if (!writes.length) {
+                    alert("No changes detected. Nothing was written to the database.");
+                    isAdminEditMode = false;
+                    document.getElementById("btnToggleAdminEdit").textContent = "✏️ Edit Pool Marks";
+                    document.getElementById("btnSaveAdminEdit").style.display = "none";
+                    return;
+                }
+
+                for (let offset = 0; offset < writes.length; offset += 450) {
+                    const batch = db.batch();
+                    writes.slice(offset, offset + 450).forEach(item => {
+                        if (item.isExisting) batch.update(item.ref, item.payload);
+                        else batch.set(item.ref, item.payload, { merge: true });
+                    });
+                    await batch.commit();
+                }
+                clearFirestoreReadCache(`admin-marks:${currentSchoolId}:${String(className)}:${String(examName)}`);
+                clearFirestoreReadCache(`student-portal:${currentSchoolId}:`);
+                clearFirestoreReadCache(`student-class-marks:${currentSchoolId}:${String(className)}:`);
+                clearFirestoreReadCache(`teacher-entry:${currentSchoolId}:${String(className)}:`);
+                alert(`${writes.length} changed mark(s) successfully saved. Unchanged marks were skipped.`);
                 isAdminEditMode = false;
                 document.getElementById("btnToggleAdminEdit").textContent = "✏️ Edit Pool Marks";
                 document.getElementById("btnSaveAdminEdit").style.display = "none";
@@ -7631,10 +7725,11 @@ body{
         async function verifyTeacherSubjectAllocation(className, subjectName) {
             const user = getTeacherAuthenticatedUser();
             if (!user) throw new Error("Your teacher session could not be found. Please sign in again.");
-            const snap = await db.collection("allocations")
+            const allocationCacheKey = `teacher-allocations:${currentSchoolId}:${user.uid}`;
+            const snap = await getCachedFirestoreRead(allocationCacheKey, () => db.collection("allocations")
                 .where("schoolId", "==", currentSchoolId)
                 .where("teacherId", "==", user.uid)
-                .get();
+                .get(), 15000);
             const norm = value => String(value || "").trim().toLowerCase();
             const allowed = snap.docs.some(doc => {
                 const d = doc.data() || {};
@@ -7696,10 +7791,11 @@ body{
                     throw new Error("The marks entry deadline has passed.");
                 }
 
-                const studSnap = await db.collection("students")
-                    .where("schoolId", "==", currentSchoolId)
-                    .where("class", "==", selectedTeacherClass)
-                    .get();
+                const teacherEntryCacheKey = `teacher-entry:${currentSchoolId}:${String(selectedTeacherClass)}:${String(selectedTeacherSubject)}:${String(examName)}`;
+                const [studSnap, marksSnap] = await getCachedFirestoreRead(teacherEntryCacheKey, () => Promise.all([
+                    db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", selectedTeacherClass).get(),
+                    db.collection("marks").where("schoolId", "==", currentSchoolId).where("class", "==", selectedTeacherClass).where("subject", "==", selectedTeacherSubject).where("exam", "==", examName).get()
+                ]));
 
                 if (studSnap.empty) {
                     container.innerHTML = "<p style='color:red;'>No students registered in this class.</p>";
@@ -7713,13 +7809,6 @@ body{
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
-
-                const marksSnap = await db.collection("marks")
-                    .where("schoolId", "==", currentSchoolId)
-                    .where("class", "==", selectedTeacherClass)
-                    .where("subject", "==", selectedTeacherSubject)
-                    .where("exam", "==", examName)
-                    .get();
 
                 marksSnap.forEach(doc => {
                     const data = doc.data() || {};
@@ -7774,7 +7863,8 @@ body{
                 });
                 const result = await response.json().catch(() => ({}));
                 if (!response.ok || !result.success) throw new Error(result.message || "Marks submission failed.");
-                alert("Marks successfully submitted to central pool!");
+                clearFirestoreReadCache(`teacher-entry:${currentSchoolId}:${String(selectedTeacherClass)}:${String(selectedTeacherSubject)}:${String(examName)}`);
+                alert(result.saved > 0 ? `${result.saved} changed mark(s) saved. ${Number(result.unchanged || 0)} unchanged mark(s) skipped.` : "No changes detected. Nothing was written to the database.");
             } catch (e) {
                 console.error("Teacher marks submission error:", e);
                 alert("Error saving marks: " + (e.message || "Please try again."));
