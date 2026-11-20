@@ -5090,6 +5090,29 @@ body{
         function communicationDate(value) {
             try { const d = value && typeof value.toDate === 'function' ? value.toDate() : value ? new Date(value) : null; return d && !isNaN(d.getTime()) ? d.toLocaleString() : 'Just now'; } catch (_) { return 'Just now'; }
         }
+        // Record actual Firestore write outcomes for Headteacher actions (many portal forms write directly to Firestore).
+        let __headteacherAuditPatchInstalled = false;
+        function installHeadteacherFirestoreAudit() {
+            if (__headteacherAuditPatchInstalled || !db || !firebase.firestore) return;
+            __headteacherAuditPatchInstalled = true;
+            const send = async (operation, collection, documentId, outcome, reason='') => {
+                try { if (!auth.currentUser) return; const token=await auth.currentUser.getIdToken();
+                    await fetch(PAYMENT_SERVER_URL.replace(/\/$/, '') + '/api/security/client-activity', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token}, body:JSON.stringify({operation,collection,documentId,outcome,reason}) });
+                } catch (e) { console.warn('Headteacher activity audit failed:', e.message); }
+            };
+            const wrap = (proto, method, getInfo) => { if (!proto || typeof proto[method] !== 'function' || proto['__audit_'+method]) return;
+                const original=proto[method]; proto[method]=function(...args){ const info=getInfo(this,args); let result; try { result=original.apply(this,args); } catch(err) { send(info.operation,info.collection,info.documentId,'failed',err.message); throw err; }
+                    if (result && typeof result.then==='function') return result.then(value=>{send(info.operation,info.collection,info.documentId,'success');return value;},err=>{send(info.operation,info.collection,info.documentId,'failed',err.message);throw err;});
+                    return result; }; proto['__audit_'+method]=true; };
+            try {
+                const docProto=Object.getPrototypeOf(db.collection('__audit_probe__').doc('__probe__'));
+                ['set','update','delete'].forEach(method=>wrap(docProto,method,function(){return {operation:method,collection:this.parent && this.parent.id || 'firestore',documentId:this.id || ''};}));
+                const colProto=Object.getPrototypeOf(db.collection('__audit_probe__'));
+                wrap(colProto,'add',function(){return {operation:'add',collection:this.id || 'firestore',documentId:'new document'};});
+            } catch(e) { console.warn('Could not install Firestore audit hooks:',e.message); }
+        }
+        installHeadteacherFirestoreAudit();
+
         async function communicationApi(path, options = {}) {
             if (!auth.currentUser) throw new Error('Please sign in again.');
             const token = await auth.currentUser.getIdToken();
@@ -5761,12 +5784,11 @@ body{
             const resultsContent = document.getElementById('studentResultsPanel');
             try {
                 const studentReadKey = `student-portal:${schoolId}:${String(studentData.admissionNo || "")}:${String(studentData.class || "")}`;
-                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap, examTypesSnap, termsYearsSnap, annualResultsSnap] = await getCachedFirestoreRead(studentReadKey, () => Promise.all([
+                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, examTypesSnap, termsYearsSnap, annualResultsSnap] = await getCachedFirestoreRead(studentReadKey, () => Promise.all([
                     db.collection("schools").doc(schoolId).get(),
                     db.collection("marksControls").doc(schoolId).get(),
                     db.collection("marks").where("schoolId", "==", schoolId).where("admissionNo", "==", studentData.admissionNo).get(),
                     db.collection("subjects").where("schoolId", "==", schoolId).get(),
-                    db.collection("students").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get(),
                     db.collection("examTypes").where("schoolId", "==", schoolId).get(),
                     db.collection("termsYears").where("schoolId", "==", schoolId).get(),
                     db.collection("studentResults").where("schoolId", "==", schoolId).get()
@@ -5776,7 +5798,6 @@ body{
                     return;
                 }
                 const school = schoolSnap.exists ? schoolSnap.data() : {};
-                const classStudents = classSnap.docs.map(d => d.data());
                 const allSubjects = subjectsSnap.docs.map(d => { const dta=d.data()||{}; return String(dta.name || dta.subjectName || dta.title || dta.subject || '').trim(); }).filter(Boolean);
                 const selectedSubjects = Array.isArray(studentData.subjects) ? studentData.subjects.map(String).map(v=>v.trim()).filter(Boolean) : [];
                 const isSeniorSchool = String(school.schoolType || "junior").toLowerCase() === "senior";
@@ -5797,12 +5818,18 @@ body{
                 const marksForExam = marks.filter(m => { const name = String(m.exam || m.examType || m.examName || '').trim(); return name && name.toLowerCase() === String(examName).trim().toLowerCase(); });
                 const marksMap = {};
                 marksForExam.forEach(m => { marksMap[m.subject] = m.score; });
-                const classMarksCacheKey = `student-class-marks:${schoolId}:${String(studentData.class || "")}:${String(examName || "")}`;
-                const classMarksSnap = await getCachedFirestoreRead(classMarksCacheKey, () => db.collection("marks").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get());
+                // A promoted student's current class is not necessarily the class in which this exam was sat.
+                // Use the class saved on the student's original exam mark records for historical reports.
+                const classVotes = {};
+                marksForExam.forEach(m => { const c=String(m.class || m.className || '').trim(); if(c) classVotes[c]=(classVotes[c]||0)+1; });
+                const classAtExam = Object.keys(classVotes).sort((a,b)=>classVotes[b]-classVotes[a])[0] || String(studentData.classAtExam || studentData.class || studentData.className || 'N/A').trim();
+                const classMarksCacheKey = `student-class-marks:${schoolId}:${classAtExam}:${String(examName || "")}`;
+                const classMarksSnap = await getCachedFirestoreRead(classMarksCacheKey, () => db.collection("marks").where("schoolId", "==", schoolId).where("class", "==", classAtExam).get());
                 const allClassMarks = classMarksSnap.docs.map(d => d.data()).filter(m => {
                     const savedExam = String(m.exam || m.examType || m.examName || '').trim();
                     return savedExam.toLowerCase() === String(examName).trim().toLowerCase();
                 });
+                const classStudents = [...new Set(allClassMarks.map(m=>String(m.admissionNo||'').trim()).filter(Boolean))].map(admissionNo=>({admissionNo}));
                 const subjectStats = {};
                 subjects.forEach(sub => {
                     const vals = allClassMarks.map(m => m.subject === sub ? Number(m.score) : NaN).filter(Number.isFinite);
@@ -5836,7 +5863,7 @@ body{
                 currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
                 const annualPoints={EE1:8,EE2:7,ME1:6,ME2:5,AE1:4,AE2:3,BE1:2,BE2:1};
                 const annualReportHtml = annualReport ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px;"><button type="button" class="btn-primary" onclick="printAnnualCompiledReport()">Print Annual Report</button><button type="button" class="btn-secondary" onclick="downloadAnnualCompiledReport()">Download Annual Report</button></div><section class="report-card" style="margin-top:8px;" id="studentAnnualCompiledReport"><h2 style="text-align:center;margin:12px 0;">END-OF-YEAR COMPILED REPORT FORM</h2><p style="text-align:center;">Academic Year: <strong>${esc(annualReport.academicYear)}</strong></p><p><strong>Student:</strong> ${esc(annualReport.studentName||studentData.name||'')} &nbsp; <strong>Admission No:</strong> ${esc(annualReport.admissionNo||studentData.admissionNo||'')} &nbsp; <strong>Class:</strong> ${esc(annualReport.classAtCompilation||annualReport.class||'')}</p><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Term 1</th><th>Term 2</th><th>Term 3</th><th>Annual Mean</th><th>Grade</th><th>Points</th></tr></thead><tbody>${(annualReport.subjects||[]).map(r=>{const mean=r.mean===null||r.mean===undefined?null:Number(r.mean);const g=mean===null?'-':getCBCGradeDetails(mean).grade;return `<tr><td>${esc(r.subject||'')}</td><td>${r.term1===null||r.term1===undefined?'-':esc(r.term1)}</td><td>${r.term2===null||r.term2===undefined?'-':esc(r.term2)}</td><td>${r.term3===null||r.term3===undefined?'-':esc(r.term3)}</td><td>${mean===null?'-':mean.toFixed(2)}</td><td>${esc(g)}</td><td>${mean===null?'-':(mean===0?0:(annualPoints[g]||0))}</td></tr>`;}).join('')}</tbody></table><div class="rc-summary"><div class="rc-summary-left"><strong>Annual Mean: ${Number(annualReport.annualMean||0).toFixed(2)}</strong><br>Overall Grade: ${esc(annualReport.overallGrade||'-')}</div><div class="rc-summary-right">Terms represented: ${esc((annualReport.availableTerms||[]).join(', ')||'No results')}</div></div>${annualReport.completeForAutomaticPromotion?'<p>All three End-of-Term results and required subject marks were available at compilation.</p>':`<p><strong>Note:</strong> This report was calculated from available End-of-Term marks only. Missing requirements: ${esc((annualReport.missingRequirements||[]).join('; ')||'Some term results are unavailable')}.</p>`}</section>` : '<p>No End-of-Year Compiled Report is available for this academic year yet.</p>';
-                resultsContent.innerHTML = `${registeredAcademicYears.length ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportYearSelect">Academic Year</label><select id="studentReportYearSelect" onchange="selectStudentReportYear(this.value)">${registeredAcademicYears.map(y=>`<option value="${esc(y)}" ${y===selectedAcademicYear?'selected':''}>${esc(y)}</option>`).join('')}</select></div>` : ''}${availableExamNames.length > 1 ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportExamSelect">Available Reports</label><select id="studentReportExamSelect" onchange="selectStudentReportExam(this.value)">${availableExamNames.map(name => `<option value="${esc(name)}" ${name===examName?'selected':''}>${esc(name)}</option>`).join('')}</select></div>` : ''}<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const score=Number(m.score);if(!Number.isFinite(score))return;const g=getCBCGradeDetails(score);t+=(score===0)?0:(points[g.grade]||0);c++;});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>${annualReportHtml}`;
+                resultsContent.innerHTML = `${registeredAcademicYears.length ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportYearSelect">Academic Year</label><select id="studentReportYearSelect" onchange="selectStudentReportYear(this.value)">${registeredAcademicYears.map(y=>`<option value="${esc(y)}" ${y===selectedAcademicYear?'selected':''}>${esc(y)}</option>`).join('')}</select></div>` : ''}${availableExamNames.length > 1 ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportExamSelect">Available Reports</label><select id="studentReportExamSelect" onchange="selectStudentReportExam(this.value)">${availableExamNames.map(name => `<option value="${esc(name)}" ${name===examName?'selected':''}>${esc(name)}</option>`).join('')}</select></div>` : ''}<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(selectedAcademicYear || studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class</span><strong>${esc(classAtExam)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const score=Number(m.score);if(!Number.isFinite(score))return;const g=getCBCGradeDetails(score);t+=(score===0)?0:(points[g.grade]||0);c++;});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>${annualReportHtml}`;
             } catch(err) { resultsContent.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
         }
 
@@ -5881,13 +5908,28 @@ body{
         }
 
         function buildStudentPerformanceGraph(studentMarks, subjects, subjectStats) {
-            const width=900,height=205,left=42,right=16,top=18,bottom=45,graphW=width-left-right,graphH=height-top-bottom;
+            const width=900,height=220,left=42,right=18,top=24,bottom=48;
+            const graphW=width-left-right,graphH=height-top-bottom;
             const y=v=>top+graphH-(Math.max(0,Math.min(100,Number(v)||0))/100)*graphH;
             const x=i=>subjects.length<=1?left+graphW/2:left+i*graphW/(subjects.length-1);
-            let grid=''; [0,25,50,75,100].forEach(v=>{const yy=y(v);grid+=`<line x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}" stroke="#e5e7eb"/><text x="5" y="${yy+4}" font-size="11" fill="#374151">${v}</text>`;});
-            const sp=subjects.map((s,i)=>`${x(i)},${y(studentMarks[s])}`).join(' '), mp=subjects.map((s,i)=>`${x(i)},${y(subjectStats[s].mean)}`).join(' ');
-            let labels='',dots='',mdots=''; subjects.forEach((s,i)=>{const lab=String(s).length>12?String(s).substring(0,11)+'…':s;labels+=`<text x="${x(i)}" y="${height-17}" text-anchor="middle" font-size="10" fill="#374151">${esc(lab)}</text>`;dots+=`<circle cx="${x(i)}" cy="${y(studentMarks[s])}" r="3.2" fill="#27367a"/>`;mdots+=`<circle cx="${x(i)}" cy="${y(subjectStats[s].mean)}" r="2.6" fill="#fff" stroke="#6b7280" stroke-width="1.5"/>`;});
-            return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">${grid}<line x1="${left}" y1="${top}" x2="${left}" y2="${top+graphH}" stroke="#9ca3af"/><polyline points="${mp}" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><polyline points="${sp}" fill="none" stroke="#27367a" stroke-width="3"/>${mdots}${dots}${labels}<line x1="${width-205}" y1="25" x2="${width-175}" y2="25" stroke="#27367a" stroke-width="3"/><text x="${width-168}" y="29" font-size="11">Student marks</text><line x1="${width-205}" y1="44" x2="${width-175}" y2="44" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><text x="${width-168}" y="48" font-size="11">Class mean (marks)</text></svg>`;
+            let grid='';
+            [0,25,50,75,100].forEach(v=>{
+                const yy=y(v);
+                grid+=`<line x1="${left}" y1="${yy}" x2="${width-right}" y2="${yy}" stroke="#e5e7eb"/>`+
+                    `<text x="5" y="${yy+4}" font-size="11" fill="#374151">${v}</text>`;
+            });
+            const studentValues=subjects.map(s=>Number(studentMarks[s])||0);
+            const classValues=subjects.map(s=>Number((subjectStats[s]||{}).mean)||0);
+            const studentLine=studentValues.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+            const classLine=classValues.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+            let labels='',studentDots='',classDots='';
+            subjects.forEach((subject,i)=>{
+                const label=String(subject).length>13?String(subject).substring(0,12)+'…':subject;
+                labels+=`<text x="${x(i)}" y="${height-17}" text-anchor="middle" font-size="10" fill="#374151">${esc(label)}</text>`;
+                studentDots+=`<circle cx="${x(i)}" cy="${y(studentValues[i])}" r="3.5" fill="#27367a"><title>${esc(subject)}: Student ${studentValues[i]}%</title></circle>`;
+                classDots+=`<circle cx="${x(i)}" cy="${y(classValues[i])}" r="3" fill="#fff" stroke="#6b7280" stroke-width="1.5"><title>${esc(subject)}: Class mean ${classValues[i].toFixed(2)}%</title></circle>`;
+            });
+            return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" role="img" aria-label="Comparison of the student's mark and class mean for each subject">${grid}<line x1="${left}" y1="${top}" x2="${left}" y2="${top+graphH}" stroke="#9ca3af"/><polyline points="${classLine}" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><polyline points="${studentLine}" fill="none" stroke="#27367a" stroke-width="3"/>${classDots}${studentDots}${labels}<line x1="${width-218}" y1="16" x2="${width-190}" y2="16" stroke="#27367a" stroke-width="3"/><text x="${width-184}" y="20" font-size="11">Student mark</text><line x1="${width-218}" y1="34" x2="${width-190}" y2="34" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><text x="${width-184}" y="38" font-size="11">Class mean</text></svg>`;
         }
 
         function getStudentReportDocumentHtml(reportElementId = "studentReportCard") {
