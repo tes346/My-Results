@@ -3952,6 +3952,9 @@ body{
         let currentOpeningDate = "N/A";
         let currentAuthMode = "login";
         let pendingLoginRole = "";
+        // Prevent the auth-state listener from treating a newly-created school
+        // administrator as an incomplete account while registration is in progress.
+        let isSchoolRegistrationInProgress = false;
         const SUPER_ADMIN_EMAIL = "teshjunior438@gmail.com";
         let isGlobalPaymentEnabled = true;
         let cachedSchoolPaymentFees = { junior: 1000, senior: 1500 };
@@ -5536,6 +5539,10 @@ body{
         }
 
         auth.onAuthStateChanged(async (user) => {
+            // createUserWithEmailAndPassword fires this listener before the school
+            // and administrator profile writes have both completed. Let the
+            // registration flow finish instead of attempting normal portal login.
+            if (isSchoolRegistrationInProgress) return;
             if (user) {
                 currentUserId = user.uid;
                 try {
@@ -6090,6 +6097,7 @@ body{
                 }
 
                 try {
+                    isSchoolRegistrationInProgress = true;
                     submitAuthBtn.disabled = true;
                     submitAuthBtn.textContent = "Creating Portal...";
 
@@ -6136,16 +6144,17 @@ body{
                         if (noticeResponse.ok && noticeResult.success) {
                             registrationNotice = " Registration details have been emailed to the Super Admin for verification.";
                         } else {
-                            registrationNotice = " School was created, but the Super Admin email could not be sent.";
+                            registrationNotice = " School was created, but the Super Admin email was not sent. Reason: " + (noticeResult.emailReason || noticeResult.message || "Email service did not confirm delivery.");
                             console.warn("School registration email:", noticeResult.message || "Unknown error");
                         }
                     } catch (emailError) {
-                        registrationNotice = " School was created, but the Super Admin email could not be sent.";
+                        registrationNotice = " School was created, but the Super Admin email could not be sent. Reason: " + (emailError.message || "Network or email-service error.");
                         console.warn("School registration email error:", emailError);
                     }
 
-                    // Registration creates the school account, but the newly created user must return to login.
+                    // Return to login only after both school and administrator records are saved.
                     await auth.signOut();
+                    isSchoolRegistrationInProgress = false;
                     pendingLoginRole = "";
                     setAuthMode("login");
                     document.getElementById("email").value = email;
@@ -6155,6 +6164,10 @@ body{
                     submitAuthBtn.disabled = false;
                     submitAuthBtn.textContent = "Login";
                 } catch (err) {
+                    // Do not leave the just-created Firebase account signed in after
+                    // an incomplete registration attempt.
+                    try { if (auth.currentUser) await auth.signOut(); } catch (_) {}
+                    isSchoolRegistrationInProgress = false;
                     displayMsg("Registration Failed: " + err.message);
                     submitAuthBtn.disabled = false;
                     submitAuthBtn.textContent = "Register & Create Portal";
