@@ -2883,12 +2883,12 @@ body{
 
                     <div id="saTabSecurityAudit" class="tab-pane">
                         <h3>Security and Audit Centre</h3>
-                        <p style="color:#64748b;margin:8px 0 16px;">Review Super Admin actions and administrator login attempts.</p>
+                        <p style="color:#64748b;margin:8px 0 16px;">Monitor Headteacher login attempts and actions performed in each school. Every record shows whether the attempt succeeded or failed.</p>
                         <button type="button" class="btn-primary" onclick="loadSecurityAuditCentre()">Refresh Security Records</button>
-                        <h4 style="margin:20px 0 8px;">Administrative Activity Log</h4>
-                        <div id="saSecurityAuditLogs" class="table-responsive">Loading audit records...</div>
-                        <h4 style="margin:20px 0 8px;">Login Attempts</h4>
-                        <div id="saLoginAttempts" class="table-responsive">Loading login attempts...</div>
+                        <h4 style="margin:20px 0 8px;">Headteacher Actions</h4>
+                        <div id="saSecurityAuditLogs" class="table-responsive">Loading Headteacher actions...</div>
+                        <h4 style="margin:20px 0 8px;">Headteacher Login Activities</h4>
+                        <div id="saLoginAttempts" class="table-responsive">Loading Headteacher login attempts...</div>
                     </div>
 
                     <div id="saTabMaintenance" class="tab-pane">
@@ -3137,10 +3137,10 @@ body{
                     <div class="icon">📥</div><div class="title">Bulk Registration</div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabTransfer')">
-                    <div class="icon">🔄</div><div class="title">Student Transfer</div>
+                    <div class="icon">🔄</div><div class="title">Student Promotion</div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabMassTransfer')">
-                    <div class="icon">🔀</div><div class="title">Mass Transfer</div>
+                    <div class="icon">🔀</div><div class="title">Mass Promotion</div>
                 </div>
                 <div class="admin-card" onclick="openAdminSection('tabRegisteredData')">
                     <div class="icon">🗂️</div><div class="title">Registered Data</div>
@@ -3357,7 +3357,7 @@ body{
                     </div>
 
                     <div id="tabTransfer" class="tab-pane">
-                        <h3>Student Transfer Management</h3>
+                        <h3>Student Promotion</h3>
                         <div class="auth-form-group">
                             <label>Select Academic Year</label>
                             <input type="number" id="transferYearSelect" value="2026">
@@ -3372,7 +3372,7 @@ body{
                     </div>
 
                     <div id="tabMassTransfer" class="tab-pane">
-                        <h3>Mass Class Transfer</h3>
+                        <h3>Mass Promotion</h3>
                         <p style="font-size:13px; color:#64748b; margin-bottom:14px;">Select class and academic year to review students and transfer the entire list to the next class.</p>
                         <div class="auth-form-group">
                             <label>Select Academic Year</label>
@@ -3481,8 +3481,24 @@ body{
                         <h3>Configure Examination Types</h3>
                         <form id="examTypeForm" onsubmit="saveExamType(event)">
                             <div class="auth-form-group">
-                                <label>Exam Name / Term Title</label>
-                                <input type="text" id="examTypeName" placeholder="e.g. Term 1 2026" required>
+                                <label>Exam Category</label>
+                                <select id="examCategory" required>
+                                    <option value="end_of_term">End-of-Term Exam</option>
+                                    <option value="midterm">Midterm Exam</option>
+                                    <option value="opener">Opener Exam</option>
+                                </select>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Term</label>
+                                <select id="examTerm" required><option value="Term 1">Term 1</option><option value="Term 2">Term 2</option><option value="Term 3">Term 3</option></select>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Academic Year</label>
+                                <select id="examAcademicYear" required><option value="">-- Select registered academic year --</option></select>
+                            </div>
+                            <div class="auth-form-group">
+                                <label>Exam Name / Title</label>
+                                <input type="text" id="examTypeName" placeholder="e.g. Term 1 2026 End-Term" required>
                             </div>
                             <button class="btn-primary" type="submit">Save Exam Type</button>
                         </form>
@@ -3553,6 +3569,11 @@ body{
                         <h3>Central Class Results Management</h3>
                         
                         <div class="auth-form-group" style="margin-top:12px;">
+                            <label>Academic Year for Annual Compilation</label>
+                            <select id="compileAcademicYear" onchange="updateCompileButtonState()"><option value="">-- Select registered academic year --</option></select>
+                        </div>
+                        <button id="compileResultsBtn" class="btn-success" style="margin:0 0 14px;" onclick="compileResults()" disabled>⚙️ Compile Results & Auto-Promote</button>
+                        <div class="auth-form-group" style="margin-top:12px;">
                             <label>1. Select Exam Type / Term</label>
                             <select id="adminExamSelect" onchange="loadCentralMarksMatrix()">
                                 <option value="">-- Choose Exam Type --</option>
@@ -3574,9 +3595,11 @@ body{
                         <div id="summaryStats" style="margin-top:12px; font-weight:bold; font-size:14px; color:#1e293b;"></div>
                         <div class="action-bar" id="actionBar" style="display: none;">
                             <button class="btn-secondary" onclick="checkPaymentBeforeAction(() => openOptionModal('download'))">📥 Download Results PDF</button>
-                            <button class="btn-success" onclick="compileResults()">⚙️ Compile Results & Auto-Promote</button>
+
                             <button class="btn-secondary" onclick="checkPaymentBeforeAction(() => openOptionModal('print'))">🖨️ Print Results</button>
                         </div>
+                        <div id="compileResultsStatus" style="margin-top:14px;"></div>
+                        <div id="compilePromotionSummary" style="margin-top:14px;"></div>
                     </div>
 
                     <div id="tabClassList" class="tab-pane">
@@ -5199,13 +5222,25 @@ body{
         async function updateOwnIntervention(encodedId, status, note) { try { await communicationApi('/api/interventions/' + encodeURIComponent(decodeURIComponent(encodedId)), { method:'PATCH', body:JSON.stringify({ status, note }) }); await loadInterventionCases(false); } catch (e) { alert(e.message); } }
 
         async function loadSecurityAuditCentre() {
-            const auditBox = document.getElementById('saSecurityAuditLogs'); const loginBox = document.getElementById('saLoginAttempts');
-            if (auditBox) auditBox.innerHTML = 'Loading audit records...'; if (loginBox) loginBox.innerHTML = 'Loading login attempts...';
+            const auditBox = document.getElementById('saSecurityAuditLogs');
+            const loginBox = document.getElementById('saLoginAttempts');
+            if (auditBox) auditBox.innerHTML = 'Loading Headteacher actions...';
+            if (loginBox) loginBox.innerHTML = 'Loading Headteacher login attempts...';
+            const outcomeBadge = value => {
+                const ok = String(value || '').toLowerCase() === 'success';
+                return `<span style="display:inline-block;padding:4px 9px;border-radius:12px;font-size:12px;font-weight:700;background:${ok ? '#dcfce7' : '#fee2e2'};color:${ok ? '#166534' : '#991b1b'};">${ok ? 'SUCCESS' : 'FAILED'}</span>`;
+            };
             try {
-                const [audit, attempts] = await Promise.all([superAdminSchoolApi('/api/security/audit?limit=200'), superAdminSchoolApi('/api/security/login-attempts')]);
-                if (auditBox) auditBox.innerHTML = audit.logs?.length ? `<table><thead><tr><th>Time</th><th>Actor</th><th>Action</th><th>Target</th><th>Details</th></tr></thead><tbody>${audit.logs.map(x => `<tr><td>${platformDate(x.createdAt)}</td><td>${platformSafe(x.actorEmail || x.actorUid)}</td><td>${platformSafe(x.action)}</td><td>${platformSafe((x.targetType || '') + ' ' + (x.targetId || ''))}</td><td>${platformSafe(JSON.stringify(x.details || {}))}</td></tr>`).join('')}</tbody></table>` : '<p>No administrative audit records yet.</p>';
-                if (loginBox) loginBox.innerHTML = attempts.attempts?.length ? `<table><thead><tr><th>Time</th><th>Email</th><th>Outcome</th><th>Role</th><th>IP</th></tr></thead><tbody>${attempts.attempts.map(x => `<tr><td>${platformDate(x.createdAt)}</td><td>${platformSafe(x.email)}</td><td>${platformSafe(x.outcome)}</td><td>${platformSafe(x.role || '—')}</td><td>${platformSafe(x.ip || '—')}</td></tr>`).join('')}</tbody></table>` : '<p>No login attempts recorded yet.</p>';
-            } catch (e) { if (auditBox) auditBox.innerHTML = `<p style="color:#b91c1c;">${platformSafe(e.message)}</p>`; if (loginBox) loginBox.innerHTML = `<p style="color:#b91c1c;">${platformSafe(e.message)}</p>`; }
+                const [audit, attempts] = await Promise.all([
+                    superAdminSchoolApi('/api/security/headteacher-activities'),
+                    superAdminSchoolApi('/api/security/login-attempts')
+                ]);
+                if (auditBox) auditBox.innerHTML = audit.activities?.length ? `<table><thead><tr><th>Time</th><th>Headteacher</th><th>School</th><th>Action</th><th>Result</th><th>HTTP</th></tr></thead><tbody>${audit.activities.map(x => `<tr><td>${platformDate(x.createdAt)}</td><td>${platformSafe(x.actorName || x.actorEmail || x.actorUid || '—')}<br><small>${platformSafe(x.actorEmail || '')}</small></td><td>${platformSafe(x.schoolName || x.schoolId || '—')}</td><td>${platformSafe(x.action || x.endpoint || '—')}</td><td>${outcomeBadge(x.outcome)}</td><td>${platformSafe(x.statusCode || '—')}</td></tr>`).join('')}</tbody></table>` : '<p>No Headteacher actions recorded yet.</p>';
+                if (loginBox) loginBox.innerHTML = attempts.attempts?.length ? `<table><thead><tr><th>Time</th><th>Email</th><th>School</th><th>Result</th><th>Reason</th><th>IP</th></tr></thead><tbody>${attempts.attempts.map(x => `<tr><td>${platformDate(x.createdAt)}</td><td>${platformSafe(x.email || '—')}</td><td>${platformSafe(x.schoolName || x.schoolId || '—')}</td><td>${outcomeBadge(x.outcome)}</td><td>${platformSafe(x.reason || '—')}</td><td>${platformSafe(x.ip || '—')}</td></tr>`).join('')}</tbody></table>` : '<p>No Headteacher login attempts recorded yet.</p>';
+            } catch (e) {
+                if (auditBox) auditBox.innerHTML = `<p style="color:#b91c1c;">${platformSafe(e.message)}</p>`;
+                if (loginBox) loginBox.innerHTML = `<p style="color:#b91c1c;">${platformSafe(e.message)}</p>`;
+            }
         }
 
         async function loadMaintenanceSettings() {
@@ -5675,21 +5710,59 @@ body{
             }
         });
 
+        async function checkStudentSubscriptionAccess(schoolId) {
+            // Follow the existing global payment setting and paidUntil subscription record.
+            const [globalConfigSnap, subscriptionSnap] = await Promise.all([
+                db.collection("systemSettings").doc("globalConfig").get(),
+                db.collection("subscriptions").doc(schoolId).get()
+            ]);
+            const paymentRequired = globalConfigSnap.exists
+                ? globalConfigSnap.data().paymentRequired !== false
+                : true;
+            if (!paymentRequired) return { allowed: true, reason: "" };
+            const paidUntil = subscriptionSnap.exists
+                ? (subscriptionSnap.data() || {}).paidUntil
+                : null;
+            const expiryMs = paidUntil && typeof paidUntil.toMillis === "function"
+                ? paidUntil.toMillis()
+                : (paidUntil ? new Date(paidUntil).getTime() : 0);
+            if (Number.isFinite(expiryMs) && expiryMs > Date.now()) {
+                return { allowed: true, reason: "" };
+            }
+            return { allowed: false, reason: "This school's subscription is unpaid or has expired. Results and learning materials are unavailable until the school renews its subscription." };
+        }
+
         async function renderStudentPortal(studentData) {
             const content = document.getElementById("studentPortalContent");
             window.activeStudentPortalData = studentData;
             const schoolId = studentData.schoolId || currentSchoolId;
+            window.activeStudentPortalAccess = false;
+            content.innerHTML = '<p style="padding:20px;text-align:center;">Checking school subscription...</p>';
+            try {
+                const access = await checkStudentSubscriptionAccess(schoolId);
+                if (!access.allowed) {
+                    content.innerHTML = `<section style="max-width:680px;margin:24px auto;padding:24px;border:1px solid #f59e0b;border-radius:12px;background:#fffbeb;text-align:center;"><h3 style="color:#92400e;">School Subscription Inactive</h3><p>${esc(access.reason)}</p><p>Please contact the Headteacher or school administration.</p></section>`;
+                    return;
+                }
+                window.activeStudentPortalAccess = true;
+            } catch (subscriptionError) {
+                console.error("Student subscription check failed:", subscriptionError);
+                content.innerHTML = '<p style="padding:20px;text-align:center;color:#b91c1c;">Unable to verify the school subscription. Results and learning materials are temporarily locked. Please try again later.</p>';
+                return;
+            }
             content.innerHTML = '<div class="student-portal-tabs" role="tablist" aria-label="Student dashboard"><button type="button" class="btn-secondary" id="studentResultsTabBtn" role="tab" aria-selected="false" onclick="showStudentPortalTab(\'results\')">Results</button><button type="button" class="btn-secondary" id="studentMaterialsTabBtn" role="tab" aria-selected="false" onclick="showStudentPortalTab(\'materials\')">Learning Materials</button></div><section id="studentDashboardWelcome" class="student-dashboard-welcome"><h3>Welcome to Your Student Dashboard</h3><p>Choose a tab above to view your published results or access learning materials shared by your school.</p><div class="student-dashboard-shortcuts"><div><strong>📊 Results</strong><p>View, print or download your results when you select the Results tab.</p></div><div><strong>📚 Learning Materials</strong><p>Find notes, assignments, past papers and other class materials.</p></div></div></section><section id="studentResultsPanel" style="display:none;"><p>Loading report card...</p></section><section id="studentMaterialsPanel" style="display:none;"></section>';
             const resultsContent = document.getElementById('studentResultsPanel');
             try {
                 const studentReadKey = `student-portal:${schoolId}:${String(studentData.admissionNo || "")}:${String(studentData.class || "")}`;
-                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap, examTypesSnap] = await getCachedFirestoreRead(studentReadKey, () => Promise.all([
+                const [schoolSnap, controlSnap, marksSnap, subjectsSnap, classSnap, examTypesSnap, termsYearsSnap, annualResultsSnap] = await getCachedFirestoreRead(studentReadKey, () => Promise.all([
                     db.collection("schools").doc(schoolId).get(),
                     db.collection("marksControls").doc(schoolId).get(),
                     db.collection("marks").where("schoolId", "==", schoolId).where("admissionNo", "==", studentData.admissionNo).get(),
                     db.collection("subjects").where("schoolId", "==", schoolId).get(),
                     db.collection("students").where("schoolId", "==", schoolId).where("class", "==", studentData.class).get(),
-                    db.collection("examTypes").where("schoolId", "==", schoolId).get()
+                    db.collection("examTypes").where("schoolId", "==", schoolId).get(),
+                    db.collection("termsYears").where("schoolId", "==", schoolId).get(),
+                    db.collection("studentResults").where("schoolId", "==", schoolId).get()
                 ]));
                 if (!controlSnap.exists || controlSnap.data().resultsPublished !== true) {
                     resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">Results have not been published by the school yet.</p>';
@@ -5702,21 +5775,19 @@ body{
                 const isSeniorSchool = String(school.schoolType || "junior").toLowerCase() === "senior";
                 const subjects = isSeniorSchool && selectedSubjects.length ? allSubjects.filter(s => selectedSubjects.includes(s)) : allSubjects;
                 const marks = marksSnap.docs.map(d => d.data());
-                if (!marks.length) {
-                    resultsContent.innerHTML = '<h3>Student Report Portal</h3><p style="margin-top:15px;">No published marks available yet.</p>';
-                    return;
-                }
-                // The Headteacher registers exam types before marks entry. Use those
-                // registered names as the report-card choices, then include any legacy
-                // exam names already present in this student's marks.
-                const registeredExamNames = examTypesSnap.docs
-                    .map(d => String((d.data() || {}).name || '').trim())
-                    .filter(Boolean);
-                const markExamNames = marks.map(m => String(m.exam || m.examType || m.examName || '').trim()).filter(Boolean);
+                const registeredAcademicYears = [...new Set(termsYearsSnap.docs.map(d=>String((d.data()||{}).year||'').trim()).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+                const selectedAcademicYear = String(studentData.selectedReportYear || registeredAcademicYears[registeredAcademicYears.length-1] || '').trim();
+                const examMetadata = examTypesSnap.docs.map(d=>({...(d.data()||{})}));
+                const examYearFromName = name => { const m=String(name||'').match(/(?:19|20)\d{2}/); return m?m[0]:''; };
+                const registeredExamNames = examMetadata.filter(x=>String(x.year||examYearFromName(x.name))===selectedAcademicYear).map(x=>String(x.name||'').trim()).filter(Boolean);
+                const markExamNames = marks.map(m => String(m.exam || m.examType || m.examName || '').trim()).filter(name=>examYearFromName(name)===selectedAcademicYear);
                 const availableExamNames = [...new Set([...registeredExamNames, ...markExamNames])];
                 const requestedExam = String(studentData.selectedReportExam || studentData.exam || '').trim();
-                const examName = availableExamNames.includes(requestedExam) ? requestedExam : (availableExamNames[0] || (studentData.term ? `${studentData.term} ${studentData.year || ''}`.trim() : 'Results'));
-                const marksForExam = marks.filter(m => { const name = String(m.exam || m.examType || m.examName || '').trim(); return !name || name.toLowerCase() === String(examName).trim().toLowerCase(); });
+                const term3EndExam = examMetadata.find(x=>String(x.year||examYearFromName(x.name))===selectedAcademicYear && String(x.term||'').toLowerCase()==='term 3' && normalizeExamCategory(x.category)==='end_of_term');
+                const preferredDefaultExam = term3EndExam && availableExamNames.includes(String(term3EndExam.name||'')) ? String(term3EndExam.name) : (availableExamNames[0] || '');
+                const examName = availableExamNames.includes(requestedExam) ? requestedExam : (preferredDefaultExam || (studentData.term ? `${studentData.term} ${selectedAcademicYear || studentData.year || ''}`.trim() : 'Results'));
+                const annualReport = annualResultsSnap.docs.map(d=>d.data()||{}).find(x=>x.recordType==='annual_compiled' && String(x.academicYear||'')===selectedAcademicYear && String(x.admissionNo||'')===String(studentData.admissionNo)) || null;
+                const marksForExam = marks.filter(m => { const name = String(m.exam || m.examType || m.examName || '').trim(); return name && name.toLowerCase() === String(examName).trim().toLowerCase(); });
                 const marksMap = {};
                 marksForExam.forEach(m => { marksMap[m.subject] = m.score; });
                 const classMarksCacheKey = `student-class-marks:${schoolId}:${String(studentData.class || "")}:${String(examName || "")}`;
@@ -5739,7 +5810,7 @@ body{
                 let total=0,count=0,totalPoints=0,rows='';
                 subjects.forEach(sub=>{
                     const raw=marksMap[sub]; const score=raw===undefined||raw===''?'-':Number(raw); let g={grade:'-',desc:'-'}; let pts=0;
-                    if(score!=='-' && Number.isFinite(score)){ total+=score; count++; g=getCBCGradeDetails(score); pts=points[g.grade]||0; totalPoints+=pts; }
+                    if(score!=='-' && Number.isFinite(score)){ total+=score; count++; g=getCBCGradeDetails(score); pts=(score===0)?0:(points[g.grade]||0); totalPoints+=pts; }
                     const gc=g.grade.startsWith('EE')?'rc-grade-ee':g.grade.startsWith('ME')?'rc-grade-me':g.grade.startsWith('AE')?'rc-grade-ae':g.grade.startsWith('BE')?'rc-grade-be':'';
                     const mean=subjectStats[sub].count?subjectStats[sub].mean.toFixed(2):'-';
                     let subjectPointTotal=0, subjectPointCount=0;
@@ -5748,7 +5819,7 @@ body{
                         const classScore=Number(classMark.score);
                         if(!Number.isFinite(classScore)) return;
                         const classGrade=getCBCGradeDetails(classScore).grade;
-                        if(points[classGrade]) { subjectPointTotal+=points[classGrade]; subjectPointCount++; }
+                        subjectPointTotal += (classScore===0)?0:(points[classGrade]||0); subjectPointCount++;
                     });
                     const subjectMeanPoints=subjectPointCount?(subjectPointTotal/subjectPointCount).toFixed(2):'-';
                     rows += `<tr><td>${esc(sub)}</td><td>${score==='-'?'-':`<span class="rc-mark">${score}</span> <span class="${gc}">(${g.grade})</span>`}</td><td>${pts?pts+' pts':'-'}</td><td>${mean}</td><td>${subjectMeanPoints==='-'?'-':subjectMeanPoints+' pts'}</td></tr>`;
@@ -5756,10 +5827,19 @@ body{
                 const mean=count?total/count:0; const overall=getCBCGradeDetails(mean); const reportComments=getReportPerformanceComments(mean); const classMean=subjects.length?subjects.reduce((a,sub)=>a+(subjectStats[sub].mean||0),0)/subjects.length:0;
                 const graph=buildStudentPerformanceGraph(marksMap,subjects,subjectStats);
                 currentSchoolId=schoolId; currentSchoolName=school.name||'School'; currentSchoolEmail=school.email||''; currentSchoolPoBox=school.poBox||''; currentSchoolLogo=school.logoUrl||''; currentClosingDate=school.closingDate||'N/A'; currentOpeningDate=school.openingDate||'N/A';
-                resultsContent.innerHTML = `${availableExamNames.length > 1 ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportExamSelect">Available Report Cards</label><select id="studentReportExamSelect" onchange="selectStudentReportExam(this.value)">${availableExamNames.map(name => `<option value="${esc(name)}" ${name===examName?'selected':''}>${esc(name)}</option>`).join('')}</select></div>` : ''}<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const g=getCBCGradeDetails(m.score);if(points[g.grade]){t+=points[g.grade];c++;}});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>`;
+                const annualPoints={EE1:8,EE2:7,ME1:6,ME2:5,AE1:4,AE2:3,BE1:2,BE2:1};
+                const annualReportHtml = annualReport ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 8px;"><button type="button" class="btn-primary" onclick="printAnnualCompiledReport()">Print Annual Report</button><button type="button" class="btn-secondary" onclick="downloadAnnualCompiledReport()">Download Annual Report</button></div><section class="report-card" style="margin-top:8px;" id="studentAnnualCompiledReport"><h2 style="text-align:center;margin:12px 0;">END-OF-YEAR COMPILED REPORT FORM</h2><p style="text-align:center;">Academic Year: <strong>${esc(annualReport.academicYear)}</strong></p><p><strong>Student:</strong> ${esc(annualReport.studentName||studentData.name||'')} &nbsp; <strong>Admission No:</strong> ${esc(annualReport.admissionNo||studentData.admissionNo||'')} &nbsp; <strong>Class:</strong> ${esc(annualReport.classAtCompilation||annualReport.class||'')}</p><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Term 1</th><th>Term 2</th><th>Term 3</th><th>Annual Mean</th><th>Grade</th><th>Points</th></tr></thead><tbody>${(annualReport.subjects||[]).map(r=>{const mean=r.mean===null||r.mean===undefined?null:Number(r.mean);const g=mean===null?'-':getCBCGradeDetails(mean).grade;return `<tr><td>${esc(r.subject||'')}</td><td>${r.term1===null||r.term1===undefined?'-':esc(r.term1)}</td><td>${r.term2===null||r.term2===undefined?'-':esc(r.term2)}</td><td>${r.term3===null||r.term3===undefined?'-':esc(r.term3)}</td><td>${mean===null?'-':mean.toFixed(2)}</td><td>${esc(g)}</td><td>${mean===null?'-':(mean===0?0:(annualPoints[g]||0))}</td></tr>`;}).join('')}</tbody></table><div class="rc-summary"><div class="rc-summary-left"><strong>Annual Mean: ${Number(annualReport.annualMean||0).toFixed(2)}</strong><br>Overall Grade: ${esc(annualReport.overallGrade||'-')}</div><div class="rc-summary-right">Terms represented: ${esc((annualReport.availableTerms||[]).join(', ')||'No results')}</div></div>${annualReport.completeForAutomaticPromotion?'<p>All three End-of-Term results and required subject marks were available at compilation.</p>':`<p><strong>Note:</strong> This report was calculated from available End-of-Term marks only. Missing requirements: ${esc((annualReport.missingRequirements||[]).join('; ')||'Some term results are unavailable')}.</p>`}</section>` : '<p>No End-of-Year Compiled Report is available for this academic year yet.</p>';
+                resultsContent.innerHTML = `${registeredAcademicYears.length ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportYearSelect">Academic Year</label><select id="studentReportYearSelect" onchange="selectStudentReportYear(this.value)">${registeredAcademicYears.map(y=>`<option value="${esc(y)}" ${y===selectedAcademicYear?'selected':''}>${esc(y)}</option>`).join('')}</select></div>` : ''}${availableExamNames.length > 1 ? `<div class="auth-form-group" style="margin:10px 0;"><label for="studentReportExamSelect">Available Reports</label><select id="studentReportExamSelect" onchange="selectStudentReportExam(this.value)">${availableExamNames.map(name => `<option value="${esc(name)}" ${name===examName?'selected':''}>${esc(name)}</option>`).join('')}</select></div>` : ''}<div style="margin:10px 0;display:flex;gap:8px;"><button type="button" class="btn-primary" style="width:auto;" onclick="printStudentReport()">Print</button><button type="button" class="btn-secondary" onclick="downloadStudentReport()">Download</button></div><div class="report-card" id="studentReportCard"><div class="rc-header"><div class="rc-logo">${currentSchoolLogo?`<img src="${esc(currentSchoolLogo)}" alt="School Logo">`:'<div class="rc-logo-placeholder">SCHOOL LOGO</div>'}</div><div class="rc-school-info"><h2>${esc(currentSchoolName)}</h2><p>${currentSchoolPoBox?`P.O. Box ${esc(currentSchoolPoBox)}`:'P.O. Box'}</p><p>Email: ${esc(currentSchoolEmail)}</p><p class="rc-exam-line">Exam Type: <span>${esc(examName)}</span> ${esc(studentData.term||'')} ${esc(studentData.year||'')}</p></div><div class="rc-student-photo">${studentData.photoUrl?`<img src="${esc(studentData.photoUrl)}" alt="Student Photo">`:'<div class="rc-photo-box">STUDENT PHOTO</div>'}</div></div><div class="rc-bio-grid"><div class="rc-bio-item"><span>Student Name</span><strong>${esc(studentData.name)}</strong></div><div class="rc-bio-item"><span>Admission No.</span><strong>${esc(studentData.admissionNo)}</strong></div><div class="rc-bio-item"><span>Class Position</span><strong>${position} out of ${classStudents.length}</strong></div><div class="rc-bio-item"><span>Total Marks</span><strong>${total} / ${subjects.length*100}</strong></div><div class="rc-bio-item"><span>Total Points</span><strong>${totalPoints}</strong></div><div class="rc-bio-item"><span>Class Mean (marks)</span><strong>${classMean.toFixed(2)}</strong></div></div><table class="rc-marks-table"><thead><tr><th>Subject</th><th>Your Mark</th><th>Points</th><th>Subject Mean<br>(marks)</th><th>Subject Mean<br>(pts)</th></tr></thead><tbody>${rows}</tbody></table><div class="rc-performance"><div class="rc-performance-title">Performance Comparison (Marks)</div><div class="rc-chart-wrap">${graph}</div></div><div class="rc-summary"><div class="rc-summary-left"><div>Your mean (marks): ${mean.toFixed(2)}</div><div>Your mean (points): ${count?(totalPoints/count).toFixed(2):'0.00'}</div><div>Your level: ${overall.grade}</div></div><div class="rc-summary-right"><div>Class mean (marks): ${classMean.toFixed(2)}</div><div>Class mean (points): ${(() => {let t=0,c=0;allClassMarks.forEach(m=>{const score=Number(m.score);if(!Number.isFinite(score))return;const g=getCBCGradeDetails(score);t+=(score===0)?0:(points[g.grade]||0);c++;});return c?(t/c).toFixed(2):'0.00';})()}</div></div></div><div class="rc-comment-box"><div class="rc-comment-heading">Class Teacher's Comment</div><div>${esc(reportComments.classTeacher)}</div></div><div class="rc-comment-box"><div class="rc-comment-heading">Principal's / HOI Comment</div><div>${esc(reportComments.headteacher)}</div></div><div class="rc-footer-dates"><div>Closes: ${esc(currentClosingDate)}</div><div>Opens: ${esc(currentOpeningDate)}</div></div></div>${annualReportHtml}`;
             } catch(err) { resultsContent.innerHTML='<p style="color:red;">Error loading report card.</p>'; console.error(err); }
         }
 
+
+        async function selectStudentReportYear(year) {
+            const student=window.activeStudentPortalData; if(!student)return;
+            window.activeStudentPortalData={...student,selectedReportYear:String(year||'').trim(),selectedReportExam:''};
+            await renderStudentPortal(window.activeStudentPortalData);
+            showStudentPortalTab('results');
+        }
 
         async function selectStudentReportExam(examName) {
             const student = window.activeStudentPortalData;
@@ -5783,6 +5863,7 @@ body{
         async function loadStudentLearningMaterials(){
             const panel=document.getElementById('studentMaterialsPanel'), student=window.activeStudentPortalData;if(!panel||!student)return;
             const schoolId=student.schoolId||currentSchoolId, className=String(student.class||'').trim();
+            if (window.activeStudentPortalAccess !== true) { panel.innerHTML='<p>Learning materials are locked until the school subscription is active.</p>'; return; }
             if(!schoolId||!className){panel.innerHTML='<p>School or class details are missing. Please contact your school.</p>';return;}
             panel.innerHTML='<p>Loading learning materials…</p>';
             try{const snap=await db.collection('resources').where('schoolId','==',schoolId).where('class','==',className).get();const items=snap.docs.map(doc=>doc.data()||{});
@@ -5802,8 +5883,8 @@ body{
             return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none">${grid}<line x1="${left}" y1="${top}" x2="${left}" y2="${top+graphH}" stroke="#9ca3af"/><polyline points="${mp}" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><polyline points="${sp}" fill="none" stroke="#27367a" stroke-width="3"/>${mdots}${dots}${labels}<line x1="${width-205}" y1="25" x2="${width-175}" y2="25" stroke="#27367a" stroke-width="3"/><text x="${width-168}" y="29" font-size="11">Student marks</text><line x1="${width-205}" y1="44" x2="${width-175}" y2="44" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6 4"/><text x="${width-168}" y="48" font-size="11">Class mean (marks)</text></svg>`;
         }
 
-        function getStudentReportDocumentHtml() {
-            const report = document.getElementById("studentReportCard");
+        function getStudentReportDocumentHtml(reportElementId = "studentReportCard") {
+            const report = document.getElementById(reportElementId);
             if (!report) return null;
 
             /* Carry over the portal's original report styling so the downloaded
@@ -5881,6 +5962,22 @@ body{
             const blob = new Blob([html], { type: "text/html" });
             const url = URL.createObjectURL(blob); const a = document.createElement("a");
             a.href = url; a.download = "student-report.html"; a.click(); URL.revokeObjectURL(url);
+        }
+
+        function printAnnualCompiledReport() {
+            const html=getStudentReportDocumentHtml("studentAnnualCompiledReport");
+            if(!html)return;
+            const win=window.open("","_blank");
+            if(!win)return alert("Please allow pop-ups to print the annual report.");
+            win.document.write(html);win.document.close();win.focus();setTimeout(()=>win.print(),300);
+        }
+
+        function downloadAnnualCompiledReport() {
+            const html=getStudentReportDocumentHtml("studentAnnualCompiledReport");
+            if(!html)return;
+            const blob=new Blob([html],{type:"text/html"});
+            const url=URL.createObjectURL(blob);const a=document.createElement("a");
+            a.href=url;a.download="annual-compiled-report.html";a.click();URL.revokeObjectURL(url);
         }
 
         document.getElementById("authForm").addEventListener("submit", async function(e) {
@@ -6090,6 +6187,20 @@ body{
             yearSelect.value=years.includes(previous)?previous:currentYear;
         }
 
+        async function populateAnnualYearSelectors() {
+            if (!currentSchoolId) return [];
+            const snap = await db.collection('termsYears').where('schoolId', '==', currentSchoolId).get();
+            const years = [...new Set(snap.docs.map(d => String((d.data() || {}).year || '').trim()).filter(Boolean))].sort((a,b)=>Number(a)-Number(b));
+            ['examAcademicYear','compileAcademicYear'].forEach(id => {
+                const sel=document.getElementById(id); if(!sel)return;
+                const previous=sel.value;
+                sel.innerHTML='<option value="">-- Select registered academic year --</option>'+years.map(y=>`<option value="${esc(y)}">${esc(y)}</option>`).join('');
+                if(years.includes(previous)) sel.value=previous;
+                else if(years.length) sel.value=years[years.length-1];
+            });
+            return years;
+        }
+
         async function populateAllDropdowns() {
             if (!currentSchoolId) return;
             try {
@@ -6160,6 +6271,8 @@ body{
                 }
 
                 await populatePathwayAndYearDropdowns();
+                await populateAnnualYearSelectors();
+                await updateCompileButtonState();
 
                 const examSnap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
                 const examSelects = ['adminExamSelect', 'analyticsExamSelect', 'examSelect'];
@@ -6228,6 +6341,7 @@ body{
                 alert("Exam type deleted.");
                 await loadExamTypesList();
                 await populateAllDropdowns();
+                await updateCompileButtonState();
             } catch (err) {
                 alert("Error deleting exam type: " + err.message);
             }
@@ -6236,19 +6350,181 @@ body{
         async function saveExamType(e) {
             e.preventDefault();
             const name = document.getElementById("examTypeName").value.trim();
-            if (!name) return;
+            const category = String(document.getElementById("examCategory")?.value || '').trim();
+            const term = String(document.getElementById("examTerm")?.value || '').trim();
+            const year = String(document.getElementById("examAcademicYear")?.value || '').trim();
+            if (!name || !category || !term || !year || !currentSchoolId) { alert("Select the exam category, term and a registered academic year."); return; }
+            if (!name.toLowerCase().includes(year) || !name.toLowerCase().includes(term.toLowerCase())) { alert("Include the selected term and academic year in the exam title, for example: Term 1 2026 End-Term."); return; }
             try {
-                await db.collection("examTypes").add({
-                    schoolId: currentSchoolId,
-                    name: name,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
+                const duplicate = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
+                const sameName = duplicate.docs.find(d => String((d.data()||{}).name||'').trim().toLowerCase()===name.toLowerCase());
+                if (sameName) {
+                    const old=sameName.data()||{};
+                    if (old.category && normalizeExamCategory(old.category)!=='unclassified') { alert("This exam title is already registered."); return; }
+                    await sameName.ref.update({category,term,year,classificationUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+                } else {
+                    const sameSlot = duplicate.docs.some(d => { const x=d.data()||{}; return String(x.year||'')===year && String(x.term||'')===term && normalizeExamCategory(x.category)===category; });
+                    if (sameSlot) { alert("An exam is already registered for this category, term and year."); return; }
+                    await db.collection("examTypes").add({ schoolId: currentSchoolId, name, category, term, year, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                }
                 alert("Exam type created!");
                 document.getElementById("examTypeName").value = "";
-                loadExamTypesList();
-                populateAllDropdowns();
-            } catch (err) {
-                alert("Error saving exam type: " + err.message);
+                await loadExamTypesList();
+                await populateAllDropdowns();
+                await updateCompileButtonState();
+            } catch (err) { alert("Error saving exam type: " + err.message); }
+        }
+
+        function normalizeExamCategory(value) {
+            const v=String(value||'').trim().toLowerCase().replace(/[ -]+/g,'_');
+            if(['end_of_term','endterm','end_term','end_of_term_exam'].includes(v)) return 'end_of_term';
+            if(['midterm','mid_term','mid_term_exam'].includes(v)) return 'midterm';
+            if(['opener','opener_exam'].includes(v)) return 'opener';
+            return 'unclassified';
+        }
+
+        async function updateCompileButtonState() {
+            const btn=document.getElementById('compileResultsBtn'), status=document.getElementById('compileResultsStatus');
+            if(!btn || !currentSchoolId)return;
+            const year=String(document.getElementById('compileAcademicYear')?.value||'').trim();
+            btn.disabled=true;
+            const summaryBox=document.getElementById('compilePromotionSummary'); if(summaryBox)summaryBox.innerHTML='';
+            if(!year){ if(status)status.innerHTML='<p>Select a registered academic year to check compilation readiness.</p>'; return; }
+            try {
+                const [termsSnap, examsSnap, compiledSnap, marksSnap] = await Promise.all([
+                    db.collection('termsYears').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('examTypes').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('studentResults').where('schoolId','==',currentSchoolId).get(),
+                    getCachedFirestoreRead('annual-compile-readiness-marks:'+currentSchoolId,()=>db.collection('marks').where('schoolId','==',currentSchoolId).get(),20000)
+                ]);
+                const registeredTerms=new Set(termsSnap.docs.map(d=>{const x=d.data()||{};return String(x.year)===year?String(x.term||'').toLowerCase():'';}));
+                const exams=examsSnap.docs.map(d=>d.data()||{}).filter(x=>String(x.year||'')===year && normalizeExamCategory(x.category)==='end_of_term');
+                const byTerm=new Set(exams.map(x=>String(x.term||'').toLowerCase()));
+                const required=['term 1','term 2','term 3'];
+                const missingTerms=required.filter(t=>!registeredTerms.has(t));
+                const missingExams=required.filter(t=>!byTerm.has(t));
+                const readinessMarks=marksSnap.docs.map(d=>d.data()||{});
+                const missingResults=required.filter(t=>{const ex=exams.find(x=>String(x.term||'').toLowerCase()===t);return ex&&!readinessMarks.some(m=>String(m.exam||m.examType||m.examName||'').trim().toLowerCase()===String(ex.name||'').trim().toLowerCase());});
+                const yearCompiledDocs=compiledSnap.docs.filter(d=>String((d.data()||{}).academicYear||'')===year);
+                const alreadyCompiled=yearCompiledDocs.some(d=>(d.data()||{}).recordType==='annual_compilation_summary' && (d.data()||{}).completed===true);
+                if(alreadyCompiled){
+                    const summary=yearCompiledDocs.find(d=>(d.data()||{}).recordType==='annual_compilation_summary')?.data()||{};
+                    if(status)status.innerHTML='<p><strong>Compilation already completed for '+esc(year)+'.</strong> '+esc(summary.message||'The annual report and promotion summary are saved below.')+'</p>';
+                    if(status)document.getElementById('compilePromotionSummary').innerHTML=summary.summaryHtml||'';
+                    btn.textContent='✓ Already Compiled';
+                    return;
+                }
+                btn.textContent='⚙️ Compile Results & Auto-Promote';
+                if(missingTerms.length||missingExams.length||missingResults.length){
+                    const reasons=[];
+                    if(missingTerms.length)reasons.push('Academic terms not registered: '+missingTerms.map(t=>t.replace('term','Term')).join(', '));
+                    if(missingExams.length)reasons.push('End-of-Term exams not registered: '+missingExams.map(t=>t.replace('term','Term')).join(', '));
+                    if(missingResults.length)reasons.push('No marks submitted for: '+missingResults.map(t=>t.replace('term','Term')).join(', '));
+                    if(status)status.innerHTML='<p style="color:#b91c1c;">Compilation is locked. '+esc(reasons.join('. '))+'.</p>';
+                    return;
+                }
+                btn.disabled=false;
+                if(status)status.innerHTML='<p style="color:#166534;">Ready: all three terms and all three End-of-Term exams have submitted marks for '+esc(year)+'. Midterm and Opener exams will be excluded.</p>';
+            } catch(e){ if(status)status.innerHTML='<p style="color:#b91c1c;">Could not verify compilation requirements: '+esc(e.message)+'</p>'; }
+        }
+
+        async function compileResults() {
+            const year=String(document.getElementById('compileAcademicYear')?.value||'').trim();
+            const status=document.getElementById('compileResultsStatus'), summaryBox=document.getElementById('compilePromotionSummary');
+            const btn=document.getElementById('compileResultsBtn');
+            if(!year||!currentSchoolId){alert('Select an academic year first.');return;}
+            if(btn)btn.disabled=true;
+            if(status)status.innerHTML='<p>Checking all End-of-Term results and compiling annual reports. Please wait…</p>';
+            try {
+                const [termsSnap, examSnap, studentsSnap, subjectsSnap, marksSnap, schoolSnap, priorSnap] = await Promise.all([
+                    db.collection('termsYears').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('examTypes').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('students').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('subjects').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('marks').where('schoolId','==',currentSchoolId).get(),
+                    db.collection('schools').doc(currentSchoolId).get(),
+                    db.collection('studentResults').where('schoolId','==',currentSchoolId).get()
+                ]);
+                const priorYearDocs=priorSnap.docs.filter(d=>String((d.data()||{}).academicYear||'')===year);
+                const priorSummary=priorYearDocs.find(d=>(d.data()||{}).recordType==='annual_compilation_summary'&&(d.data()||{}).completed===true);
+                if(priorSummary){alert('Annual compilation for '+year+' has already been completed.');await updateCompileButtonState();return;}
+                const registeredTerms=new Set(termsSnap.docs.map(d=>{const x=d.data()||{};return String(x.year)===year?String(x.term||'').toLowerCase():'';}));
+                const exams=examSnap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(x=>String(x.year||'')===year && normalizeExamCategory(x.category)==='end_of_term');
+                const requiredTerms=['Term 1','Term 2','Term 3'];
+                const examByTerm={};
+                exams.forEach(x=>{const t=String(x.term||'').toLowerCase();if(requiredTerms.some(r=>r.toLowerCase()===t)&&!examByTerm[t])examByTerm[t]=x;});
+                const missingTerms=requiredTerms.filter(t=>!registeredTerms.has(t.toLowerCase()));
+                const missingExams=requiredTerms.filter(t=>!examByTerm[t.toLowerCase()]);
+                if(missingTerms.length||missingExams.length) throw new Error('Compilation requires registered Term 1, Term 2 and Term 3 and one End-of-Term exam for each term. Missing terms: '+(missingTerms.join(', ')||'none')+'. Missing exams: '+(missingExams.join(', ')||'none')+'.');
+                const school=schoolSnap.exists?schoolSnap.data()||{}:{};
+                const allSubjects=subjectsSnap.docs.map(d=>{const x=d.data()||{};return String(x.name||x.subjectName||x.title||x.subject||'').trim();}).filter(Boolean);
+                const marks=marksSnap.docs.map(d=>({id:d.id,...(d.data()||{})}));
+                const missingResultTerms=requiredTerms.filter(t=>!marks.some(m=>String(m.exam||m.examType||m.examName||'').trim().toLowerCase()===String(examByTerm[t.toLowerCase()].name||'').trim().toLowerCase()));
+                if(missingResultTerms.length)throw new Error('No submitted marks were found for these End-of-Term exams: '+missingResultTerms.join(', ')+'.');
+                const students=studentsSnap.docs.map(d=>({id:d.id,...(d.data()||{})}));
+                const classNames=await getOrderedClassNames();
+                if(!students.length)throw new Error('No students are registered in this school.');
+                const existingByAdmission=new Map(); const priorReportByAdmission=new Map();
+                priorYearDocs.forEach(d=>{const x=d.data()||{};if(x.recordType==='annual_compiled'&&x.admissionNo){existingByAdmission.set(String(x.admissionNo),d.ref);priorReportByAdmission.set(String(x.admissionNo),x);}});
+                const writes=[]; const counts={}; const promotedByClass={}; const remainingByClass={};
+                for(const student of students){
+                    const admission=String(student.admissionNo||'').trim(); if(!admission)continue;
+                    const priorReport=priorReportByAdmission.get(admission);
+                    if(String(student.lastPromotedAcademicYear||'')===year && priorReport){
+                        const originalClass=String(priorReport.classAtCompilation||priorReport.class||student.class||'').trim();
+                        counts[originalClass]=(counts[originalClass]||0)+1;
+                        promotedByClass[originalClass]=(promotedByClass[originalClass]||0)+1;
+                        continue;
+                    }
+                    const currentClass=String(student.class||'').trim();
+                    const selectedSubjects=Array.isArray(student.subjects)?student.subjects.map(x=>String(x).trim()).filter(Boolean):[];
+                    const requiredSubjects=(String(school.schoolType||'').toLowerCase()==='senior'&&selectedSubjects.length)?selectedSubjects:allSubjects;
+                    const studentMarks=marks.filter(m=>String(m.admissionNo||'').trim()===admission && String(m.class||currentClass).trim()===currentClass);
+                    const subjectRows=[]; const missing=[]; let sumOfAvailableMarks=0, availableMarkCount=0;
+                    for(const subject of requiredSubjects){
+                        const row={subject,term1:null,term2:null,term3:null,mean:null};
+                        for(let i=0;i<requiredTerms.length;i++){
+                            const termKey=requiredTerms[i].toLowerCase(), examName=String(examByTerm[termKey].name||'').trim();
+                            const found=studentMarks.filter(m=>String(m.subject||'').trim()===subject && String(m.exam||m.examType||m.examName||'').trim().toLowerCase()===examName.toLowerCase()).sort((a,b)=>{
+                                const ta=a.submittedAt?.toDate?a.submittedAt.toDate().getTime():0, tb=b.submittedAt?.toDate?b.submittedAt.toDate().getTime():0;return tb-ta;
+                            })[0];
+                            if(found && found.score!==undefined && Number.isFinite(Number(found.score))){row['term'+(i+1)]=Number(found.score);}
+                            else missing.push(subject+' ('+requiredTerms[i]+')');
+                        }
+                        const vals=[row.term1,row.term2,row.term3].filter(v=>v!==null);
+                        if(vals.length){row.mean=vals.reduce((a,b)=>a+b,0)/vals.length;sumOfAvailableMarks+=vals.reduce((a,b)=>a+b,0);availableMarkCount+=vals.length;}
+                        subjectRows.push(row);
+                    }
+                    const complete=requiredSubjects.length>0 && missing.length===0 && requiredTerms.every((t,i)=>subjectRows.every(r=>r['term'+(i+1)]!==null));
+                    const annualMean=availableMarkCount?sumOfAvailableMarks/availableMarkCount:0;
+                    const grade=getCBCGradeDetails(annualMean).grade;
+                    const nextClass=getNextPromotionClass(currentClass,classNames);
+                    const canPromote=complete && !!nextClass;
+                    if(!counts[currentClass])counts[currentClass]=0;
+                    if(canPromote){counts[currentClass]++;promotedByClass[currentClass]=(promotedByClass[currentClass]||0)+1;}
+                    else remainingByClass[currentClass]=(remainingByClass[currentClass]||0)+1;
+                    const report={schoolId:currentSchoolId,recordType:'annual_compiled',academicYear:year,admissionNo:admission,studentId:student.id,studentName:student.name||'',name:student.name||'',classAtCompilation:currentClass,class:currentClass,subjects:subjectRows,annualMean:Number(annualMean.toFixed(2)),overallGrade:grade,availableTerms:requiredTerms.filter((t,i)=>subjectRows.some(r=>r['term'+(i+1)]!==null)),completeForAutomaticPromotion:complete,missingRequirements:missing,reportGeneratedAt:firebase.firestore.FieldValue.serverTimestamp(),promotionStatus:canPromote?'automatically_promoted':(complete?'eligible_but_no_next_class':'requires_headteacher_review')};
+                    const ref=existingByAdmission.get(admission)||db.collection('studentResults').doc(currentSchoolId+'_'+year+'_'+encodeURIComponent(admission));
+                    writes.push({ref,data:report,studentRef:db.collection('students').doc(student.id),nextClass:canPromote?nextClass:''});
+                }
+                const summaryRows=Object.keys(counts).sort(compareClassNames).map(cls=>`<tr><td>${esc(cls)}</td><td>${promotedByClass[cls]||0}</td><td>${remainingByClass[cls]||0}</td></tr>`).join('');
+                const totalPromoted=Object.values(promotedByClass).reduce((a,b)=>a+b,0), totalRemaining=Object.values(remainingByClass).reduce((a,b)=>a+b,0);
+                const summaryHtml=`<h3>Annual Promotion Summary — ${esc(year)}</h3><table><thead><tr><th>Current Class</th><th>Promoted to Next Class</th><th>Remaining</th></tr></thead><tbody>${summaryRows}</tbody><tfoot><tr><th>Total</th><th>${totalPromoted}</th><th>${totalRemaining}</th></tr></tfoot></table><p style="margin-top:10px;">Students remaining have not met the automatic promotion requirements. This may be because one or more End-of-Term results are missing, one or more required subject marks are missing, or the class has no next class configured. The Headteacher can review and promote/transfer these students manually from the Promotion tabs. Their annual mean is calculated from the available End-of-Term marks only.</p><p><strong>Midterm and Opener results were not used.</strong></p>`;
+                const summaryRef=db.collection('studentResults').doc(currentSchoolId+'_'+year+'_annual_summary');
+                writes.push({ref:summaryRef,data:{schoolId:currentSchoolId,recordType:'annual_compilation_summary',academicYear:year,completed:true,totalPromoted,totalRemaining,summaryHtml,message:`${totalPromoted} promoted; ${totalRemaining} require Headteacher review.`,createdAt:firebase.firestore.FieldValue.serverTimestamp(),summaryRows:Object.keys(counts).map(cls=>({className:cls,promoted:promotedByClass[cls]||0,remaining:remainingByClass[cls]||0}))}});
+                for(let start=0;start<writes.length;start+=200){
+                    const batch=db.batch();
+                    writes.slice(start,start+200).forEach(item=>{batch.set(item.ref,item.data,{merge:true});if(item.studentRef&&item.nextClass)batch.update(item.studentRef,{class:item.nextClass,lastPromotedAcademicYear:year,lastPromotionType:'automatic',lastPromotionAt:firebase.firestore.FieldValue.serverTimestamp()});});
+                    await batch.commit();
+                }
+                if(summaryBox)summaryBox.innerHTML=summaryHtml;
+                if(status)status.innerHTML=`<p style="color:#166534;"><strong>Compilation completed.</strong> ${totalPromoted} students automatically promoted; ${totalRemaining} students remain for Headteacher review.</p>`;
+                if(btn){btn.textContent='✓ Already Compiled';btn.disabled=true;}
+                alert('Annual report compilation completed. '+totalPromoted+' students promoted; '+totalRemaining+' require Headteacher review.');
+            } catch(e){
+                if(status)status.innerHTML='<p style="color:#b91c1c;">Compilation failed: '+esc(e.message)+'</p>';
+                alert('Compilation failed: '+e.message);
+                if(btn)btn.disabled=false;
             }
         }
 
@@ -7366,6 +7642,8 @@ body{
                 alert("Academic term and year registered successfully!");
                 document.getElementById("termsYearForm").reset();
                 await loadTermsYearList();
+                await populateAnnualYearSelectors();
+                await updateCompileButtonState();
             } catch (err) { alert("Error saving academic term/year: " + err.message); }
         }
 
@@ -7399,6 +7677,8 @@ body{
                 await ref.delete();
                 alert("Academic year/term deleted successfully.");
                 await loadTermsYearList();
+                await populateAnnualYearSelectors();
+                await updateCompileButtonState();
             } catch (err) { alert("Could not delete academic year/term: " + err.message); }
         }
 
@@ -7411,10 +7691,10 @@ body{
                     container.innerHTML = "<p>No exam types configured.</p>";
                     return;
                 }
-                let html = `<table><thead><tr><th>Exam Title</th><th>Action</th></tr></thead><tbody>`;
+                let html = `<table><thead><tr><th>Exam Title</th><th>Category</th><th>Term</th><th>Year</th><th>Action</th></tr></thead><tbody>`;
                 snap.forEach(doc => {
                     const d = doc.data();
-                    html += `<tr><td>${esc(d.name || "")}</td><td><button type="button" class="btn-danger" onclick="deleteExamType('${doc.id}')">Delete</button></td></tr>`;
+                    html += `<tr><td>${esc(d.name || "")}</td><td>${esc(({end_of_term:'End-of-Term Exam',midterm:'Midterm Exam',opener:'Opener Exam'})[d.category] || 'Not classified')}</td><td>${esc(d.term || '-')}</td><td>${esc(d.year || '-')}</td><td><button type="button" class="btn-danger" onclick="deleteExamType('${doc.id}')">Delete</button></td></tr>`;
                 });
                 html += `</tbody></table>`;
                 container.innerHTML = html;
@@ -7803,23 +8083,68 @@ body{
                 }
 
                 const studentsList = studSnap.docs.map(d => d.data() || {});
-                let html = `<table><thead><tr><th>Admission No</th><th>Student Name</th><th>Score (%)</th></tr></thead><tbody>`;
+                const savedRecords = marksSnap.docs.map(doc => doc.data() || {});
+                // Marks documents store percentages only. Raw marks and the
+                // configured maximum are used temporarily during entry, never read from Firebase.
+                const initialMaximum = 100;
+                let html = `<div class="auth-form-group" style="max-width:320px;margin-bottom:12px;">
+                    <label for="teacherMaximumMarks">Maximum marks for ${esc(selectedTeacherSubject)}</label>
+                    <input type="number" id="teacherMaximumMarks" min="1" max="1000" step="any" value="${initialMaximum}" oninput="updateTeacherPercentagePreview()" style="width:100%;padding:9px;">
+                    <small style="color:#64748b;">Enter the total marks for this subject in this examination. The system converts every new or changed score to a percentage automatically.</small>
+                </div>
+                <div id="teacherPercentageHint" style="font-size:12px;color:#475569;margin:6px 0 10px;">Percentage = scored marks ÷ maximum marks × 100. Previously saved entries are shown as percentages; leave them unchanged to preserve them, or replace a value with the raw mark to update it.</div>
+                <div class="table-responsive"><table><thead><tr><th>Admission No</th><th>Student Name</th><th>Scored Marks</th><th>Percentage</th></tr></thead><tbody>`;
                 studentsList.forEach(st => {
-                    html += `<tr><td>${esc(st.admissionNo || '')}</td><td style="text-align:left;">${esc(st.name || '')}</td><td><input type="number" class="teacher-score-input" data-adm="${esc(st.admissionNo || '')}" min="0" max="100" step="any" style="width:70px; text-align:center;" placeholder="-"></td></tr>`;
+                    html += `<tr><td>${esc(st.admissionNo || '')}</td><td style="text-align:left;">${esc(st.name || '')}</td><td><input type="number" class="teacher-score-input" data-adm="${esc(st.admissionNo || '')}" min="0" max="${initialMaximum}" step="any" style="width:78px;text-align:center;" placeholder="-" oninput="updateTeacherPercentagePreview()"></td><td class="teacher-percentage-preview" data-adm="${esc(st.admissionNo || '')}">—</td></tr>`;
                 });
-                html += `</tbody></table>`;
+                html += `</tbody></table></div>`;
                 container.innerHTML = html;
 
-                marksSnap.forEach(doc => {
-                    const data = doc.data() || {};
+                savedRecords.forEach(data => {
                     const input = Array.from(container.querySelectorAll("input.teacher-score-input"))
                         .find(el => el.getAttribute("data-adm") === String(data.admissionNo || ""));
-                    if (input) input.value = data.score;
+                    // Existing records contain percentages only. Preserve an unchanged
+                    // percentage as-is; if the teacher edits it, treat the new value as raw marks.
+                    if (input && data.score !== undefined && data.score !== null) {
+                        input.value = data.score;
+                        input.dataset.originalPercent = String(Number(data.score));
+                    }
                 });
+                updateTeacherPercentagePreview();
             } catch (e) {
                 container.innerHTML = `<p style='color:red;'>${esc(e.message || "Could not load marks entry.")}</p>`;
                 formSection.style.display = "block";
             }
+        }
+
+        function updateTeacherPercentagePreview() {
+            const container = document.getElementById("teacherMarksContainer");
+            if (!container) return;
+            const maximumInput = document.getElementById("teacherMaximumMarks");
+            const maximum = Number(maximumInput?.value);
+            const validMaximum = Number.isFinite(maximum) && maximum > 0 && maximum <= 1000;
+            container.querySelectorAll(".teacher-score-input").forEach(input => {
+                input.max = validMaximum ? String(maximum) : "";
+                const raw = input.value.trim();
+                const preview = Array.from(container.querySelectorAll(".teacher-percentage-preview"))
+                    .find(el => el.getAttribute("data-adm") === input.getAttribute("data-adm"));
+                if (!preview) return;
+                if (!raw) { preview.textContent = "—"; return; }
+                const value = Number(raw);
+                const originalPercent = input.dataset.originalPercent;
+                if (originalPercent !== undefined && Number.isFinite(value) && value === Number(originalPercent)) {
+                    preview.textContent = `${Number(originalPercent).toFixed(2)}%`;
+                    preview.style.color = "#15803d";
+                    return;
+                }
+                if (!validMaximum || !Number.isFinite(value) || value < 0 || value > maximum) {
+                    preview.textContent = "Invalid";
+                    preview.style.color = "#dc2626";
+                } else {
+                    preview.textContent = `${((value / maximum) * 100).toFixed(2)}%`;
+                    preview.style.color = "#15803d";
+                }
+            });
         }
 
         async function saveTeacherMarks() {
@@ -7830,16 +8155,31 @@ body{
 
             try {
                 await verifyTeacherSubjectAllocation(selectedTeacherClass, selectedTeacherSubject);
-                const scores = inputs.map(input => ({
-                    admissionNo: input.getAttribute("data-adm"),
-                    score: input.value.trim()
-                })).filter(item => item.score !== "");
+                const maximumInput = document.getElementById("teacherMaximumMarks");
+                const maxScore = Number(maximumInput?.value);
+                if (!Number.isFinite(maxScore) || maxScore <= 0 || maxScore > 1000) {
+                    throw new Error("Enter a valid maximum mark greater than 0 and not more than 1000.");
+                }
+                const scores = inputs.map(input => {
+                    const value = input.value.trim();
+                    if (value === "") return null;
+                    const admissionNo = input.getAttribute("data-adm");
+                    const originalPercent = input.dataset.originalPercent;
+                    // An unchanged saved percentage is sent as percentage-only,
+                    // so changing the maximum for new marks cannot alter it.
+                    if (originalPercent !== undefined && Number(value) === Number(originalPercent)) {
+                        return { admissionNo, score: Number(originalPercent) };
+                    }
+                    return { admissionNo, rawScore: value, maxScore };
+                }).filter(Boolean);
 
                 for (const item of scores) {
-                    const score = Number(item.score);
-                    if (!Number.isFinite(score) || score < 0 || score > 100) {
-                        throw new Error(`Enter a valid score from 0 to 100 for admission number ${item.admissionNo}.`);
+                    if (item.rawScore === undefined) continue;
+                    const rawScore = Number(item.rawScore);
+                    if (!Number.isFinite(rawScore) || rawScore < 0 || rawScore > maxScore) {
+                        throw new Error(`The mark for admission number ${item.admissionNo} must be between 0 and ${maxScore}.`);
                     }
+                    item.score = Number(((rawScore / maxScore) * 100).toFixed(4));
                 }
                 if (!scores.length) { alert("Enter at least one mark before submitting."); return; }
 
@@ -8213,6 +8553,31 @@ body{
             return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' });
         }
 
+        function classStreamKey(value) {
+            return String(value||'').replace(/\d+/g,'').replace(/\b(grade|form|class|pp)\b/gi,'').replace(/[\s_-]+/g,'').toLowerCase();
+        }
+
+        function getNextPromotionClass(currentClass, classNames) {
+            const currentNumber=classNumber(currentClass);
+            if(!Number.isFinite(currentNumber)) { const i=classNames.indexOf(currentClass); return i>=0?(classNames[i+1]||''):''; }
+            const nextNumber=Math.min(...classNames.map(classNumber).filter(n=>Number.isFinite(n)&&n>currentNumber));
+            if(!Number.isFinite(nextNumber))return '';
+            const candidates=classNames.filter(name=>classNumber(name)===nextNumber);
+            const key=classStreamKey(currentClass);
+            return candidates.find(name=>classStreamKey(name)===key)||candidates[0]||'';
+        }
+
+        function getPreviousPromotionClass(currentClass, classNames) {
+            const currentNumber=classNumber(currentClass);
+            if(!Number.isFinite(currentNumber)) { const i=classNames.indexOf(currentClass); return i>0?(classNames[i-1]||''):''; }
+            const previousNumbers=classNames.map(classNumber).filter(n=>Number.isFinite(n)&&n<currentNumber);
+            const previousNumber=previousNumbers.length?Math.max(...previousNumbers):NaN;
+            if(!Number.isFinite(previousNumber))return '';
+            const candidates=classNames.filter(name=>classNumber(name)===previousNumber);
+            const key=classStreamKey(currentClass);
+            return candidates.find(name=>classStreamKey(name)===key)||candidates[0]||'';
+        }
+
         async function getOrderedClassNames() {
             const snap = await db.collection('classes').where('schoolId', '==', currentSchoolId).get();
             return snap.docs
@@ -8255,12 +8620,21 @@ body{
             try{const snap=await db.collection('students').where('schoolId','==',currentSchoolId).where('class','==',className).get(); if(snap.empty){container.innerHTML='<p>No students found in this class.</p>';return;}
                 const students=snap.docs.sort((a,b)=>String(a.data().name||'').localeCompare(String(b.data().name||''))); let html=`<h4 style="margin:14px 0;">${esc(className)}</h4><table><thead><tr><th>Student Name</th><th>ADM Number</th>`;
                 if(mode==='photos')html+='<th>Photo</th><th>Action</th>'; else if(mode==='transfer')html+='<th>Action</th>'; html+='</tr></thead><tbody>';
-                students.forEach(doc=>{const d=doc.data()||{}; if(mode==='photos'){const src=d.photoUrl||''; html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><div id="photoPreview-${doc.id}" style="min-height:90px;display:flex;align-items:center;justify-content:center;">${src?`<img src="${esc(src)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`:'<span style="color:#64748b;">No photo</span>'}</div><input type="file" id="photoInput-${doc.id}" accept="image/*" onchange="selectStudentPhoto('${doc.id}', this)"></td><td><button type="button" class="btn-success" onclick="saveStudentPhoto('${doc.id}')">Save</button> <button type="button" class="btn-danger" onclick="removeStudentPhoto('${doc.id}')">Remove</button></td></tr>`;} else if(mode==='transfer'){html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','next')">Transfer to Next</button> <button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','previous')">Transfer to Previous</button></td></tr>`;}}); html+='</tbody></table>'; if(mode==='mass')html+=`<button class="btn-primary" style="margin-top:14px;" onclick="transferClassToNext('${esc(className)}')">Transfer to Next Class</button>`; container.innerHTML=html;
+                students.forEach(doc=>{const d=doc.data()||{}; if(mode==='photos'){const src=d.photoUrl||''; html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><div id="photoPreview-${doc.id}" style="min-height:90px;display:flex;align-items:center;justify-content:center;">${src?`<img src="${esc(src)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`:'<span style="color:#64748b;">No photo</span>'}</div><input type="file" id="photoInput-${doc.id}" accept="image/*" onchange="selectStudentPhoto('${doc.id}', this)"></td><td><button type="button" class="btn-success" onclick="saveStudentPhoto('${doc.id}')">Save</button> <button type="button" class="btn-danger" onclick="removeStudentPhoto('${doc.id}')">Remove</button></td></tr>`;} else if(mode==='transfer'){html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','next')">Promote to Next Class</button> <button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','previous')">Move to Previous Class</button></td></tr>`;}}); html+='</tbody></table>'; if(mode==='mass')html+=`<button class="btn-primary" style="margin-top:14px;" onclick="transferClassToNext('${esc(className)}')">Promote to Next Class Class</button>`; container.innerHTML=html;
             }catch(e){container.innerHTML='<p style="color:red;">Error loading students: '+esc(e.message)+'</p>';}
         }
         function selectStudentPhoto(studentId,input){const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Please select an image file.');input.value='';return;}if(file.size>25*1024*1024){alert('Photo must not exceed 25 MB.');input.value='';return;}pendingStudentPhotos[studentId]=file;const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${URL.createObjectURL(file)}" alt="Selected student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;}
         async function saveStudentPhoto(studentId){const file=pendingStudentPhotos[studentId];if(!file){alert('Select a photo first.');return;}try{const uploaded=await uploadCloudinaryFile(file,'student_photo',{maxDimension:1200,quality:0.80});const studentRef=db.collection('students').doc(studentId);const oldStudentSnap=await studentRef.get();const oldStudentData=oldStudentSnap.data()||{};await studentRef.update({photoUrl:uploaded.secureUrl,photoPublicId:uploaded.publicId||"",photoResourceType:uploaded.resourceType||"image",photoFileName:file.name,photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});if(oldStudentData.photoPublicId||oldStudentData.photoUrl){try{await deleteCloudinaryAsset({publicId:oldStudentData.photoPublicId||"",secureUrl:oldStudentData.photoUrl||"",resourceType:oldStudentData.photoResourceType||"image"});}catch(cleanupError){console.warn('Old student photo cleanup failed:',cleanupError.message);}}delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${esc(uploaded.secureUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo saved successfully.');}catch(e){alert('Photo save failed: '+e.message);}}
         async function removeStudentPhoto(studentId){if(!confirm('Remove this student photo?'))return;try{const studentRef=db.collection('students').doc(studentId);const snap=await studentRef.get();const d=snap.data()||{};if(d.photoPublicId||d.photoUrl){await deleteCloudinaryAsset({publicId:d.photoPublicId||"",secureUrl:d.photoUrl||"",resourceType:d.photoResourceType||"image"});}await studentRef.update({photoUrl:firebase.firestore.FieldValue.delete(),photoPublicId:firebase.firestore.FieldValue.delete(),photoResourceType:firebase.firestore.FieldValue.delete(),photoFileName:firebase.firestore.FieldValue.delete(),photoUpdatedAt:firebase.firestore.FieldValue.delete()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML='<span style="color:#64748b;">No photo</span>';const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo removed.');}catch(e){alert('Could not remove photo: '+e.message);}}
+
+        async function markAnnualReportAsManuallyPromoted(admissionNo, targetClass, year) {
+            try {
+                const academicYear=String(year||'').trim(); if(!academicYear||!admissionNo)return;
+                const snap=await db.collection('studentResults').where('schoolId','==',currentSchoolId).get();
+                const docs=snap.docs.filter(d=>{const x=d.data()||{};return x.recordType==='annual_compiled'&&String(x.academicYear||'')===academicYear&&String(x.admissionNo||'')===String(admissionNo);});
+                for(const doc of docs) await doc.ref.update({promotionStatus:'manually_promoted',promotedToClass:targetClass,manualPromotionAt:firebase.firestore.FieldValue.serverTimestamp()});
+            } catch(e) { console.warn('Could not update annual report promotion status:',e.message); }
+        }
 
         async function transferSingleStudent(studentId, direction) {
             try {
@@ -8277,8 +8651,7 @@ body{
                     return;
                 }
 
-                const targetIndex = direction === 'next' ? currentIndex + 1 : currentIndex - 1;
-                const targetClass = classNames[targetIndex];
+                const targetClass = direction === 'next' ? getNextPromotionClass(String(student.class||'').trim(),classNames) : getPreviousPromotionClass(String(student.class||'').trim(),classNames);
 
                 if (!targetClass) {
                     alert(direction === 'next' ? 'There is no next class configured.' : 'There is no previous class configured.');
@@ -8287,6 +8660,7 @@ body{
 
                 if (!confirm(`Transfer ${student.name || 'this student'} to ${targetClass}?`)) return;
                 await studentRef.update({ class: targetClass });
+                if(direction==='next') await markAnnualReportAsManuallyPromoted(student.admissionNo,targetClass,document.getElementById('transferYearSelect')?.value||'');
                 alert('Student transferred to ' + targetClass + '.');
                 const selectedClass = document.getElementById('transferClassSelect')?.value || '';
                 await loadTransferStudents(selectedClass);
@@ -8299,7 +8673,7 @@ body{
             try {
                 const classNames = await getOrderedClassNames();
                 const currentIndex = classNames.indexOf(String(className || '').trim());
-                const targetClass = classNames[currentIndex + 1];
+                const targetClass = getNextPromotionClass(String(className||'').trim(),classNames);
 
                 if (currentIndex < 0 || !targetClass) {
                     alert('There is no next class configured.');
@@ -8320,6 +8694,13 @@ body{
                 const batch = db.batch();
                 students.docs.forEach(doc => batch.update(doc.ref, { class: targetClass }));
                 await batch.commit();
+                const year=String(document.getElementById('massTransferYearSelect')?.value||'').trim();
+                if(year){
+                    const reports=await db.collection('studentResults').where('schoolId','==',currentSchoolId).get();
+                    const admissions=new Set(students.docs.map(d=>String((d.data()||{}).admissionNo||'')));
+                    const reportDocs=reports.docs.filter(d=>{const x=d.data()||{};return x.recordType==='annual_compiled'&&String(x.academicYear||'')===year&&admissions.has(String(x.admissionNo||''));});
+                    for(let i=0;i<reportDocs.length;i+=400){const reportBatch=db.batch();reportDocs.slice(i,i+400).forEach(d=>reportBatch.update(d.ref,{promotionStatus:'manually_promoted',promotedToClass:targetClass,manualPromotionAt:firebase.firestore.FieldValue.serverTimestamp()}));await reportBatch.commit();}
+                }
                 alert(students.size + ' students transferred to ' + targetClass + '.');
                 await loadMassTransferStudents(className);
             } catch (e) {
@@ -8927,6 +9308,19 @@ body{
   if(typeof oldShow==='function') window.showAdminDashboard=function(){const r=oldShow.apply(this,arguments);setTimeout(populatePictureAllTabs,50);return r;};
 })();
 
+
+
+/* MARK INPUT LIMIT: marks must remain between 0 and 100.
+   Any value above 100 (or below 0) is immediately reset to 0. */
+document.addEventListener("input", function (event) {
+    const input = event.target;
+    if (!input || !input.matches || !input.matches(".teacher-score-input, .admin-mark-input")) return;
+    if (input.value === "") return;
+    const score = Number(input.value);
+    if (!Number.isFinite(score) || score > 100 || score < 0) {
+        input.value = "0";
+    }
+});
 </script>
     <div id="portalNotificationOverlay" class="portal-notification-overlay">
         <div class="portal-notification-box">
