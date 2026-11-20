@@ -6746,31 +6746,46 @@ body{
                 const matrixCacheKey = `admin-marks:${currentSchoolId}:${String(className)}:${String(examName)}`;
                 const [subSnap, studSnap, marksSnap] = await getCachedFirestoreRead(matrixCacheKey, () => Promise.all([
                     db.collection("subjects").where("schoolId", "==", currentSchoolId).get(),
-                    db.collection("students").where("schoolId", "==", currentSchoolId).where("class", "==", className).get(),
-                    // Read the class mark records once and match exam/examType/examName.
-                    // This also supports older saved records that used another field name.
+                    // Load school student profiles so learners who have since been
+                    // promoted can still appear on reports for their previous class.
+                    db.collection("students").where("schoolId", "==", currentSchoolId).get(),
+                    // The historical class membership for this report is determined
+                    // by the saved mark records, not the learner's current class.
                     db.collection("marks").where("schoolId", "==", currentSchoolId).where("class", "==", className).get()
                 ]));
                 cachedSubjects = [];
-                subSnap.forEach(d => cachedSubjects.push(d.data().name));
+                subSnap.forEach(d => { const name=d.data().name; if(name) cachedSubjects.push(name); });
 
-                cachedStudents = [];
-                studSnap.forEach(d => cachedStudents.push(d.data()));
-
+                const allStudentProfiles = new Map();
+                studSnap.forEach(d => {
+                    const profile=d.data()||{};
+                    if(profile.admissionNo!==undefined && profile.admissionNo!==null) allStudentProfiles.set(String(profile.admissionNo), profile);
+                });
+                const reportAdmissionNos = new Set();
                 cachedMarksMap = {};
                 cachedMarkRecords = {};
                 marksSnap.forEach(d => {
                     const data = d.data() || {};
                     const savedExam = String(data.exam || data.examType || data.examName || '').trim();
                     if (savedExam.toLowerCase() !== String(examName).trim().toLowerCase()) return;
-                    if (!cachedMarksMap[data.admissionNo]) cachedMarksMap[data.admissionNo] = {};
-                    if (!cachedMarkRecords[data.admissionNo]) cachedMarkRecords[data.admissionNo] = {};
-                    cachedMarksMap[data.admissionNo][data.subject] = data.score;
+                    const adm=String(data.admissionNo||'').trim();
+                    if(!adm) return;
+                    reportAdmissionNos.add(adm);
+                    if (!cachedMarksMap[adm]) cachedMarksMap[adm] = {};
+                    if (!cachedMarkRecords[adm]) cachedMarkRecords[adm] = {};
+                    cachedMarksMap[adm][data.subject] = data.score;
                     // Keep the actual Firestore document ID. Older marks may have
                     // been created with auto-generated IDs, so rebuilding an ID
-                    // from the student/subject fields can create a duplicate
-                    // instead of editing the existing result.
-                    cachedMarkRecords[data.admissionNo][data.subject] = { ...data, _docId: d.id };
+                    // from the student/subject fields can create a duplicate.
+                    cachedMarkRecords[adm][data.subject] = { ...data, _docId: d.id };
+                });
+                cachedStudents = [...reportAdmissionNos].map(adm => {
+                    const profile=allStudentProfiles.get(adm)||{};
+                    const records=Object.values(cachedMarkRecords[adm]||{});
+                    const first=records[0]||{};
+                    return {...profile, admissionNo:adm,
+                        name:profile.name||first.studentName||first.name||`Admission ${adm}`,
+                        class:className, subjects:profile.subjects||cachedSubjects};
                 });
 
                 if (cachedStudents.length === 0) {
@@ -7246,6 +7261,10 @@ body{
                             <div class="rc-bio-item">
                                 <span>Admission No.</span>
                                 <strong>${escapeHtml(st.admissionNo)}</strong>
+                            </div>
+                            <div class="rc-bio-item">
+                                <span>Class</span>
+                                <strong>${escapeHtml(className)}</strong>
                             </div>
                             <div class="rc-bio-item">
                                 <span>Class Position</span>
