@@ -3570,7 +3570,7 @@ body{
                         
                         <div class="auth-form-group" style="margin-top:12px;">
                             <label>Academic Year for Annual Compilation</label>
-                            <select id="compileAcademicYear" onchange="updateCompileButtonState()"><option value="">-- Select registered academic year --</option></select>
+                            <select id="compileAcademicYear" onchange="onCompileAcademicYearChange()"><option value="">-- Select registered academic year --</option></select>
                         </div>
                         <button id="compileResultsBtn" class="btn-success" style="margin:0 0 14px;" onclick="compileResults()" disabled>⚙️ Compile Results & Auto-Promote</button>
                         <div class="auth-form-group" style="margin-top:12px;">
@@ -6330,20 +6330,70 @@ body{
                 await updateCompileButtonState();
 
                 const examSnap = await db.collection("examTypes").where("schoolId", "==", currentSchoolId).get();
-                const examSelects = ['adminExamSelect', 'analyticsExamSelect', 'examSelect'];
+                // Central marks are strictly scoped to the selected academic year.
+                // Other exam selectors retain their existing all-years behaviour.
+                const examSelects = ['analyticsExamSelect', 'examSelect'];
                 examSelects.forEach(id => {
                     const sel = document.getElementById(id);
                     if (sel) {
                         sel.innerHTML = '<option value="">-- Choose Exam Type --</option>';
                         examSnap.forEach(doc => {
                             const e = doc.data().name;
-                            sel.innerHTML += `<option value="${e}">${e}</option>`;
+                            if (e) sel.innerHTML += `<option value="${esc(e)}">${esc(e)}</option>`;
                         });
                     }
                 });
+                await populateCentralExamTypeDropdown();
             } catch (err) {
                 console.error("Dropdown error: ", err);
             }
+        }
+
+        function getExamAcademicYear(exam) {
+            const savedYear = String(exam?.year || '').trim();
+            if (savedYear) return savedYear;
+            const match = String(exam?.name || '').match(/(?:19|20)\d{2}/);
+            return match ? match[0] : '';
+        }
+
+        async function populateCentralExamTypeDropdown() {
+            const sel = document.getElementById('adminExamSelect');
+            if (!sel || !currentSchoolId) return;
+            const year = String(document.getElementById('compileAcademicYear')?.value || '').trim();
+            const previous = sel.value;
+            sel.innerHTML = year
+                ? '<option value="">-- Choose Exam Type --</option>'
+                : '<option value="">-- Select an academic year first --</option>';
+            document.getElementById('matrixContainer').innerHTML = year
+                ? '<p style="padding:12px;">Select an exam type and class to display the marks grid.</p>'
+                : '<p style="padding:12px;">Select an academic year to view its examination results.</p>';
+            const actionBar = document.getElementById('actionBar');
+            const toggleBox = document.getElementById('adminEditToggleBox');
+            if (actionBar) actionBar.style.display = 'none';
+            if (toggleBox) toggleBox.style.display = 'none';
+            if (!year) return;
+            try {
+                const snap = await db.collection('examTypes').where('schoolId', '==', currentSchoolId).get();
+                const exams = snap.docs.map(doc => ({ id: doc.id, ...(doc.data() || {}) }))
+                    .filter(exam => getExamAcademicYear(exam) === year)
+                    .sort((a,b) => String(a.term || '').localeCompare(String(b.term || ''), undefined, {numeric:true}) || String(a.name || '').localeCompare(String(b.name || '')));
+                if (!exams.length) {
+                    sel.innerHTML = '<option value="">-- No exam types registered for ' + esc(year) + ' --</option>';
+                    document.getElementById('matrixContainer').innerHTML = '<p style="padding:12px;">No exam types have been registered for ' + esc(year) + '. Register an exam type under Configure Examination Types before viewing marks.</p>';
+                    return;
+                }
+                sel.innerHTML = '<option value="">-- Choose Exam Type --</option>' + exams.map(exam => `<option value="${esc(exam.name || '')}">${esc(exam.name || '')}</option>`).join('');
+                if (exams.some(exam => String(exam.name || '') === previous)) sel.value = previous;
+            } catch (err) {
+                console.error('Could not load exam types for selected year:', err);
+                sel.innerHTML = '<option value="">-- Could not load exam types --</option>';
+            }
+        }
+
+        async function onCompileAcademicYearChange() {
+            await populateCentralExamTypeDropdown();
+            await updateCompileButtonState();
+            await loadCentralMarksMatrix();
         }
 
         function getReportPerformanceComments(score) {
@@ -6455,6 +6505,13 @@ body{
                 const registeredTerms=new Set(termsSnap.docs.map(d=>{const x=d.data()||{};return String(x.year)===year?String(x.term||'').toLowerCase():'';}));
                 const exams=examsSnap.docs.map(d=>d.data()||{}).filter(x=>String(x.year||'')===year && normalizeExamCategory(x.category)==='end_of_term');
                 const byTerm=new Set(exams.map(x=>String(x.term||'').toLowerCase()));
+                const nextYear=String(Number(year)+1);
+                const registeredYears=new Set(termsSnap.docs.map(d=>String((d.data()||{}).year||'').trim()).filter(Boolean));
+                if(!registeredYears.has(nextYear)){
+                    if(status)status.innerHTML='<p style="color:#b91c1c;">Promotion is locked. Register the next academic year ('+esc(nextYear)+') before compiling and promoting students.</p>';
+                    btn.textContent='⚙️ Compile Results & Auto-Promote';
+                    return;
+                }
                 const required=['term 1','term 2','term 3'];
                 const missingTerms=required.filter(t=>!registeredTerms.has(t));
                 const missingExams=required.filter(t=>!byTerm.has(t));
@@ -6503,6 +6560,15 @@ body{
                 const priorYearDocs=priorSnap.docs.filter(d=>String((d.data()||{}).academicYear||'')===year);
                 const priorSummary=priorYearDocs.find(d=>(d.data()||{}).recordType==='annual_compilation_summary'&&(d.data()||{}).completed===true);
                 if(priorSummary){alert('Annual compilation for '+year+' has already been completed.');await updateCompileButtonState();return;}
+                const nextYear=String(Number(year)+1);
+                const registeredYears=new Set(termsSnap.docs.map(d=>String((d.data()||{}).year||'').trim()).filter(Boolean));
+                if(!registeredYears.has(nextYear)){
+                    const message='Register the next academic year ('+nextYear+') before compiling and promoting students. No students have been promoted.';
+                    if(status)status.innerHTML='<p style="color:#b91c1c;">'+esc(message)+'</p>';
+                    alert(message);
+                    if(btn)btn.disabled=false;
+                    return;
+                }
                 const registeredTerms=new Set(termsSnap.docs.map(d=>{const x=d.data()||{};return String(x.year)===year?String(x.term||'').toLowerCase():'';}));
                 const exams=examSnap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(x=>String(x.year||'')===year && normalizeExamCategory(x.category)==='end_of_term');
                 const requiredTerms=['Term 1','Term 2','Term 3'];
@@ -6569,7 +6635,7 @@ body{
                 writes.push({ref:summaryRef,data:{schoolId:currentSchoolId,recordType:'annual_compilation_summary',academicYear:year,completed:true,totalPromoted,totalRemaining,summaryHtml,message:`${totalPromoted} promoted; ${totalRemaining} require Headteacher review.`,createdAt:firebase.firestore.FieldValue.serverTimestamp(),summaryRows:Object.keys(counts).map(cls=>({className:cls,promoted:promotedByClass[cls]||0,remaining:remainingByClass[cls]||0}))}});
                 for(let start=0;start<writes.length;start+=200){
                     const batch=db.batch();
-                    writes.slice(start,start+200).forEach(item=>{batch.set(item.ref,item.data,{merge:true});if(item.studentRef&&item.nextClass)batch.update(item.studentRef,{class:item.nextClass,lastPromotedAcademicYear:year,lastPromotionType:'automatic',lastPromotionAt:firebase.firestore.FieldValue.serverTimestamp()});});
+                    writes.slice(start,start+200).forEach(item=>{batch.set(item.ref,item.data,{merge:true});if(item.studentRef&&item.nextClass)batch.update(item.studentRef,{class:item.nextClass,currentAcademicYear:nextYear,lastPromotedAcademicYear:year,lastPromotedToAcademicYear:nextYear,lastPromotionType:'automatic',lastPromotionAt:firebase.firestore.FieldValue.serverTimestamp()});});
                     await batch.commit();
                 }
                 if(summaryBox)summaryBox.innerHTML=summaryHtml;
@@ -6729,12 +6795,19 @@ body{
         async function loadCentralMarksMatrix() {
             const examName = document.getElementById("adminExamSelect").value;
             const className = document.getElementById("mClassSelect").value;
+            const selectedYear = String(document.getElementById('compileAcademicYear')?.value || '').trim();
             const matrixContainer = document.getElementById("matrixContainer");
             const actionBar = document.getElementById("actionBar");
             const toggleBox = document.getElementById("adminEditToggleBox");
 
+            if (!selectedYear) {
+                matrixContainer.innerHTML = "<p style='padding:12px;'>Select an academic year before choosing an exam type.</p>";
+                actionBar.style.display = "none";
+                toggleBox.style.display = "none";
+                return;
+            }
             if (!examName || !className) {
-                matrixContainer.innerHTML = "<p style='padding:12px;'>Select both an exam and a class to display the marks grid.</p>";
+                matrixContainer.innerHTML = "<p style='padding:12px;'>Select an exam registered for " + esc(selectedYear) + " and a class to display the marks grid.</p>";
                 actionBar.style.display = "none";
                 toggleBox.style.display = "none";
                 return;
@@ -6743,53 +6816,71 @@ body{
             matrixContainer.innerHTML = "<p style='padding:12px;'>Loading class marks grid...</p>";
 
             try {
-                const matrixCacheKey = `admin-marks:${currentSchoolId}:${String(className)}:${String(examName)}`;
+                // v2 deliberately invalidates the earlier cache, which only contained
+                // students inferred from matching marks documents.
+                const matrixCacheKey = `admin-marks-v2:${currentSchoolId}:${String(className)}:${String(examName)}`;
                 const [subSnap, studSnap, marksSnap] = await getCachedFirestoreRead(matrixCacheKey, () => Promise.all([
                     db.collection("subjects").where("schoolId", "==", currentSchoolId).get(),
-                    // Load school student profiles so learners who have since been
-                    // promoted can still appear on reports for their previous class.
                     db.collection("students").where("schoolId", "==", currentSchoolId).get(),
-                    // The historical class membership for this report is determined
-                    // by the saved mark records, not the learner's current class.
+                    // Keep the class-scoped marks query to avoid reading every mark
+                    // in the school. This also retains historical class membership:
+                    // a promoted learner still appears in the class where the exam
+                    // marks were originally recorded.
                     db.collection("marks").where("schoolId", "==", currentSchoolId).where("class", "==", className).get()
                 ]));
+
                 cachedSubjects = [];
-                subSnap.forEach(d => { const name=d.data().name; if(name) cachedSubjects.push(name); });
+                subSnap.forEach(d => {
+                    const data=d.data()||{};
+                    const name=data.name||data.subjectName||data.subject;
+                    if(name && !cachedSubjects.includes(String(name))) cachedSubjects.push(String(name));
+                });
 
                 const allStudentProfiles = new Map();
+                const currentClassAdmissions = new Set();
                 studSnap.forEach(d => {
                     const profile=d.data()||{};
-                    if(profile.admissionNo!==undefined && profile.admissionNo!==null) allStudentProfiles.set(String(profile.admissionNo), profile);
+                    const adm=String(profile.admissionNo||'').trim();
+                    if(!adm) return;
+                    allStudentProfiles.set(adm, {...profile, _studentDocId:d.id});
+                    if(String(profile.class||profile.className||'').trim()===String(className).trim()) currentClassAdmissions.add(adm);
                 });
-                const reportAdmissionNos = new Set();
+
+                const reportAdmissionNos = new Set(currentClassAdmissions);
                 cachedMarksMap = {};
                 cachedMarkRecords = {};
                 marksSnap.forEach(d => {
-                    const data = d.data() || {};
-                    const savedExam = String(data.exam || data.examType || data.examName || '').trim();
-                    if (savedExam.toLowerCase() !== String(examName).trim().toLowerCase()) return;
+                    const data=d.data()||{};
+                    const savedExam=String(data.exam||data.examType||data.examName||'').trim();
+                    if(savedExam.toLowerCase()!==String(examName).trim().toLowerCase()) return;
                     const adm=String(data.admissionNo||'').trim();
                     if(!adm) return;
-                    reportAdmissionNos.add(adm);
-                    if (!cachedMarksMap[adm]) cachedMarksMap[adm] = {};
-                    if (!cachedMarkRecords[adm]) cachedMarkRecords[adm] = {};
-                    cachedMarksMap[adm][data.subject] = data.score;
-                    // Keep the actual Firestore document ID. Older marks may have
-                    // been created with auto-generated IDs, so rebuilding an ID
-                    // from the student/subject fields can create a duplicate.
-                    cachedMarkRecords[adm][data.subject] = { ...data, _docId: d.id };
+                    const savedClass=String(data.class||data.className||'').trim();
+                    const belongsToSelectedClass = currentClassAdmissions.has(adm) && (savedClass
+                        ? savedClass===String(className).trim()
+                        : true);
+                    if(!belongsToSelectedClass) return;
+                    if(!cachedMarksMap[adm]) cachedMarksMap[adm]={};
+                    if(!cachedMarkRecords[adm]) cachedMarkRecords[adm]={};
+                    const subject=String(data.subject||data.subjectName||'').trim();
+                    if(!subject) return;
+                    cachedMarksMap[adm][subject]=data.score;
+                    cachedMarkRecords[adm][subject]={...data,_docId:d.id};
+                    if(!cachedSubjects.includes(subject)) cachedSubjects.push(subject);
                 });
-                cachedStudents = [...reportAdmissionNos].map(adm => {
+
+                cachedStudents=[...reportAdmissionNos].map(adm=>{
                     const profile=allStudentProfiles.get(adm)||{};
                     const records=Object.values(cachedMarkRecords[adm]||{});
                     const first=records[0]||{};
-                    return {...profile, admissionNo:adm,
+                    return {...profile,admissionNo:adm,
                         name:profile.name||first.studentName||first.name||`Admission ${adm}`,
-                        class:className, subjects:profile.subjects||cachedSubjects};
-                });
+                        class:className,
+                        subjects:Array.isArray(profile.subjects)&&profile.subjects.length?profile.subjects:cachedSubjects};
+                }).sort((a,b)=>String(a.name||'').localeCompare(String(b.name||'')));
 
                 if (cachedStudents.length === 0) {
-                    matrixContainer.innerHTML = "<p style='padding:12px; color:red;'>No students registered in this class.</p>";
+                    matrixContainer.innerHTML = "<p style='padding:12px; color:red;'>No students are currently registered in this class, and no historical marks for this class were found for the selected examination.</p>";
                     actionBar.style.display = "none";
                     toggleBox.style.display = "none";
                     return;
@@ -8701,6 +8792,22 @@ body{
         async function saveStudentPhoto(studentId){const file=pendingStudentPhotos[studentId];if(!file){alert('Select a photo first.');return;}try{const uploaded=await uploadCloudinaryFile(file,'student_photo',{maxDimension:1200,quality:0.80});const studentRef=db.collection('students').doc(studentId);const oldStudentSnap=await studentRef.get();const oldStudentData=oldStudentSnap.data()||{};await studentRef.update({photoUrl:uploaded.secureUrl,photoPublicId:uploaded.publicId||"",photoResourceType:uploaded.resourceType||"image",photoFileName:file.name,photoUpdatedAt:firebase.firestore.FieldValue.serverTimestamp()});if(oldStudentData.photoPublicId||oldStudentData.photoUrl){try{await deleteCloudinaryAsset({publicId:oldStudentData.photoPublicId||"",secureUrl:oldStudentData.photoUrl||"",resourceType:oldStudentData.photoResourceType||"image"});}catch(cleanupError){console.warn('Old student photo cleanup failed:',cleanupError.message);}}delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${esc(uploaded.secureUrl)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo saved successfully.');}catch(e){alert('Photo save failed: '+e.message);}}
         async function removeStudentPhoto(studentId){if(!confirm('Remove this student photo?'))return;try{const studentRef=db.collection('students').doc(studentId);const snap=await studentRef.get();const d=snap.data()||{};if(d.photoPublicId||d.photoUrl){await deleteCloudinaryAsset({publicId:d.photoPublicId||"",secureUrl:d.photoUrl||"",resourceType:d.photoResourceType||"image"});}await studentRef.update({photoUrl:firebase.firestore.FieldValue.delete(),photoPublicId:firebase.firestore.FieldValue.delete(),photoResourceType:firebase.firestore.FieldValue.delete(),photoFileName:firebase.firestore.FieldValue.delete(),photoUpdatedAt:firebase.firestore.FieldValue.delete()});delete pendingStudentPhotos[studentId];const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML='<span style="color:#64748b;">No photo</span>';const i=document.getElementById('photoInput-'+studentId);if(i)i.value='';alert('Student photo removed.');}catch(e){alert('Could not remove photo: '+e.message);}}
 
+        async function ensureNextAcademicYearRegistered(sourceYear) {
+            const year=String(sourceYear||'').trim();
+            if(!/^\d{4}$/.test(year)){
+                alert('Select the current academic year before promoting students.');
+                return '';
+            }
+            const nextYear=String(Number(year)+1);
+            const snap=await db.collection('termsYears').where('schoolId','==',currentSchoolId).get();
+            const registered=snap.docs.some(d=>String((d.data()||{}).year||'').trim()===nextYear);
+            if(!registered){
+                alert('Register the next academic year ('+nextYear+') before promoting students. No students have been moved.');
+                return '';
+            }
+            return nextYear;
+        }
+
         async function markAnnualReportAsManuallyPromoted(admissionNo, targetClass, year) {
             try {
                 const academicYear=String(year||'').trim(); if(!academicYear||!admissionNo)return;
@@ -8732,9 +8839,14 @@ body{
                     return;
                 }
 
+                const sourceYear=String(document.getElementById('transferYearSelect')?.value||'').trim();
+                const nextYear=direction==='next'?await ensureNextAcademicYearRegistered(sourceYear):'';
+                if(direction==='next'&&!nextYear)return;
                 if (!confirm(`Transfer ${student.name || 'this student'} to ${targetClass}?`)) return;
-                await studentRef.update({ class: targetClass });
-                if(direction==='next') await markAnnualReportAsManuallyPromoted(student.admissionNo,targetClass,document.getElementById('transferYearSelect')?.value||'');
+                const update={class:targetClass};
+                if(direction==='next')Object.assign(update,{currentAcademicYear:nextYear,lastPromotedAcademicYear:sourceYear,lastPromotedToAcademicYear:nextYear,lastPromotionType:'manual',lastPromotionAt:firebase.firestore.FieldValue.serverTimestamp()});
+                await studentRef.update(update);
+                if(direction==='next') await markAnnualReportAsManuallyPromoted(student.admissionNo,targetClass,sourceYear);
                 alert('Student transferred to ' + targetClass + '.');
                 const selectedClass = document.getElementById('transferClassSelect')?.value || '';
                 await loadTransferStudents(selectedClass);
@@ -8764,11 +8876,13 @@ body{
                     return;
                 }
 
+                const year=String(document.getElementById('massTransferYearSelect')?.value||'').trim();
+                const nextYear=await ensureNextAcademicYearRegistered(year);
+                if(!nextYear)return;
                 if (!confirm(`Transfer all ${students.size} students to ${targetClass}?`)) return;
                 const batch = db.batch();
-                students.docs.forEach(doc => batch.update(doc.ref, { class: targetClass }));
+                students.docs.forEach(doc => batch.update(doc.ref, { class: targetClass,currentAcademicYear:nextYear,lastPromotedAcademicYear:year,lastPromotedToAcademicYear:nextYear,lastPromotionType:'manual',lastPromotionAt:firebase.firestore.FieldValue.serverTimestamp() }));
                 await batch.commit();
-                const year=String(document.getElementById('massTransferYearSelect')?.value||'').trim();
                 if(year){
                     const reports=await db.collection('studentResults').where('schoolId','==',currentSchoolId).get();
                     const admissions=new Set(students.docs.map(d=>String((d.data()||{}).admissionNo||'')));
