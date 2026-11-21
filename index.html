@@ -9022,7 +9022,66 @@ body{
                     let html='<table><thead><tr><th>Name</th><th>Email</th><th>Action</th></tr></thead><tbody>'; docs.forEach(doc=>{const d=doc.data();html+=`<tr><td>${esc(d.name||d.displayName||'')}</td><td>${esc(d.email||'')}</td><td><button class="btn-secondary" onclick="editTeacherRecord('${doc.id}')">Edit</button> <button class="btn-danger" onclick="deleteTeacherRecord('${doc.id}')">Delete</button></td></tr>`;});container.innerHTML=html+'</tbody></table>';return;
                 }
                 if(type==='students'){
-                    const groups={};snap.docs.forEach(doc=>{const d=doc.data(),k=d.class||'Unassigned Class';(groups[k] ||= []).push({id:doc.id,d});});let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3>`;const pathwayGroups=isSeniorSchool()?SENIOR_PATHWAYS:[''];pathwayGroups.forEach(path=>{const rows=groups[cls].filter(x=>!isSeniorSchool()||String(x.d.pathway||'')===path).sort((a,b)=>String(a.d.name||'').localeCompare(String(b.d.name||'')));if(!rows.length)return;if(isSeniorSchool())html+=`<h4 style="margin:10px 0 6px;">${esc(path)}</h4>`;html+=`<table><thead><tr><th>Name</th><th>ADM</th><th>Class</th>${isSeniorSchool()?'<th>Pathway</th>':''}<th>Year</th><th>Action</th></tr></thead><tbody>`;rows.forEach(x=>{html+=`<tr><td>${esc(x.d.name||'')}</td><td>${esc(x.d.admissionNo||'')}</td><td>${esc(x.d.class||'')}</td>${isSeniorSchool()?`<td>${esc(x.d.pathway||'')}</td>`:''}<td>${esc(x.d.year||'')}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});});container.innerHTML=html;return;
+                    // Keep active students grouped by their CURRENT class. Graduates are
+                    // excluded from active classes and displayed in a separate section below.
+                    const groups={};
+                    const graduates=[];
+                    snap.docs.forEach(doc=>{
+                        const d=doc.data()||{};
+                        const isGraduate=String(d.status||'').toLowerCase()==='graduated' ||
+                            String(d.graduationStatus||'').toLowerCase()==='graduated' || !!d.graduatedAt;
+                        if(isGraduate){
+                            graduates.push({id:doc.id,d});
+                            return;
+                        }
+                        const cls=String(d.class||'').trim()||'Unassigned Class';
+                        (groups[cls] ||= []).push({id:doc.id,d});
+                    });
+                    const configuredOrder=await getOrderedClassNames();
+                    const classKeys=Object.keys(groups).sort((a,b)=>{
+                        const ai=configuredOrder.indexOf(a), bi=configuredOrder.indexOf(b);
+                        if(ai>=0&&bi>=0)return ai-bi;
+                        if(ai>=0)return -1;
+                        if(bi>=0)return 1;
+                        return compareClassNames(a,b);
+                    });
+                    let html='';
+                    classKeys.forEach(cls=>{
+                        const classRows=groups[cls];
+                        html+=`<h3 style="margin-top:20px;">${esc(cls)} <span style="font-size:12px;font-weight:normal;color:#64748b;">(${classRows.length} students)</span></h3>`;
+                        const pathwayGroups=isSeniorSchool()?SENIOR_PATHWAYS:[''];
+                        pathwayGroups.forEach(path=>{
+                            const rows=classRows
+                                .filter(x=>!isSeniorSchool()||String(x.d.pathway||'')===path)
+                                .sort((a,b)=>String(a.d.name||'').localeCompare(String(b.d.name||'')));
+                            if(!rows.length)return;
+                            if(isSeniorSchool())html+=`<h4 style="margin:10px 0 6px;">${esc(path)}</h4>`;
+                            html+=`<table><thead><tr><th>Name</th><th>ADM</th><th>Class</th>${isSeniorSchool()?'<th>Pathway</th>':''}<th>Year</th><th>Action</th></tr></thead><tbody>`;
+                            rows.forEach(x=>{
+                                html+=`<tr><td>${esc(x.d.name||'')}</td><td>${esc(x.d.admissionNo||'')}</td><td>${esc(x.d.class||'')}</td>${isSeniorSchool()?`<td>${esc(x.d.pathway||'')}</td>`:''}<td>${esc(x.d.year||'')}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;
+                            });
+                            html+='</tbody></table>';
+                        });
+                    });
+
+                    graduates.sort((a,b)=>{
+                        const av=a.d.graduatedAt?.toDate?a.d.graduatedAt.toDate().getTime():0;
+                        const bv=b.d.graduatedAt?.toDate?b.d.graduatedAt.toDate().getTime():0;
+                        return bv-av;
+                    });
+                    html+=`<h3 style="margin-top:28px;padding-top:16px;border-top:2px solid #e2e8f0;">Graduates <span style="font-size:12px;font-weight:normal;color:#64748b;">(${graduates.length} students)</span></h3>`;
+                    if(graduates.length){
+                        html+='<p style="font-size:13px;color:#64748b;">Graduated students remain listed here during the three-month retention period.</p>';
+                        html+='<table><thead><tr><th>Name</th><th>ADM</th><th>Graduated From</th><th>Graduation Date</th><th>Scheduled Deletion</th><th>Action</th></tr></thead><tbody>';
+                        graduates.forEach(x=>{
+                            html+=`<tr><td>${esc(x.d.name||'')}</td><td>${esc(x.d.admissionNo||'')}</td><td>${esc(x.d.graduatedFromClass||'')}</td><td>${esc(dateText(x.d.graduatedAt))}</td><td>${esc(dateText(x.d.graduateExpiresAt))}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;
+                        });
+                        html+='</tbody></table>';
+                    } else {
+                        html+='<p>No graduates currently in the three-month retention period.</p>';
+                    }
+                    container.innerHTML=html||'<p>No students found.</p>';
+                    return;
                 }
                 if(type==='allocations'){
                     const groups={}; await Promise.all(snap.docs.map(async doc=>{const d=doc.data()||{};let name=d.teacherName||'',email=d.teacherEmail||'';if((!name||!email)&&d.teacherId){const u=await db.collection('users').doc(d.teacherId).get();if(u.exists){const ud=u.data();name=name||ud.name||ud.displayName||'';email=email||ud.email||'';}}const cls=displayClassName(d.className||d.class)||'Unassigned Class';const subject=displaySubjectName(d.subjectName||d.subject)||'';(groups[cls] ||= []).push({id:doc.id,d,name,email,subject});}));let html='';Object.keys(groups).sort(compareClassNames).forEach(cls=>{html+=`<h3 style="margin-top:20px;">${esc(cls)}</h3><table><thead><tr><th>Teacher Name</th><th>Email</th><th>Subject Allocated</th><th>Action</th></tr></thead><tbody>`;groups[cls].forEach(x=>{html+=`<tr><td>${esc(x.name)}</td><td>${esc(x.email)}</td><td>${esc(x.subject)}</td><td><button class="btn-secondary" onclick="editAllocationRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('allocations','${x.id}')">Delete</button></td></tr>`;});html+='</tbody></table>';});container.innerHTML=html;return;
