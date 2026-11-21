@@ -3369,6 +3369,12 @@ body{
                             </select>
                         </div>
                         <div id="transferStudentContainer" class="table-responsive"></div>
+                        <div style="margin-top:22px;border-top:1px solid #e2e8f0;padding-top:14px;">
+                            <h4>Graduated Students — 3-Month Retention</h4>
+                            <p style="font-size:13px;color:#64748b;">Graduates and all their results remain accessible here for three months from the graduation date, then are automatically deleted.</p>
+                            <button type="button" class="btn-secondary" onclick="loadGraduatedStudents()">Refresh Graduates</button>
+                            <div id="graduatedStudentsContainer" class="table-responsive"></div>
+                        </div>
                     </div>
 
                     <div id="tabMassTransfer" class="tab-pane">
@@ -5292,8 +5298,8 @@ body{
             } catch (e) { if (feedback) feedback.textContent = 'Could not save: ' + e.message; }
         }
 
-        async function recordFailedLogin(email, reason) {
-            try { await fetch(PAYMENT_SERVER_URL.replace(/\/$/, '') + '/api/security/login-attempt', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, reason }) }); } catch (_) {}
+        async function recordFailedLogin(email, reason, role) {
+            try { await fetch(PAYMENT_SERVER_URL.replace(/\/$/, '') + '/api/security/login-attempt', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email, reason, role }) }); } catch (_) {}
         }
         async function recordSuccessfulLogin() {
             try { await communicationApi('/api/security/login-success', { method:'POST', body:'{}' }); } catch (e) { console.warn('Login audit could not be recorded:', e.message); }
@@ -6072,7 +6078,7 @@ body{
                             displayMsg("Invalid teacher account credentials.");
                         }
                     } catch (err) {
-                        recordFailedLogin(email, 'teacher_authentication_failed');
+                        recordFailedLogin(email, 'teacher_authentication_failed', 'teacher');
                         displayMsg("Teacher Authentication Failed: " + err.message);
                     } finally {
                         submitAuthBtn.disabled = false;
@@ -6090,7 +6096,7 @@ body{
                         await auth.signInWithEmailAndPassword(SUPER_ADMIN_EMAIL, password);
                     } catch (err) {
                         pendingLoginRole = "";
-                        recordFailedLogin(email, 'superadmin_authentication_failed');
+                        recordFailedLogin(email, 'superadmin_authentication_failed', 'superadmin');
                         displayMsg("Super Admin Authentication Failed: " + err.message);
                     } finally {
                         submitAuthBtn.disabled = false;
@@ -6104,7 +6110,7 @@ body{
                         await auth.signInWithEmailAndPassword(email, password);
                     } catch (err) {
                         pendingLoginRole = "";
-                        recordFailedLogin(email, 'administrator_authentication_failed');
+                        recordFailedLogin(email, 'administrator_authentication_failed', 'admin');
                         displayMsg("Administrator Authentication Failed: " + err.message);
                     } finally {
                         submitAuthBtn.disabled = false;
@@ -6116,7 +6122,7 @@ body{
                         submitAuthBtn.textContent = "Authenticating...";
                         await auth.signInWithEmailAndPassword(email, password);
                     } catch (err) {
-                        recordFailedLogin(email, 'authentication_failed');
+                        recordFailedLogin(email, 'authentication_failed', role || 'unknown');
                         displayMsg("Authentication Failed: " + err.message);
                         submitAuthBtn.disabled = false;
                         submitAuthBtn.textContent = "Login";
@@ -8784,8 +8790,9 @@ body{
             container.innerHTML='<p>Loading students...</p>';
             try{const snap=await db.collection('students').where('schoolId','==',currentSchoolId).where('class','==',className).get(); if(snap.empty){container.innerHTML='<p>No students found in this class.</p>';return;}
                 const students=snap.docs.sort((a,b)=>String(a.data().name||'').localeCompare(String(b.data().name||''))); let html=`<h4 style="margin:14px 0;">${esc(className)}</h4><table><thead><tr><th>Student Name</th><th>ADM Number</th>`;
-                if(mode==='photos')html+='<th>Photo</th><th>Action</th>'; else if(mode==='transfer')html+='<th>Action</th>'; html+='</tr></thead><tbody>';
-                students.forEach(doc=>{const d=doc.data()||{}; if(mode==='photos'){const src=d.photoUrl||''; html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><div id="photoPreview-${doc.id}" style="min-height:90px;display:flex;align-items:center;justify-content:center;">${src?`<img src="${esc(src)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`:'<span style="color:#64748b;">No photo</span>'}</div><input type="file" id="photoInput-${doc.id}" accept="image/*" onchange="selectStudentPhoto('${doc.id}', this)"></td><td><button type="button" class="btn-success" onclick="saveStudentPhoto('${doc.id}')">Save</button> <button type="button" class="btn-danger" onclick="removeStudentPhoto('${doc.id}')">Remove</button></td></tr>`;} else if(mode==='transfer'){html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','next')">Promote to Next Class</button> <button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','previous')">Move to Previous Class</button></td></tr>`;}}); html+='</tbody></table>'; if(mode==='mass')html+=`<button class="btn-primary" style="margin-top:14px;" onclick="transferClassToNext('${esc(className)}')">Promote to Next Class Class</button>`; container.innerHTML=html;
+                if(mode==='photos')html+='<th>Photo</th><th>Action</th>'; else if(mode==='transfer')html+='<th>Action</th>'; else if(mode==='mass')html+='<th>Status</th>'; html+='</tr></thead><tbody>';
+                const orderedForActions=mode==='transfer'||mode==='mass'?await getOrderedClassNames():[]; const isFinalClass=orderedForActions.length>0&&String(orderedForActions[orderedForActions.length-1])===String(className);
+                students.forEach(doc=>{const d=doc.data()||{}; if(mode==='photos'){const src=d.photoUrl||''; html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td><div id="photoPreview-${doc.id}" style="min-height:90px;display:flex;align-items:center;justify-content:center;">${src?`<img src="${esc(src)}" alt="Student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`:'<span style="color:#64748b;">No photo</span>'}</div><input type="file" id="photoInput-${doc.id}" accept="image/*" onchange="selectStudentPhoto('${doc.id}', this)"></td><td><button type="button" class="btn-success" onclick="saveStudentPhoto('${doc.id}')">Save</button> <button type="button" class="btn-danger" onclick="removeStudentPhoto('${doc.id}')">Remove</button></td></tr>`;} else if(mode==='transfer'){html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td>${isFinalClass?`<button class="btn-primary" onclick="graduateSingleStudent('${doc.id}')">Graduate Student</button>`:`<button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','next')">Promote to Next Class</button>`} <button class="btn-secondary" onclick="transferSingleStudent('${doc.id}','previous')">Move to Previous Class</button></td></tr>`;} else if(mode==='mass'){html+=`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td>${String(d.status||'active').toLowerCase()==='graduated'?'Graduated':'Ready for mass promotion'}</td></tr>`;}}); html+='</tbody></table>'; if(mode==='mass')html+=`<p style="margin-top:10px;">${students.length} student(s) found in ${esc(className)}.</p><button class="btn-primary" style="margin-top:14px;" onclick="${isFinalClass?'graduateClass':'transferClassToNext'}('${esc(className)}')">${isFinalClass?'Graduate All Students':'Promote to Next Class'}</button>`; container.innerHTML=html;
             }catch(e){container.innerHTML='<p style="color:red;">Error loading students: '+esc(e.message)+'</p>';}
         }
         function selectStudentPhoto(studentId,input){const file=input.files&&input.files[0];if(!file)return;if(!file.type.startsWith('image/')){alert('Please select an image file.');input.value='';return;}if(file.size>25*1024*1024){alert('Photo must not exceed 25 MB.');input.value='';return;}pendingStudentPhotos[studentId]=file;const p=document.getElementById('photoPreview-'+studentId);if(p)p.innerHTML=`<img src="${URL.createObjectURL(file)}" alt="Selected student photo" style="width:75px;height:90px;object-fit:cover;border:1px solid #cbd5e1;border-radius:6px;">`;}
@@ -8817,6 +8824,70 @@ body{
             } catch(e) { console.warn('Could not update annual report promotion status:',e.message); }
         }
 
+        async function markAnnualReportAsGraduated(admissionNo, year, sourceClass) {
+            try {
+                const academicYear=String(year||'').trim(); if(!academicYear||!admissionNo)return;
+                const snap=await db.collection('studentResults').where('schoolId','==',currentSchoolId).get();
+                const docs=snap.docs.filter(d=>{const x=d.data()||{};return x.recordType==='annual_compiled'&&String(x.academicYear||'')===academicYear&&String(x.admissionNo||'')===String(admissionNo);});
+                for(const doc of docs) await doc.ref.update({promotionStatus:'graduated',graduatedFromClass:sourceClass,graduatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+            } catch(e) { console.warn('Could not update annual report graduation status:',e.message); }
+        }
+
+        async function graduateSingleStudent(studentId) {
+            try {
+                const studentRef=db.collection('students').doc(studentId);
+                const snap=await studentRef.get(); if(!snap.exists)return;
+                const student=snap.data()||{};
+                const classNames=await getOrderedClassNames();
+                const currentClass=String(student.class||'').trim();
+                if(!classNames.length||currentClass!==String(classNames[classNames.length-1])) { alert('Only students in the final configured class can graduate.'); return; }
+                const year=String(document.getElementById('transferYearSelect')?.value||'').trim();
+                if(!/^\d{4}$/.test(year)){alert('Select the graduation academic year first.');return;}
+                if(String(student.status||'').toLowerCase()==='graduated'||student.graduatedAt){alert('This student is already marked as graduated.');return;}
+                if(!confirm(`Mark ${student.name||'this student'} as graduated from ${currentClass}? Their student record and all results will be retained for three months, then automatically deleted.`))return;
+                const graduatedAt=new Date(); const expiresAt=new Date(graduatedAt); expiresAt.setMonth(expiresAt.getMonth()+3);
+                await studentRef.update({class:'',status:'graduated',graduationStatus:'graduated',graduatedFromClass:currentClass,graduationAcademicYear:year,graduatedAt:firebase.firestore.Timestamp.fromDate(graduatedAt),graduateExpiresAt:firebase.firestore.Timestamp.fromDate(expiresAt),lastPromotionType:'graduated'});
+                await markAnnualReportAsGraduated(student.admissionNo,year,currentClass);
+                alert('Student marked as graduated. Their record and results will remain available for three months.');
+                const selectedClass=document.getElementById('transferClassSelect')?.value||'';
+                await loadTransferStudents(selectedClass); await loadGraduatedStudents();
+            } catch(e) { alert('Graduation failed: '+e.message); }
+        }
+
+        async function graduateClass(className) {
+            try {
+                const classNames=await getOrderedClassNames();
+                if(!classNames.length||String(className)!==String(classNames[classNames.length-1])){alert('Only the final configured class can be graduated.');return;}
+                const snap=await db.collection('students').where('schoolId','==',currentSchoolId).where('class','==',className).get();
+                if(snap.empty){alert('No students found in this class.');return;}
+                const year=String(document.getElementById('massTransferYearSelect')?.value||'').trim();
+                if(!/^\d{4}$/.test(year)){alert('Select the graduation academic year first.');return;}
+                const graduates=snap.docs.filter(d=>{const x=d.data()||{};return String(x.status||'').toLowerCase()!=='graduated'&&!x.graduatedAt;});
+                if(!graduates.length){alert('All students in this class are already marked as graduated.');return;}
+                if(!confirm(`Graduate all ${graduates.length} students in ${className}? Their student records and all results will be retained for three months, then automatically deleted.`))return;
+                const graduatedAt=new Date(); const expiresAt=new Date(graduatedAt); expiresAt.setMonth(expiresAt.getMonth()+3);
+                for(let i=0;i<graduates.length;i+=400){const batch=db.batch();graduates.slice(i,i+400).forEach(doc=>batch.update(doc.ref,{class:'',status:'graduated',graduationStatus:'graduated',graduatedFromClass:className,graduationAcademicYear:year,graduatedAt:firebase.firestore.Timestamp.fromDate(graduatedAt),graduateExpiresAt:firebase.firestore.Timestamp.fromDate(expiresAt),lastPromotionType:'graduated'}));await batch.commit();}
+                const reports=await db.collection('studentResults').where('schoolId','==',currentSchoolId).get();
+                const admissions=new Set(graduates.map(d=>String((d.data()||{}).admissionNo||'')));
+                const matching=reports.docs.filter(d=>{const x=d.data()||{};return x.recordType==='annual_compiled'&&String(x.academicYear||'')===year&&admissions.has(String(x.admissionNo||''));});
+                for(let i=0;i<matching.length;i+=400){const batch=db.batch();matching.slice(i,i+400).forEach(d=>batch.update(d.ref,{promotionStatus:'graduated',graduatedFromClass:className,graduatedAt:firebase.firestore.FieldValue.serverTimestamp()}));await batch.commit();}
+                alert(graduates.length+' students marked as graduated. Their records and results will remain available for three months.');
+                await loadMassTransferStudents(className); await loadGraduatedStudents();
+            } catch(e) { alert('Class graduation failed: '+e.message); }
+        }
+
+        async function loadGraduatedStudents() {
+            const box=document.getElementById('graduatedStudentsContainer'); if(!box)return;
+            box.innerHTML='<p>Loading graduated students...</p>';
+            try {
+                const snap=await db.collection('students').where('schoolId','==',currentSchoolId).get();
+                const grads=snap.docs.map(d=>({id:d.id,...(d.data()||{})})).filter(d=>String(d.status||'').toLowerCase()==='graduated'||d.graduatedAt).sort((a,b)=>{const av=a.graduatedAt?.toDate?a.graduatedAt.toDate().getTime():0;const bv=b.graduatedAt?.toDate?b.graduatedAt.toDate().getTime():0;return bv-av;});
+                if(!grads.length){box.innerHTML='<p>No graduates currently in the three-month retention period.</p>';return;}
+                const dateText=v=>{const dt=v?.toDate?v.toDate():(v?new Date(v):null);return dt&&!isNaN(dt.getTime())?dt.toLocaleDateString(): '—';};
+                box.innerHTML=`<table><thead><tr><th>Student Name</th><th>ADM Number</th><th>Graduated From</th><th>Graduation Date</th><th>Scheduled Deletion</th></tr></thead><tbody>${grads.map(d=>`<tr><td>${esc(d.name||'')}</td><td>${esc(d.admissionNo||'')}</td><td>${esc(d.graduatedFromClass||'')}</td><td>${esc(dateText(d.graduatedAt))}</td><td>${esc(dateText(d.graduateExpiresAt))}</td></tr>`).join('')}</tbody></table>`;
+            } catch(e){box.innerHTML='<p style="color:red;">Could not load graduates: '+esc(e.message)+'</p>';}
+        }
+
         async function transferSingleStudent(studentId, direction) {
             try {
                 const studentRef = db.collection('students').doc(studentId);
@@ -8832,7 +8903,9 @@ body{
                     return;
                 }
 
-                const targetClass = direction === 'next' ? getNextPromotionClass(String(student.class||'').trim(),classNames) : getPreviousPromotionClass(String(student.class||'').trim(),classNames);
+                const currentClassName=String(student.class||'').trim();
+                if(direction==='next'&&classNames.length&&currentClassName===String(classNames[classNames.length-1])) { alert('Students in the final configured class must be graduated, not promoted to another class.'); return; }
+                const targetClass = direction === 'next' ? getNextPromotionClass(currentClassName,classNames) : getPreviousPromotionClass(currentClassName,classNames);
 
                 if (!targetClass) {
                     alert(direction === 'next' ? 'There is no next class configured.' : 'There is no previous class configured.');
@@ -8860,6 +8933,7 @@ body{
                 const classNames = await getOrderedClassNames();
                 const currentIndex = classNames.indexOf(String(className || '').trim());
                 const targetClass = getNextPromotionClass(String(className||'').trim(),classNames);
+                if(classNames.length&&String(className)===String(classNames[classNames.length-1])) { alert('Students in the final configured class must be graduated, not promoted to another class.'); return; }
 
                 if (currentIndex < 0 || !targetClass) {
                     alert('There is no next class configured.');
@@ -8896,7 +8970,7 @@ body{
             }
         }
 
-        function loadTransferStudents(v){ return loadStudentsByClass(v,'transferStudentContainer','transfer'); }
+        function loadTransferStudents(v){ loadGraduatedStudents(); return loadStudentsByClass(v,'transferStudentContainer','transfer'); }
         function loadMassTransferStudents(v){ return loadStudentsByClass(v,'massTransferContainer','mass'); }
         function loadStudentPhotos(v){ return loadStudentsByClass(v,'studentPhotoTableContainer','photos'); }
 
