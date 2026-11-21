@@ -9069,12 +9069,17 @@ body{
                         const bv=b.d.graduatedAt?.toDate?b.d.graduatedAt.toDate().getTime():0;
                         return bv-av;
                     });
+                    // Local formatter: dateText() used elsewhere is scoped to another function.
+                    const formatGraduateDate=value=>{
+                        const dt=value&&typeof value.toDate==='function'?value.toDate():(value?new Date(value):null);
+                        return dt&&!isNaN(dt.getTime())?dt.toLocaleDateString():'—';
+                    };
                     html+=`<h3 style="margin-top:28px;padding-top:16px;border-top:2px solid #e2e8f0;">Graduates <span style="font-size:12px;font-weight:normal;color:#64748b;">(${graduates.length} students)</span></h3>`;
                     if(graduates.length){
                         html+='<p style="font-size:13px;color:#64748b;">Graduated students remain listed here during the three-month retention period.</p>';
                         html+='<table><thead><tr><th>Name</th><th>ADM</th><th>Graduated From</th><th>Graduation Date</th><th>Scheduled Deletion</th><th>Action</th></tr></thead><tbody>';
                         graduates.forEach(x=>{
-                            html+=`<tr><td>${esc(x.d.name||'')}</td><td>${esc(x.d.admissionNo||'')}</td><td>${esc(x.d.graduatedFromClass||'')}</td><td>${esc(dateText(x.d.graduatedAt))}</td><td>${esc(dateText(x.d.graduateExpiresAt))}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;
+                            html+=`<tr><td>${esc(x.d.name||'')}</td><td>${esc(x.d.admissionNo||'')}</td><td>${esc(x.d.graduatedFromClass||'')}</td><td>${esc(formatGraduateDate(x.d.graduatedAt))}</td><td>${esc(formatGraduateDate(x.d.graduateExpiresAt))}</td><td><button class="btn-secondary" onclick="editStudentRecord('${x.id}')">Edit</button> <button class="btn-danger" onclick="deleteCollectionRecord('students','${x.id}')">Delete</button></td></tr>`;
                         });
                         html+='</tbody></table>';
                     } else {
